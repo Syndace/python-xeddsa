@@ -1,7 +1,8 @@
+import copy
 from ctypes import *
 import hashlib
 
-from ..xeddsa import XEdDSA, bytesToString
+from ..xeddsa import XEdDSA, bytesToString, toBytes
 
 from nacl.exceptions import BadSignatureError
 from nacl.public import PrivateKey as Curve25519DecryptionKey
@@ -33,7 +34,7 @@ class Ed25519Math(object):
     def bytes_to_int(bytes):
         value = 0
 
-        for i in range(32):
+        for i in range(len(bytes)):
             value |= bytes[i] << (i * 8)
 
         return value
@@ -95,26 +96,16 @@ class Ed25519Math(object):
         return cls.int_to_bytes(result)
 
     @classmethod
-    def sub(cls, minuend_bytes, subtrahend_bytes):
-        minuend = cls.__crypto_core_ed25519_bytes_type(*minuend_bytes)
-        subtrahend = cls.__crypto_core_ed25519_bytes_type(*subtrahend_bytes)
-
-        result = cls.__crypto_core_ed25519_bytes_type()
-
-        cls.__libsodium.crypto_core_ed25519_sub(result, minuend, subtrahend)
-
-        return [ x & 0xFF for x in result ]
+    def sub(cls, minuend_bytes, subtrahend):
+        minuend = cls.bytes_to_int(minuend_bytes)
+        result = minuend - subtrahend
+        return cls.int_to_bytes(result)
 
     @classmethod
-    def add(cls, addend_a_bytes, addend_b_bytes):
-        addend_a = cls.__crypto_core_ed25519_bytes_type(*addend_a_bytes)
-        addend_b = cls.__crypto_core_ed25519_bytes_type(*addend_b_bytes)
-
-        result = cls.__crypto_core_ed25519_bytes_type()
-
-        cls.__libsodium.crypto_core_ed25519_add(result, addend_a, addend_b)
-
-        return [ x & 0xFF for x in result ]
+    def add(cls, addend_a_bytes, addend_b):
+        addend_a = cls.bytes_to_int(addend_a_bytes)
+        result = addend_a + addend_b
+        return cls.int_to_bytes(result)
 
     @classmethod
     def mul(cls, multiplicand_bytes, multiplier_bytes, modulus):
@@ -128,7 +119,7 @@ class Ed25519Math(object):
 class XEdDSA25519(XEdDSA):
     @classmethod
     def _restoreEncryptionKey(cls, decryption_key):
-        return bytes(Curve25519DecryptionKey(decryption_key).public_key)
+        return toBytes(bytes(Curve25519DecryptionKey(bytesToString(decryption_key)).public_key))
 
     @classmethod
     def _sign(cls, message, nonce, verification_key, signing_key):
@@ -140,24 +131,22 @@ class XEdDSA25519(XEdDSA):
         a = signing_key
 
         # r = hash_1(a || M || Z) (mod q)
-        r = cls.__hash(cls.__concat(a, M, Z), 1)
-        r = Ed25519Math.mod(r, Ed25519Math.q)
+        r = cls.__hash(cls.__concat(a, M, Z), 1) % Ed25519Math.q
+        r = Ed25519Math.int_to_bytes(r)
 
         # R = rB
         R = Ed25519Math.scalarmult_base(r)
 
         # h = hash(R || A || M) (mod q)
-        h = cls.__hash(cls.__concat(R, A, M))
-        h = Ed25519Math.mod(h, Ed25519Math.q)
+        h = cls.__hash(cls.__concat(R, A, M)) % Ed25519Math.q
+        h = Ed25519Math.int_to_bytes(h)
 
         # s = r + ha (mod q)
         ha = Ed25519Math.mul(h, a, Ed25519Math.q)
 
-        s = Ed25519Math.add(r, ha)
+        s = Ed25519Math.add(r, Ed25519Math.bytes_to_int(ha))
 
         signature = bytesToString(cls.__concat(R, s))
-
-        print "Signature is:", cls._verify(message, signature, verification_key)
 
         return signature
 
@@ -173,6 +162,8 @@ class XEdDSA25519(XEdDSA):
 
     @classmethod
     def _mont_priv_to_ed_pair(cls, mont_priv):
+        mont_priv = copy.deepcopy(mont_priv)
+
         # Get the twisted edwards public key, including the sign bit
         ed_pub = Ed25519Math.scalarmult_base(mont_priv)
 
@@ -197,8 +188,8 @@ class XEdDSA25519(XEdDSA):
 
         # Convert the Montgomery public key to a twisted Edwards public key by calculating
         # y = (u - 1) * inv(u + 1) (mod p)
-        mont_pub_minus_one    = Ed25519Math.sub(mont_pub_masked, Ed25519Math.ONE)
-        mont_pub_plus_one     = Ed25519Math.add(mont_pub_masked, Ed25519Math.ONE)
+        mont_pub_minus_one    = Ed25519Math.sub(mont_pub_masked, 1)
+        mont_pub_plus_one     = Ed25519Math.add(mont_pub_masked, 1)
         mont_pub_plus_one_inv = Ed25519Math.invert(mont_pub_plus_one)
 
         ed_pub = Ed25519Math.mul(mont_pub_minus_one, mont_pub_plus_one_inv, Ed25519Math.p)
@@ -214,10 +205,10 @@ class XEdDSA25519(XEdDSA):
 
     @classmethod
     def __hash(cls, bytes, index = None):
-        def _hash(bytes):
-            byte_string = reduce(lambda x, y: x + y, [ chr(x) for x in bytes ])
-            hash_digest = hashlib.sha512(byte_string).digest()
-            return [ ord(x) for x in hash_digest ]
+        def _hash(data):
+            bytestring = bytesToString(data)
+            hash_digest = hashlib.sha512(bytestring).digest()
+            return Ed25519Math.bytes_to_int(toBytes(hash_digest))
 
         if index:
             padding = [ Ed25519Math.b - 1 - index ]

@@ -9,11 +9,14 @@ class XEdDSA(object):
         self._decryption_key = decryption_key
         self._encryption_key = encryption_key
 
+        if self._decryption_key:
+            self._decryption_key = toBytes(self._decryption_key)
+
+        if self._encryption_key:
+            self._encryption_key = toBytes(self._encryption_key)
+
         if self._decryption_key and not self._encryption_key:
             self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
-
-        self._decryption_key = toBytes(self._decryption_key)
-        self._encryption_key = toBytes(self._encryption_key)
 
     def sign(self, message, nonce):
         if not self._decryption_key:
