@@ -1,86 +1,69 @@
-from ctypes import *
-import struct
+def bytesToString(bytes):
+    return reduce(lambda x, y: x + y, [ chr(x) for x in bytes ])
 
-libsodium = cdll.LoadLibrary("/usr/local/lib/libsodium.so")
+def toBytes(data):
+    return [ ord(x) for x in data ]
 
-crypto_scalarmult_ed25519_type        = c_byte * libsodium.crypto_scalarmult_ed25519_bytes()
-crypto_scalarmult_ed25519_scalar_type = c_byte * libsodium.crypto_scalarmult_ed25519_scalarbytes()
+class XEdDSA(object):
+    def __init__(self, decryption_key = None, encryption_key = None):
+        self._decryption_key = decryption_key
+        self._encryption_key = encryption_key
 
-def crypto_scalarmult_ed25519_base(scalar):
-    scalar = crypto_scalarmult_ed25519_scalar_type(*scalar)
-    result = crypto_scalarmult_ed25519_type()
+        if self._decryption_key and not self._encryption_key:
+            self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
 
-    libsodium.crypto_scalarmult_ed25519_base(result, scalar)
+        self._decryption_key = toBytes(self._decryption_key)
+        self._encryption_key = toBytes(self._encryption_key)
 
-    return result
+    def sign(self, message, nonce):
+        if not self._decryption_key:
+            raise MissingKeyException("Cannot sign using this XEdDSA instance, Montgomery decryption key missing")
 
-def mont_priv_to_ed_pair(mont_priv):
-    # Get the twisted edwards public key, including the sign bit
-    ed_pub = crypto_scalarmult_ed25519_base(mont_priv)
+        self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))
 
-    # Save the sign bit for later
-    sign_bit = (ed_pub[31] & 0x80) >> 7
+    def verify(self, message, signature):
+        if not self._encryption_key:
+            raise MissingKeyException("Cannot verify using this XEdDSA instance, Montgomery encryption key missing")
 
-    # Force the sign bit to zero
-    ed_pub[31] &= 0x7F
+        self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
 
-    # Prepare the negated montgomery private key
-    mont_priv_neg = neg(mont_priv)
+    @classmethod
+    def _restoreEncryptionKey(cls, decryption_key):
+        """
+        Restore the encryption key from a given Montgomery decryption key and return it.
+        """
 
-    # Get the correct private key based on the sign stored above
-    ed_priv = either(mont_priv, mont_priv_neg, sign_bit)
+        raise NotImplementedError
 
-    return to_byte_array(ed_priv), to_byte_array(ed_pub)
+    @classmethod
+    def _sign(cls, message, nonce, verification_key, signing_key):
+        """
+        Return the detached signature.
+        """
 
-def to_byte_array(array):
-    return bytes(bytearray(array))
+        raise NotImplementedError
 
-def bytes_to_int(bytes):
-    value = 0
+    @classmethod
+    def _verify(cls, message, signature, verification_key):
+        """
+        Return a boolean indicating verification success.
+        """
 
-    for i in range(32):
-        value |= bytes[i] << (i * 8)
+        raise NotImplementedError
 
-    return value
+    @classmethod
+    def _mont_priv_to_ed_pair(cls, mont_priv):
+        """
+        Derive a twisted Edwards key pair from a Montgomery private key.
+        Return public key, private key.
+        """
 
-def int_to_bytes(value):
-    result = []
+        raise NotImplementedError
 
-    for i in range(32):
-        result.append(value & 0xFF)
-        value >>= 8
+    @classmethod
+    def _mont_pub_to_ed_pub(cls, mont_pub):
+        """
+        Derive a twisted Edwards public key from a Montgomery public key.
+        """
 
-    return result
-
-p = pow(2, 255) - 19
-
-def neg(a):
-    return int_to_bytes(pow(bytes_to_int(a), p - 2, p))
-
-def either(a, b, condition):
-    # Create an 8 bit mask of either all zeros or all ones
-    condition = (condition << 0 | condition << 1 |
-                 condition << 2 | condition << 3 |
-                 condition << 4 | condition << 5 |
-                 condition << 6 | condition << 7 )
-
-    tmp = []
-
-    # Mix (xor) together a and b
-    for x, y in zip(a, b):
-        tmp.append(x ^ y)
-
-    # Either keep the mixed values as they are or reset them to zeros
-    for i in range(len(tmp)):
-        tmp[i] &= condition
-
-    result = []
-
-    # Build the resulting values:
-    # y contains either a ^ b bytes or zeros, x contains bytes of a.
-    # If y contains zeros, the result will be a.
-    # Otherwise, a ^ a ^ b will get calculated which results in b.
-    for x, y in zip(a, tmp):
-        result.append(x ^ y)
-
-    return result
+        raise NotImplementedError

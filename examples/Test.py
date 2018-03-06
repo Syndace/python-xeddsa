@@ -7,55 +7,47 @@ from nacl.signing import VerifyKey  as Ed25519VerifyingKey
 
 from nacl.exceptions import BadSignatureError
 
-from xeddsa import mont_priv_to_ed_pair
+from xeddsa.implementations import XEdDSA25519
+
+def toByteArray(string):
+    return [ ord(x) for x in string ]
 
 signing_key      = Ed25519SigningKey.generate()
 verification_key = signing_key.verify_key
 decryption_key   = signing_key.to_curve25519_private_key()
 encryption_key   = verification_key.to_curve25519_public_key()
 
-xeddsa_signing_key, xeddsa_verification_key = mont_priv_to_ed_pair([ ord(x) for x in bytes(decryption_key) ])
-xeddsa_signing_key      = Ed25519SigningKey(xeddsa_signing_key)
-xeddsa_verification_key = Ed25519VerifyingKey(xeddsa_verification_key)
+xeddsa = XEdDSA25519(decryption_key = bytes(decryption_key))
 
-message = os.urandom(100)
+message       = os.urandom(100)
+message_bytes = toByteArray(message)
 
-if bytes(xeddsa_signing_key) == bytes(signing_key):
-    print "Same private keys"
-else:
-    print "Different private keys"
-
-if bytes(xeddsa_verification_key) == bytes(verification_key):
-    print "Same public keys"
-else:
-    print "Different public keys"
-
-signed_message = signing_key.sign(message)
-xeddsa_signed_message = xeddsa_signing_key.sign(message)
+signature        = signing_key.sign(message).signature
+xeddsa_signature = xeddsa.sign(message_bytes, toByteArray(os.urandom(64)))
 
 try:
-	assert verification_key.verify(signed_message) == message
+	assert verification_key.verify(message, signature) == message
 except (BadSignatureError, AssertionError):
 	print "Message verification failed!"
 
 try:
-	assert xeddsa_verification_key.verify(xeddsa_signed_message) == message
+	assert xeddsa.verify(message_bytes, xeddsa_signature) == message_bytes
 except (BadSignatureError, AssertionError):
 	print "XEdDSA message verification failed!"
 
-if signed_message == xeddsa_signed_message:
+if signature == xeddsa_signature:
 	print "Signed messages are equal!"
 else:
 	print "Signed messages are unequal."
 
 try:
-	assert verification_key.verify(xeddsa_signed_message) == message
+	assert verification_key.verify(message, xeddsa_signature) == message
 	print "Non-XEdDSA verification key successfully verified XEdDSA signed message!"
 except (BadSignatureError, AssertionError):
 	print "Non-XEdDSA verification key was not abled to verify XEdDSA signed message."
 
 try:
-	assert xeddsa_verification_key.verify(signed_message) == message
+	assert xeddsa.verify(message_bytes, signature) == message_bytes
 	print "XEdDSA verification key successfully verified Non-XEdDSA signed message!"
 except (BadSignatureError, AssertionError):
 	print "XEdDSA verification key was not abled to verify Non-XEdDSA signed message."
