@@ -116,6 +116,16 @@ class Ed25519Math(object):
 
         return cls.int_to_bytes(result)
 
+    @classmethod
+    def muladd(cls, multiplicand_bytes, multiplier_bytes, addend_bytes, modulus):
+        multiplicand = cls.bytes_to_int(multiplicand_bytes)
+        multiplier   = cls.bytes_to_int(multiplier_bytes)
+        addend       = cls.bytes_to_int(addend_bytes)
+
+        result = (multiplicand * multiplier + addend) % modulus
+
+        return cls.int_to_bytes(result)
+
 class XEdDSA25519(XEdDSA):
     @classmethod
     def _restoreEncryptionKey(cls, decryption_key):
@@ -134,17 +144,25 @@ class XEdDSA25519(XEdDSA):
         r = cls.__hash(cls.__concat(a, M, Z), 1) % Ed25519Math.q
         r = Ed25519Math.int_to_bytes(r)
 
+        print "First hash result after reduction b4 clamp:", r
+        
+        r[0] &= 248
+        r[31] &= 127
+        r[31] |= 64
+
+        print "First hash result after reduction after clamp:", r
+
         # R = rB
         R = Ed25519Math.scalarmult_base(r)
+
+        print "R:", R
 
         # h = hash(R || A || M) (mod q)
         h = cls.__hash(cls.__concat(R, A, M)) % Ed25519Math.q
         h = Ed25519Math.int_to_bytes(h)
 
         # s = r + ha (mod q)
-        ha = Ed25519Math.mul(h, a, Ed25519Math.q)
-
-        s = Ed25519Math.add(r, Ed25519Math.bytes_to_int(ha))
+        s = Ed25519Math.muladd(h, a, r, Ed25519Math.q)
 
         signature = bytesToString(cls.__concat(R, s))
 
@@ -211,7 +229,11 @@ class XEdDSA25519(XEdDSA):
             return Ed25519Math.bytes_to_int(toBytes(hash_digest))
 
         if index:
-            padding = [ Ed25519Math.b - 1 - index ]
-            return _hash(cls.__concat(padding, bytes))
+            padding_int = pow(2, Ed25519Math.b) - 1 - index
+            padding = Ed25519Math.int_to_bytes(padding_int)
+            data = cls.__concat(padding, bytes)
+            print "Number of bytes in first hash:", len(data)
+            print data
+            return _hash(data)
         else:
             return _hash(bytes)

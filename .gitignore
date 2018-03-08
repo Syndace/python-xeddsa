@@ -1,3 +1,6 @@
 *.pyc
 *.tmp
 build/
+*.o
+*.so
+ref10/bin
