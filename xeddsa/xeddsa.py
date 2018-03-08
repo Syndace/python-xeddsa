@@ -9,12 +9,6 @@ class XEdDSA(object):
         self._decryption_key = decryption_key
         self._encryption_key = encryption_key
 
-        if self._decryption_key:
-            self._decryption_key = toBytes(self._decryption_key)
-
-        if self._encryption_key:
-            self._encryption_key = toBytes(self._encryption_key)
-
         if self._decryption_key and not self._encryption_key:
             self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
 
@@ -22,13 +16,13 @@ class XEdDSA(object):
         if not self._decryption_key:
             raise MissingKeyException("Cannot sign using this XEdDSA instance, Montgomery decryption key missing")
 
-        self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))
+        return self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))
 
     def verify(self, message, signature):
         if not self._encryption_key:
             raise MissingKeyException("Cannot verify using this XEdDSA instance, Montgomery encryption key missing")
 
-        self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
+        return self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
 
     @classmethod
     def _restoreEncryptionKey(cls, decryption_key):
