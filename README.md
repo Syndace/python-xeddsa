@@ -18,7 +18,7 @@ Your `LD_LIBRARY_PATH` environment variable is expected to point to the path the
 
 If these requirements are met, the ref10 library can be built by running `make` in the ref10 directory.
 
-Now, add the newly created directory path `ref10/bin` to your `PATH` environment variable or move the `libref10.so` manually and you're set!
+Now, add the newly created directory path `ref10/bin` to your `PATH` and your `LD_LIBRARY_PATH` environment variables or move the `libref10.so` manually and you're set!
 
 The ref10 implementation is released under creative commons license.
 
