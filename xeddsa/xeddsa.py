@@ -22,11 +22,23 @@ class XEdDSA(object):
         if not self._decryption_key:
             raise MissingKeyException("Cannot sign using this XEdDSA instance, Montgomery decryption key missing")
 
+        if isinstance(message, str):
+            message = toBytes(message)
+
+        if isinstance(nonce, str):
+            nonce = toBytes(nonce)
+
         return self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))
 
     def verify(self, message, signature):
         if not self._encryption_key:
             raise MissingKeyException("Cannot verify using this XEdDSA instance, Montgomery encryption key missing")
+
+        if isinstance(message, str):
+            message = toBytes(message)
+
+        if isinstance(signature, str):
+            signature = toBytes(signature)
 
         return self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
 
