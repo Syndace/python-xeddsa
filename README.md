@@ -21,3 +21,7 @@ If these requirements are met, the ref10 library can be built by running `make` 
 Now, add the newly created directory path `ref10/bin` to your `PATH` environment variable or move the `libref10.so` manually and you're set!
 
 The ref10 implementation is released under creative commons license.
+
+### NOTICE
+This implementation is meant as a transitional solution until one of the big crypto libraries like libsodium picks up XEdDSA.
+Please expect this implementation to disappear at some point.
