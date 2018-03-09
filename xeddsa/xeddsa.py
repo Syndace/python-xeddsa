@@ -9,6 +9,12 @@ class XEdDSA(object):
         self._decryption_key = decryption_key
         self._encryption_key = encryption_key
 
+        if isinstance(self._decryption_key, str):
+            self._decryption_key = toBytes(self._decryption_key)
+
+        if isinstance(self._encryption_key, str):
+            self._encryption_key = toBytes(self._encryption_key)
+
         if self._decryption_key and not self._encryption_key:
             self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
 
