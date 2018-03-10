@@ -1,22 +1,25 @@
 # I can't believe they moved reduce from the global space :(
 from functools import reduce
 
-def bytesToString(bytes):
-    return reduce(lambda x, y: x + y, [ chr(x) for x in bytes ])
+def bytesToString(data):
+    return bytes(bytearray(data))
 
 def toBytes(data):
-    return [ ord(x) for x in data ]
+    def toInt(x):
+        try:
+            return ord(x)
+        except TypeError:
+            return x
+
+    try:
+        return [ toInt(x) for x in data ]
+    except TypeError:
+        return data
 
 class XEdDSA(object):
     def __init__(self, decryption_key = None, encryption_key = None):
-        self._decryption_key = decryption_key
-        self._encryption_key = encryption_key
-
-        if isinstance(self._decryption_key, str):
-            self._decryption_key = toBytes(self._decryption_key)
-
-        if isinstance(self._encryption_key, str):
-            self._encryption_key = toBytes(self._encryption_key)
+        self._decryption_key = toBytes(decryption_key)
+        self._encryption_key = toBytes(encryption_key)
 
         if self._decryption_key and not self._encryption_key:
             self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
@@ -25,11 +28,8 @@ class XEdDSA(object):
         if not self._decryption_key:
             raise MissingKeyException("Cannot sign using this XEdDSA instance, Montgomery decryption key missing")
 
-        if isinstance(message, str):
-            message = toBytes(message)
-
-        if isinstance(nonce, str):
-            nonce = toBytes(nonce)
+        message = toBytes(message)
+        nonce = toBytes(nonce)
 
         return self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))
 
@@ -37,11 +37,8 @@ class XEdDSA(object):
         if not self._encryption_key:
             raise MissingKeyException("Cannot verify using this XEdDSA instance, Montgomery encryption key missing")
 
-        if isinstance(message, str):
-            message = toBytes(message)
-
-        if isinstance(signature, str):
-            signature = toBytes(signature)
+        message = toBytes(message)
+        signature = toBytes(signature)
 
         return self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
 

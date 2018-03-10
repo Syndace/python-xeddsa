@@ -4,11 +4,11 @@ import os
 
 from xeddsa.implementations import XEdDSA25519
 
-from conversion import montgomery_private_keys, bytesToString, toBytes
+from conversion import montgomery_private_keys
 
 if __name__ == "__main__":
-    message = toBytes(os.urandom(100))
-    nonce   = toBytes(os.urandom(64))
+    message = os.urandom(100)
+    nonce   = os.urandom(64)
 
     tests = 0
     successes = 0

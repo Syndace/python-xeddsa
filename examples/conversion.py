@@ -5,12 +5,6 @@ from functools import reduce
 
 from xeddsa.implementations import XEdDSA25519
 
-def bytesToString(bytes):
-    return reduce(lambda x, y: x + y, [ chr(x) for x in bytes ])
-
-def toBytes(data):
-    return [ ord(x) for x in data ]
-
 montgomery_private_keys = [
     [  64,  81, 123, 142, 221, 174,  16,  38, 255, 223,  32,  95, 158, 218,  21, 218, 204,  14, 249, 236, 175,  89, 128, 135,   8, 249,  66,  45,  48, 180,  87,  76 ],
     [  56, 177, 193,  66,  67, 151, 206,  89, 145,  55,  11,  49,  82, 238, 237,  21,  90,  69,   0,  81,  51, 181, 177,  45, 110, 232,  47,  23,  47,  95, 111,  97 ],
