@@ -1,3 +1,6 @@
+# I can't believe they moved reduce from the global space :(
+from functools import reduce
+
 def bytesToString(bytes):
     return reduce(lambda x, y: x + y, [ chr(x) for x in bytes ])
 

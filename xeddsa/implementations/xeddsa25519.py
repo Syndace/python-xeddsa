@@ -1,9 +1,12 @@
 import copy
 import hashlib
 
+# I can't believe they moved reduce from the global space :(
+from functools import reduce
+
 from ..xeddsa import XEdDSA, bytesToString, toBytes
 
-from ref10 import *
+from .ref10 import *
 
 from nacl.exceptions import BadSignatureError
 from nacl.public import PrivateKey as Curve25519DecryptionKey

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 
 from xeddsa.implementations import XEdDSA25519
@@ -17,12 +19,12 @@ if __name__ == "__main__":
         signature = xeddsa.sign(message, nonce)
 
         if xeddsa.verify(message, signature):
-            print "Test #" + str(tests + 1) + " successful!"
+            print("Test #" + str(tests + 1) + " successful!")
             successes += 1
         else:
-            print ""
-            print "Test #" + str(tests + 1) + " failed."
+            print("")
+            print("Test #" + str(tests + 1) + " failed.")
 
         tests += 1
 
-    print "All tests done, " + str(successes) + "/" + str(tests) + " successful."
+    print("All tests done, " + str(successes) + "/" + str(tests) + " successful.")
