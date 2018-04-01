@@ -50,7 +50,7 @@ class XEdDSA25519(XEdDSA):
         # s = r + ha (mod q)
         s = sc_muladd(h, a, r)
 
-        return cls.__concat(R, s)
+        return bytesToString(cls.__concat(R, s))
 
     @classmethod
     def _verify(cls, message, signature, verification_key):
