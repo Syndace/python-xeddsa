@@ -4,3 +4,4 @@ build/
 *.o
 *.so
 ref10/bin
+.pytest_cache
