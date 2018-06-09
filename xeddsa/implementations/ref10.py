@@ -1,6 +1,6 @@
 from ctypes import *
 
-ref10 = cdll.LoadLibrary("libref10.so")
+crypto_sign = cdll.LoadLibrary("crypto_sign.so")
 
 ###############################################################################
 # Utilities                                                                   #
@@ -20,37 +20,37 @@ def fe_frombytes(fe_bytes_BYTES):
     fe_bytes_BYTES = wrap(fe_bytes_BYTES, fe_bytes)
 
     result = fe()
-    ref10.crypto_sign_ed25519_ref10_fe_frombytes(result, fe_bytes_BYTES)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_frombytes(result, fe_bytes_BYTES)
     return result
 
 def fe_tobytes(fe_FE):
     result = fe_bytes()
-    ref10.crypto_sign_ed25519_ref10_fe_tobytes(result, fe_FE)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_tobytes(result, fe_FE)
     return list(result)
 
 def fe_1():
     result = fe()
-    ref10.crypto_sign_ed25519_ref10_fe_1(result)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_1(result)
     return result
 
 def fe_add(fe_ADDEND_A, fe_ADDEND_B):
     result = fe()
-    ref10.crypto_sign_ed25519_ref10_fe_add(result, fe_ADDEND_A, fe_ADDEND_B)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_add(result, fe_ADDEND_A, fe_ADDEND_B)
     return result
 
 def fe_sub(fe_MINUEND, fe_SUBTRAHEND):
     result = fe()
-    ref10.crypto_sign_ed25519_ref10_fe_sub(result, fe_MINUEND, fe_SUBTRAHEND)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_sub(result, fe_MINUEND, fe_SUBTRAHEND)
     return result
 
 def fe_mul(fe_MULTIPLICAND, fe_MULTIPLIER):
     result = fe()
-    ref10.crypto_sign_ed25519_ref10_fe_mul(result, fe_MULTIPLICAND, fe_MULTIPLIER)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_mul(result, fe_MULTIPLICAND, fe_MULTIPLIER)
     return result
 
 def fe_invert(fe_FE):
     result = fe()
-    ref10.crypto_sign_ed25519_ref10_fe_invert(result, fe_FE)
+    crypto_sign.crypto_sign_ed25519_ref10_fe_invert(result, fe_FE)
     return result
 
 ###############################################################################
@@ -66,7 +66,7 @@ ge_p3_bytes = c_uint8 * 32
 
 def ge_p3_tobytes(ge_p3_POINT):
     result = ge_p3_bytes()
-    ref10.crypto_sign_ed25519_ref10_ge_p3_tobytes(result, byref(ge_p3_POINT))
+    crypto_sign.crypto_sign_ed25519_ref10_ge_p3_tobytes(result, byref(ge_p3_POINT))
     return list(result)
 
 scalar_bytes = c_uint8 * 32
@@ -75,7 +75,7 @@ def ge_scalarmult_base(scalar_bytes_SCALAR):
     scalar_bytes_SCALAR = wrap(scalar_bytes_SCALAR, scalar_bytes)
 
     result = ge_p3()
-    ref10.crypto_sign_ed25519_ref10_ge_scalarmult_base(byref(result), scalar_bytes_SCALAR)
+    crypto_sign.crypto_sign_ed25519_ref10_ge_scalarmult_base(byref(result), scalar_bytes_SCALAR)
     return result
 
 ###############################################################################
@@ -87,7 +87,7 @@ sc_reduce_bytes = c_uint8 * 64
 def sc_reduce(sc_reduce_bytes_SC):
     sc_reduce_bytes_SC = wrap(sc_reduce_bytes_SC, sc_reduce_bytes)
 
-    ref10.crypto_sign_ed25519_ref10_sc_reduce(sc_reduce_bytes_SC)
+    crypto_sign.crypto_sign_ed25519_ref10_sc_reduce(sc_reduce_bytes_SC)
 
     return list(sc_reduce_bytes_SC)[:32]
 
@@ -97,7 +97,7 @@ def sc_muladd(sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND):
     sc_bytes_ADDEND       = wrap(sc_bytes_ADDEND, sc_bytes)
 
     result = sc_bytes()
-    ref10.crypto_sign_ed25519_ref10_sc_muladd(result, sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND)
+    crypto_sign.crypto_sign_ed25519_ref10_sc_muladd(result, sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND)
     return list(result)
 
 ###############################################################################

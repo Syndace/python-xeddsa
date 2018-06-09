@@ -10,18 +10,11 @@ It is most probably **NOT RESISTENT TO SIDE CHANNEL ATTACKS** and you should **N
 I hope some cryptographer can confirm/improve the security of this code in the near future.
 
 #### Ref10
-The python-xeddsa library uses the ref10 Ed25519 C & ASM implementation found in the ref10 directory.
-Building ref10 requires libsodium to be installed.
-The library headers of libsodium are expected to be located in `/usr/local/include/sodium/` - if that's not the case, please correct the Makefile located in ref10 accordingly.
+The python-xeddsa library uses the ref10 C & ASM implementation of curve25519 and ed25519 found in the ref10 directory.
 
-Your `LD_LIBRARY_PATH` environment variable is expected to point to the path the `libsodium.so` and `libsodium.a` files can be found.
-
-If these requirements are met, the ref10 library can be built by running `make` in the ref10 directory.
-
-Now, add the newly created directory path `ref10/bin` to your `PATH` and your `LD_LIBRARY_PATH` environment variables or move the `libref10.so` manually and you're set!
-
-The ref10 implementation is released under creative commons license.
+Just run `make` in the `ref10` directory and it should generate the two required files: `ref10/bin/crypto_scalarmult.so` and `ref10/bin/crypto_sign.so`.
+Please make sure these files can be found using your PATH environment variable.
 
 ### NOTICE
-This implementation is meant as a transitional solution until one of the big crypto libraries like libsodium picks up XEdDSA.
-Please expect this implementation to disappear at some point.
+This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.
+The [version 1.0 roadmap](https://download.libsodium.org/doc/internals/roadmap.html) of libsodium lists XEdDSA, it might only take a few more months to get a stable and secure implementation.
