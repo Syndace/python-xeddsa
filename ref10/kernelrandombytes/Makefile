@@ -1,20 +1,28 @@
-CC     = /usr/bin/gcc
-CFLAGS = -Wall -Werror -g
+CC      = /usr/bin/gcc
+CFLAGS  = -Wall -Werror -g
+OBJECTS = $(patsubst %.c,%.o,$(wildcard get*.c))
 
-kernelrandombytes.a:
-	mkdir -p bin
-	($(CC) $(CFLAGS) -c -fpic -x c getentropy.c  && mv getentropy.o  kernelrandombytes.o) || \
-	($(CC) $(CFLAGS) -c -fpic -x c getentropy2.c && mv getentropy2.o kernelrandombytes.o) || \
-	($(CC) $(CFLAGS) -c -fpic -x c getrandom.c   && mv getrandom.o   kernelrandombytes.o) || \
-	($(CC) $(CFLAGS) -c -fpic -x c getrandom2.c  && mv getrandom2.o  kernelrandombytes.o) || \
-	($(CC) $(CFLAGS) -c -fpic -x c getrandom3.c  && mv getrandom3.o  kernelrandombytes.o) || \
-	($(CC) $(CFLAGS) -c -fpic -x c urandom.c     && mv urandom.o     kernelrandombytes.o)
+.PHONY: all test clean
+
+all: bin/kernelrandombytes.a bin/test
+
+bin/kernelrandombytes.a: bin kernelrandombytes.o
 	ar rcs bin/kernelrandombytes.a kernelrandombytes.o
 
-test: kernelrandombytes.a
+bin/test: bin/kernelrandombytes.a
 	$(CC) $(CFLAGS) -x c test.c -o bin/test -Lbin -l:kernelrandombytes.a
+
+test: bin/test
 	bin/test
 
+kernelrandombytes.o: | $(OBJECTS) urandom.o
+
+bin:
+	mkdir -p bin
+
+%.o: %.c
+	-$(CC) $(CFLAGS) -c -fpic -x c -o "$@" "$<" && cp -n "$@" kernelrandombytes.o
+
 clean:
-	rm -f *.o
 	rm -rf bin
+	rm -f *.o

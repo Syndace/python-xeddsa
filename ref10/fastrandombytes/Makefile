@@ -1,11 +1,18 @@
-CC     = /usr/bin/gcc
-CFLAGS = -Wall -Werror -g
+CC      = /usr/bin/gcc
+CFLAGS  = -Wall -Werror -g
+OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
 
-fastrandombytes.a:
+.PHONY: clean
+
+bin/fastrandombytes.a: bin $(OBJECTS)
+	ar rcs bin/fastrandombytes.a *.o
+
+bin:
 	mkdir -p bin
-	$(CC) $(CFLAGS) -I../kernelrandombytes -I../crypto_rng -c -fpic -x c fastrandombytes.c
-	ar rcs bin/fastrandombytes.a fastrandombytes.o
+
+%.o: %.c
+	$(CC) $(CFLAGS) -I../kernelrandombytes -I../crypto_rng -c -fpic -x c -o "$@" "$<"
 
 clean:
-	rm -f *.o
 	rm -rf bin
+	rm -f *.o

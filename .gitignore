@@ -1,7 +1,14 @@
-*.pyc
-*.tmp
 build/
 *.o
 *.so
-ref10/bin
+*.preprocessed
+
 .pytest_cache
+*.pyc
+
+ref10/bin
+ref10/*/bin
+
+xeddsa/implementations/cffi/_crypto*
+
+*.tmp

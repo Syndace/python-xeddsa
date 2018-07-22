@@ -1,0 +1,23 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+
+env:
+  - PYNACL_VERSION=1.2.1 # Most recent version on pip
+  - PYNACL_VERSION=1.0.1 # Version in Debian 9's apt repositories
+  - CFFI_VERSION=1.11.5 # Most recent version on pip
+  - CFFI_VERSION=1.9.1  # Version in Debian 9's apt repositories
+
+install:
+  - pip install pynacl==$PYNACL_VERSION
+  - pip install cffi==$CFFI_VERSION
+  - pip install -r requirements.txt
+  - python setup.py install
+
+script: py.test

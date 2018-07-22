@@ -14,7 +14,7 @@ __NOTE__: This guide assumes a 64 bit operating system.
 
 The first step is to download and run the benchmark. The benchmark generates some files on-the-fly, based on your os/system architecture. We need some of these generated files to build ref10 standalone, that's why the benchmark has to run first. Note that the benchmark is HUGE and it may take multiple days to finish one run. Follow the instructions [here](https://bench.cr.yp.to/supercop.html) to run the "Alternative: Incremental benchmarks".
 
-__NOTE__: Consider actually closing all other applications and running the benchmark as intended, look at the SUPERCOP website for addition information.
+__NOTE__: Consider actually closing all other applications and running the benchmark as intended, look at the SUPERCOP website for additional information.
 
 ### 2. Extract the ref10 source code
 
@@ -57,7 +57,7 @@ $ gcc -Wall -Werror -g -shared -Wl,--no-undefined -o crypto_scalarmult.so *.o
 The crypto_sign module is a lot trickier, because it has quite a few dependencies. Most of these are easy to build though. crypto_sign needs:
 
 - An implementation of sha512
-- An implementation of the 32 byte verification
+- An implementation of 32 byte verification
 - A random number source
 
 The benchmark comes with multiple implementations for each of these dependencies and automatically selects the best performing one. This guide focusses on portable implementations, using ref10 or its predecessor ref whenever possible.
@@ -132,13 +132,27 @@ Use the `-I<path>` option to tell gcc where to find missing headers.
 
 ### 2.2.4. `kernelrandombytes`
 
-The `kernelrandombytes` module is the only one containing os-dependent code. It contains different implementations of the same function, where each implementation uses different apis that may be available on some operating system and may not be available on other ones. The idea is to just use the first file that compiles successfully. Only use the `urandom.c` file if all other options fail on your os, it is the least stable/secure one. [This article](https://lwn.net/Articles/606141/) has an interesting explaination, why using system calls is better then relying on `/dev/urandom`.
+The `kernelrandombytes` module is the only one containing os-dependent code. It contains different implementations of the same function, where each implementation uses different apis that may be available on some operating system and may not be available on other ones. The idea is to just use the first file that compiles successfully. Only use the `urandom.c` file if all other options fail on your os, it is the least stable/secure one. [This article](https://lwn.net/Articles/606141/) has an interesting explanation, why using system calls is better then relying on `/dev/urandom`.
 
 ### 2.2.5. Putting it all together
 
 Now you should have a load of static library files, ready to be linked together!
 
 As usual the crypto_sign module has its main sources in the base directory, located at `crypto_sign/ed25519/ref10` and some benchmark generated source found in your data directory.
+
+The sources include a `fe.h` header file. This file contains declarations for two external functions `fe_cswap` and `fe_mul121666`, which neither exist nor are being used by the remaining code. These were probably included by accident. Some systems, such as [cffi](https://bitbucket.org/cffi/cffi/), may get confused by these orphaned declarations. To fix this, just delete the following lines from the header:
+
+```cpp
+...
+#define fe_cswap crypto_sign_ed25519_ref10_fe_cswap
+...
+#define fe_mul121666 crypto_sign_ed25519_ref10_fe_mul121666
+...
+extern void fe_cswap(fe,fe,unsigned int);
+...
+extern void fe_mul121666(fe,const fe);
+...
+```
 
 Finally, build the shared object file using following commands:
 

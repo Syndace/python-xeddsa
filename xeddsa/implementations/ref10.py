@@ -1,116 +1,128 @@
-from ctypes import *
-
-crypto_sign = cdll.LoadLibrary("crypto_sign.so")
-
-###############################################################################
-# Utilities                                                                   #
-###############################################################################
-def wrap(bytes, ctype):
-    if not isinstance(bytes, ctype):
-        return ctype(*bytes)
-    return bytes
+import _crypto_sign
 
 ###############################################################################
 # fe.h                                                                        #
 ###############################################################################
-fe = c_int32 * 10
-fe_bytes = c_uint8 * 32
+def fe_bytes(fe_bytes_BYTES = None):
+    if isinstance(fe_bytes_BYTES, _crypto_sign.ffi.CData):
+        return fe_bytes_BYTES
+    else:
+        return _crypto_sign.ffi.new("unsigned char[32]", fe_bytes_BYTES)
+
+def fe(fe_FE = None):
+    if isinstance(fe_FE, _crypto_sign.ffi.CData):
+        return fe_FE
+    else:
+        return _crypto_sign.ffi.new("int[10]", fe_FE)
 
 def fe_frombytes(fe_bytes_BYTES):
-    fe_bytes_BYTES = wrap(fe_bytes_BYTES, fe_bytes)
-
     result = fe()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_frombytes(result, fe_bytes_BYTES)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_frombytes(result, fe_bytes(fe_bytes_BYTES))
     return result
 
 def fe_tobytes(fe_FE):
     result = fe_bytes()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_tobytes(result, fe_FE)
-    return list(result)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_tobytes(result, fe(fe_FE))
+    return result
 
 def fe_1():
     result = fe()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_1(result)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_1(result)
     return result
 
 def fe_add(fe_ADDEND_A, fe_ADDEND_B):
     result = fe()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_add(result, fe_ADDEND_A, fe_ADDEND_B)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_add(result, fe(fe_ADDEND_A), fe(fe_ADDEND_B))
     return result
 
 def fe_sub(fe_MINUEND, fe_SUBTRAHEND):
     result = fe()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_sub(result, fe_MINUEND, fe_SUBTRAHEND)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_sub(result, fe(fe_MINUEND), fe(fe_SUBTRAHEND))
     return result
 
 def fe_mul(fe_MULTIPLICAND, fe_MULTIPLIER):
     result = fe()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_mul(result, fe_MULTIPLICAND, fe_MULTIPLIER)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_mul(result, fe(fe_MULTIPLICAND), fe(fe_MULTIPLIER))
     return result
 
 def fe_invert(fe_FE):
     result = fe()
-    crypto_sign.crypto_sign_ed25519_ref10_fe_invert(result, fe_FE)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_invert(result, fe(fe_FE))
     return result
 
 ###############################################################################
 # ge.h                                                                        #
 ###############################################################################
-class ge_p3(Structure):
-    _fields_ = [("X", fe),
-                ("Y", fe),
-                ("Z", fe),
-                ("T", fe)]
+class ge_p3(object):
+    def __init__(self, ge_p3_POINT = None):
+        self.__point = ge_p3_POINT
 
-ge_p3_bytes = c_uint8 * 32
+    @classmethod
+    def empty(cls):
+        return cls(_crypto_sign.ffi.new("ge_p3 *"))
+
+    @property
+    def point(self):
+        return self.__point
+
+def ge_p3_bytes(ge_p3_bytes_BYTES = None):
+    if isinstance(ge_p3_bytes_BYTES, _crypto_sign.ffi.CData):
+        return ge_p3_bytes_BYTES
+    else:
+        return _crypto_sign.ffi.new("unsigned char[32]", ge_p3_bytes_BYTES)
 
 def ge_p3_tobytes(ge_p3_POINT):
     result = ge_p3_bytes()
-    crypto_sign.crypto_sign_ed25519_ref10_ge_p3_tobytes(result, byref(ge_p3_POINT))
-    return list(result)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_p3_tobytes(result, ge_p3_POINT.point)
+    return result
 
-scalar_bytes = c_uint8 * 32
+def scalar_bytes(scalar_bytes_SCALAR = None):
+    if isinstance(scalar_bytes_SCALAR, _crypto_sign.ffi.CData):
+        return scalar_bytes_SCALAR
+    else:
+        return _crypto_sign.ffi.new("unsigned char[32]", scalar_bytes_SCALAR)
 
 def ge_scalarmult_base(scalar_bytes_SCALAR):
-    scalar_bytes_SCALAR = wrap(scalar_bytes_SCALAR, scalar_bytes)
-
-    result = ge_p3()
-    crypto_sign.crypto_sign_ed25519_ref10_ge_scalarmult_base(byref(result), scalar_bytes_SCALAR)
+    result = ge_p3.empty()
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_scalarmult_base(result.point, scalar_bytes(scalar_bytes_SCALAR))
     return result
 
 ###############################################################################
 # sc.h                                                                        #
 ###############################################################################
-sc_bytes        = c_uint8 * 32
-sc_reduce_bytes = c_uint8 * 64
+def sc_bytes(sc_bytes_BYTES = None):
+    if isinstance(sc_bytes_BYTES, _crypto_sign.ffi.CData):
+        return sc_bytes_BYTES
+    else:
+        return _crypto_sign.ffi.new("unsigned char[32]", sc_bytes_BYTES)
+
+def sc_reduce_bytes(sc_reduce_bytes_BYTES):
+    if isinstance(sc_reduce_bytes_BYTES, _crypto_sign.ffi.CData):
+        return sc_reduce_bytes_BYTES
+    else:
+        return _crypto_sign.ffi.new("unsigned char[64]", sc_reduce_bytes_BYTES)
 
 def sc_reduce(sc_reduce_bytes_SC):
-    sc_reduce_bytes_SC = wrap(sc_reduce_bytes_SC, sc_reduce_bytes)
-
-    crypto_sign.crypto_sign_ed25519_ref10_sc_reduce(sc_reduce_bytes_SC)
-
-    return list(sc_reduce_bytes_SC)[:32]
+    sc_reduce_bytes_SC = sc_reduce_bytes(sc_reduce_bytes_SC)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_reduce(sc_reduce_bytes_SC)
+    return sc_bytes(list(sc_reduce_bytes_SC)[:32])
 
 def sc_muladd(sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND):
-    sc_bytes_MULTIPLICAND = wrap(sc_bytes_MULTIPLICAND, sc_bytes)
-    sc_bytes_MULTIPLIER   = wrap(sc_bytes_MULTIPLIER, sc_bytes)
-    sc_bytes_ADDEND       = wrap(sc_bytes_ADDEND, sc_bytes)
-
     result = sc_bytes()
-    crypto_sign.crypto_sign_ed25519_ref10_sc_muladd(result, sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND)
-    return list(result)
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_muladd(result, sc_bytes(sc_bytes_MULTIPLICAND), sc_bytes(sc_bytes_MULTIPLIER), sc_bytes(sc_bytes_ADDEND))
+    return result
 
 ###############################################################################
 # XEdDSA additions                                                            #
 ###############################################################################
-sc_bytes_BASE_POINT_ORDER_MINUS_ONE = sc_bytes(*[
+sc_bytes_BASE_POINT_ORDER_MINUS_ONE = sc_bytes([
     0xEC, 0xD3, 0xF5, 0x5C, 0x1A, 0x63, 0x12, 0x58,
     0xD6, 0x9C, 0xF7, 0xA2, 0xDE, 0xF9, 0xDE, 0x14,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
 ])
 
-sc_bytes_ZERO = sc_bytes(*([ 0x00 ] * 32))
+sc_bytes_ZERO = sc_bytes([ 0x00 ] * 32)
 
 def sc_neg(sc_bytes_BYTES):
     return sc_muladd(sc_bytes_BASE_POINT_ORDER_MINUS_ONE, sc_bytes_BYTES, sc_bytes_ZERO)

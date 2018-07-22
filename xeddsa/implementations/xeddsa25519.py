@@ -41,14 +41,14 @@ class XEdDSA25519(XEdDSA):
         r = sc_reduce(r)
 
         # R = rB
-        R = ge_p3_tobytes(ge_scalarmult_base(r))
+        R = list(ge_p3_tobytes(ge_scalarmult_base(r)))
 
         # h = hash(R || A || M) (mod q)
         h = cls.__hash(cls.__concat(R, A, M))
         h = sc_reduce(h)
 
         # s = r + ha (mod q)
-        s = sc_muladd(h, a, r)
+        s = list(sc_muladd(h, a, r))
 
         return bytesToString(cls.__concat(R, s))
 
@@ -83,7 +83,7 @@ class XEdDSA25519(XEdDSA):
         # Get the correct private key based on the sign stored above
         sc_cmov(ed_priv, ed_priv_neg, sign_bit)
 
-        return ed_pub, ed_priv
+        return list(ed_pub), ed_priv
 
     @classmethod
     def _mont_pub_to_ed_pub(cls, mont_pub):
@@ -104,7 +104,7 @@ class XEdDSA25519(XEdDSA):
         ed_pub = fe_mul(mont_pub_minus_one, mont_pub_plus_one_inv)
         ed_pub = fe_tobytes(ed_pub)
 
-        return ed_pub
+        return list(ed_pub)
 
     @staticmethod
     def __concat(*bytes):

@@ -2,6 +2,7 @@ from __future__ import print_function
 
 # I can't believe they moved reduce from the global space :(
 from functools import reduce
+import pytest
 
 from xeddsa.implementations import XEdDSA25519
 
@@ -46,44 +47,13 @@ twisted_edwards_public_keys = [
     [  24,  72,  19,  97, 189,  66, 132, 228, 127, 117, 241, 233, 157, 137, 253,  46,  79, 232, 252, 224, 151,  13, 203,  36, 173, 182, 190, 179, 225, 203, 253,  77 ]
 ]
 
-if __name__ == "__main__":
-    tests = 0
-    successes = 0
-    
+def test_conversion():
     for mont_priv, mont_pub, wanted_ed_priv, wanted_ed_pub in zip(montgomery_private_keys, montgomery_public_keys, twisted_edwards_private_keys, twisted_edwards_public_keys):
-        success = True
-
         calculated_ed_pub, calculated_ed_priv = XEdDSA25519._mont_priv_to_ed_pair(mont_priv)
 
-        if calculated_ed_priv != wanted_ed_priv:
-            success = False
-            print("")
-            print("Unequal twisted Edwards private keys for Montgomery private key:", mont_priv)
-            print("Expected:", wanted_ed_priv)
-            print("Got:", calculated_ed_priv)
-
-        if calculated_ed_pub != wanted_ed_pub:
-            success = False
-            print("")
-            print("Unequal twisted Edwards public keys for Montgomery private key:", mont_priv)
-            print("Expected:", wanted_ed_pub)
-            print("Got:", calculated_ed_pub)
+        assert calculated_ed_priv == wanted_ed_priv
+        assert calculated_ed_pub  == wanted_ed_pub
 
         calculated_ed_pub = XEdDSA25519._mont_pub_to_ed_pub(mont_pub)
 
-        if calculated_ed_pub != wanted_ed_pub:
-            success = False
-            print("")
-            print("Unequal twisted Edwards public keys for Montgomery public key:", mont_pub)
-            print("Expected:", wanted_ed_pub)
-            print("Got:", calculated_ed_pub)
-
-        if success:
-            print("Test #" + str(tests + 1) + " successful!")
-            successes += 1
-        else:
-            print("Test #" + str(tests + 1) + " failed.")
-
-        tests += 1
-
-    print("All tests done, " + str(successes) + "/" + str(tests) + " successful.")
+        assert calculated_ed_pub == wanted_ed_pub
