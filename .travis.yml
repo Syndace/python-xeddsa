@@ -9,12 +9,15 @@ python:
   - "3.7"
 
 env:
-  - PYNACL_VERSION=1.2.1 # Most recent version on pip
-  - PYNACL_VERSION=1.0.1 # Version in Debian 9's apt repositories
-  - CFFI_VERSION=1.11.5 # Most recent version on pip
-  - CFFI_VERSION=1.9.1  # Version in Debian 9's apt repositories
+  - PYNACL_VERSION=1.2.1 CFFI_VERSION=1.11.5 # Most recent versions on pip
+  - PYNACL_VERSION=1.0.1 CFFI_VERSION=1.9.1  # Version in Debian 9's apt repositories
 
 install:
+  - cd ref10/
+  - make
+  - cd bin/
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
+  - cd ../../
   - pip install pynacl==$PYNACL_VERSION
   - pip install cffi==$CFFI_VERSION
   - pip install -r requirements.txt
