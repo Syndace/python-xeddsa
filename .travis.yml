@@ -6,7 +6,6 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
 
 env:
   - PYNACL_VERSION=1.2.1 CFFI_VERSION=1.11.5 # Most recent versions on pip
