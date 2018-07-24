@@ -1,28 +1,42 @@
-CC      = /usr/bin/gcc
-CFLAGS  = -Wall -Werror -g
-OBJECTS = $(patsubst %.c,%.o,$(wildcard get*.c))
+CC     = /usr/bin/gcc
+CFLAGS = -Wall -Werror -g
 
-.PHONY: all test clean
+SOURCES = $(wildcard *.c)
+OBJECTS = $(filter-out urandom.o test.o, $(SOURCES:.c=.o))
 
-all: bin/kernelrandombytes.a bin/test
+LIBRARIES =
+INCLUDES  =
 
-bin/kernelrandombytes.a: bin kernelrandombytes.o
-	ar rcs bin/kernelrandombytes.a kernelrandombytes.o
+.PHONY: all clean full_clean
 
-bin/test: bin/kernelrandombytes.a
-	$(CC) $(CFLAGS) -x c test.c -o bin/test -Lbin -l:kernelrandombytes.a
+all: bin/libkernelrandombytes.so bin/libkernelrandombytes.a module.preprocessed bin/test
+
+bin/libkernelrandombytes.so: bin kernelrandombytes.o
+	$(CC) $(CFLAGS) -shared -Wl,--no-undefined -o bin/libkernelrandombytes.so kernelrandombytes.o -L../bin/static $(LIBRARIES)
+
+bin/libkernelrandombytes.a: bin/libkernelrandombytes.so bin kernelrandombytes.o
+	ar rcs bin/libkernelrandombytes.a kernelrandombytes.o
+
+bin/test: bin/libkernelrandombytes.a
+	$(CC) $(CFLAGS) -x c test.c -o bin/test -Lbin -l:libkernelrandombytes.a
 
 test: bin/test
 	bin/test
 
-kernelrandombytes.o: | $(OBJECTS) urandom.o
-
 bin:
 	mkdir -p bin
 
+kernelrandombytes.o: | $(OBJECTS) urandom.o
+
 %.o: %.c
-	-$(CC) $(CFLAGS) -c -fpic -x c -o "$@" "$<" && cp -n "$@" kernelrandombytes.o
+	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -c -fPIC -x c -o "$@" "$<" && cp -n "$@" kernelrandombytes.o
+
+module.preprocessed: module.h
+	$(CC) -I../include -E -o module.preprocessed module.h
 
 clean:
-	rm -rf bin
 	rm -f *.o
+
+full_clean: clean
+	rm -rf bin
+	rm -f module.preprocessed

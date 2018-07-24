@@ -11,13 +11,7 @@ This code was not written by a cryptographer and is most probably **NOT SECURE**
 #### Ref10
 The python-xeddsa library uses the ref10 C & ASM implementation of curve25519 and ed25519 found in the ref10 directory.
 
-To build the required files, just run `make` in the `ref10/` directory.
-
-This step creates the shared object files `libcrypto_scalarmult.so` and `libcrypto_sign.so` as well as preprocessed headers required to build the Python [cffi](https://bitbucket.org/cffi/cffi) modules.
-
-Make sure the shared object files can be found by Python, e.g. by adding `ref10/bin/` to the `LD_LIBRARY_PATH` environment variable.
-
-Now you can run `python setup.py install` to install the package as usual.
+To build the required files, just run `make` in the `ref10/` directory and you're set to run `python setup.py install` in the repository root as you're used to.
 
 ### NOTICE
 This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.

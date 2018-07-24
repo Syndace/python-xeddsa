@@ -1,18 +1,34 @@
-CC      = /usr/bin/gcc
-CFLAGS  = -Wall -Werror -g
-OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
+CC     = /usr/bin/gcc
+CFLAGS = -Wall -Werror -g
 
-.PHONY: clean
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
 
-bin/crypto_stream.a: bin $(OBJECTS)
-	ar rcs bin/crypto_stream.a *.o
+LIBRARIES =    -lcrypto_core
+INCLUDES  = -I../crypto_core
+
+.PHONY: all clean full_clean
+
+all: bin/libcrypto_stream.so bin/libcrypto_stream.a module.preprocessed
+
+bin/libcrypto_stream.so: bin $(OBJECTS)
+	$(CC) $(CFLAGS) -shared -Wl,--no-undefined -o bin/libcrypto_stream.so *.o -L../bin/static $(LIBRARIES)
+
+bin/libcrypto_stream.a: bin/libcrypto_stream.so bin $(OBJECTS)
+	ar rcs bin/libcrypto_stream.a *.o
 
 bin:
 	mkdir -p bin
 
 %.o: %.c
-	$(CC) $(CFLAGS) -I../crypto_core -c -fpic -x c -o "$@" "$<"
+	$(CC) $(CFLAGS) $(INCLUDES) -I../include -c -fPIC -x c -o "$@" "$<"
+
+module.preprocessed: module.h
+	$(CC) -I../include -E -o module.preprocessed module.h
 
 clean:
-	rm -rf bin
 	rm -f *.o
+
+full_clean: clean
+	rm -rf bin
+	rm -f module.preprocessed
