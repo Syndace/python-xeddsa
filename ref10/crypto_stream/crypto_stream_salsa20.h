@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef crypto_stream_salsa20_H
 #define crypto_stream_salsa20_H
 
@@ -7,8 +9,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int crypto_stream_salsa20_ref(unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
-extern int crypto_stream_salsa20_ref_xor(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
+extern int INTERFACE crypto_stream_salsa20_ref(unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
+extern int INTERFACE crypto_stream_salsa20_ref_xor(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
 #ifdef __cplusplus
 }
 #endif

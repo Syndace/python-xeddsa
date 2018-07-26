@@ -1,42 +1,93 @@
-CC     = /usr/bin/gcc
-CFLAGS = -Wall -Werror -g
+CC     := gcc
+CFLAGS := -Wall -Werror
 
-SOURCES = $(wildcard *.c)
-OBJECTS = $(filter-out urandom.o test.o, $(SOURCES:.c=.o))
+SOURCES := $(wildcard *.c)
+OBJECTS := $(filter-out urandom.o test.o, $(SOURCES:.c=.o))
 
-LIBRARIES =
-INCLUDES  =
+MODULE := libkernelrandombytes
 
-.PHONY: all clean full_clean
+ifeq ($(OS),Windows_NT)
+	D := dll
+	S := lib
 
-all: bin/libkernelrandombytes.so bin/libkernelrandombytes.a module.preprocessed bin/test
+	IMPORT_LIB = -Wl,--out-implib,"$@.$(S)"
 
-bin/libkernelrandombytes.so: bin kernelrandombytes.o
-	$(CC) $(CFLAGS) -shared -Wl,--no-undefined -o bin/libkernelrandombytes.so kernelrandombytes.o -L../bin/static $(LIBRARIES)
+	MKDIR := mkdir
+	RMDIR := rd /s /q
+	RM    := del
 
-bin/libkernelrandombytes.a: bin/libkernelrandombytes.so bin kernelrandombytes.o
-	ar rcs bin/libkernelrandombytes.a kernelrandombytes.o
+	COPY_OBJECT = if not exist kernelrandombytes.o copy "$@" kernelrandombytes.o
 
-bin/test: bin/libkernelrandombytes.a
-	$(CC) $(CFLAGS) -x c test.c -o bin/test -Lbin -l:libkernelrandombytes.a
+	URANDOM :=
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		D := so
+		S := a
+
+		IMPORT_LIB =
+
+		MKDIR := mkdir -p
+		RMDIR := rm -rf
+		RM    := rm -f
+
+		COPY_OBJECT = cp -n "$@" kernelrandombytes.o
+
+		URANDOM := urandom.o
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		D := # TODO
+		S := # TODO
+
+		IMPORT_LIB = # TODO
+
+		MKDIR := mkdir -p
+		RMDIR := rm -rf
+		RM    := rm -f
+
+		COPY_OBJECT = # TODO
+
+		URANDOM :=
+	endif
+endif
+
+LIBRARIES :=
+INCLUDES  :=
+
+DYNAMIC := bin/$(MODULE).$(D)
+STATIC  := bin/$(MODULE).$(S)
+
+.PHONY: all clean full_clean test
+
+all: $(DYNAMIC) $(STATIC) bin/test
+
+$(DYNAMIC): bin kernelrandombytes.o
+	$(CC) $(CFLAGS) -shared -Wl,--no-undefined $(IMPORT_LIB) -o "$@" kernelrandombytes.o -L../bin/static $(LIBRARIES)
+
+$(STATIC): $(DYNAMIC) bin kernelrandombytes.o
+	ar rcs "$@" kernelrandombytes.o
+
+bin/test: $(STATIC)
+	$(CC) $(CFLAGS) -x c test.c -o "$@" -Lbin -l:$(MODULE).$(S)
 
 test: bin/test
-	bin/test
+	$<
 
 bin:
-	mkdir -p bin
+	$(MKDIR) "$@"
 
-kernelrandombytes.o: | $(OBJECTS) urandom.o
+kernelrandombytes.o: | $(OBJECTS) $(URANDOM)
 
 %.o: %.c
-	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -c -fPIC -x c -o "$@" "$<" && cp -n "$@" kernelrandombytes.o
+	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -DBUILD -c -fPIC -x c -o "$@" "$<"
+	-$(COPY_OBJECT)
 
-module.preprocessed: module.h
-	$(CC) -I../include -E -o module.preprocessed module.h
+rtlgenrandom.o: rtlgenrandom.c
+	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -DBUILD -c -fPIC -x c -o "$@" "$<" -lADVAPI32
+	-$(COPY_OBJECT)
 
 clean:
-	rm -f *.o
+	-$(RM) *.o
 
 full_clean: clean
-	rm -rf bin
-	rm -f module.preprocessed
+	-$(RMDIR) bin

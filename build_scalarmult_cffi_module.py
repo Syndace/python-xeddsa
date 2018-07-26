@@ -2,11 +2,26 @@ from __future__ import print_function
 
 import cffi
 import os
+import platform
+
+class UnknownSystemException(Exception):
+    pass
+
+def buildLibraries(libraries):
+    if platform.system() == "Windows":
+        return [ "lib" + library for library in libraries ]
+    if platform.system() == "Linux":
+        return libraries
+    raise UnknownSystemException()
 
 MODULE_NAME = "crypto_scalarmult"
 
-library_header = os.path.abspath("ref10/" + MODULE_NAME + "/module.preprocessed")
-static_lib_dir = os.path.abspath("ref10/bin/static/")
+ref10_dir  = os.path.abspath("ref10")
+module_dir = os.path.join(ref10_dir, MODULE_NAME)
+bin_dir    = os.path.join(ref10_dir, "bin")
+
+library_header = os.path.join(module_dir, "module.h")
+static_lib_dir = os.path.join(bin_dir, "static")
 
 ffibuilder = cffi.FFI()
 
@@ -19,7 +34,7 @@ ffibuilder.set_source(
     "_" + MODULE_NAME,
     '#include "' + library_header + '"',
     library_dirs = [ static_lib_dir ],
-    libraries    = [ "crypto_scalarmult" ]
+    libraries    = buildLibraries([ "crypto_scalarmult" ])
 )
 
 if __name__ == "__main__":

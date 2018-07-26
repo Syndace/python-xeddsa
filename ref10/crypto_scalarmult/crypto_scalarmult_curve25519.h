@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef crypto_scalarmult_curve25519_H
 #define crypto_scalarmult_curve25519_H
 
@@ -7,8 +9,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int crypto_scalarmult_curve25519_ref10(unsigned char *,const unsigned char *,const unsigned char *);
-extern int crypto_scalarmult_curve25519_ref10_base(unsigned char *,const unsigned char *);
+extern int INTERFACE crypto_scalarmult_curve25519_ref10(unsigned char *,const unsigned char *,const unsigned char *);
+extern int INTERFACE crypto_scalarmult_curve25519_ref10_base(unsigned char *,const unsigned char *);
 #ifdef __cplusplus
 }
 #endif

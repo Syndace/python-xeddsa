@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef crypto_hashblocks_sha512_H
 #define crypto_hashblocks_sha512_H
 
@@ -7,7 +9,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int crypto_hashblocks_sha512_ref(unsigned char *,const unsigned char *,unsigned long long);
+extern int INTERFACE crypto_hashblocks_sha512_ref(unsigned char *,const unsigned char *,unsigned long long);
 #ifdef __cplusplus
 }
 #endif

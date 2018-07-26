@@ -1,7 +1,14 @@
 #include <Windows.h>
 
-HMODULE advapi32 = LoadLibrary("ADVAPI32.DLL");
-BOOLEAN (APIENTRY *RtlGenRandom)(PVOID, ULONG) = (BOOLEAN (APIENTRY*)(PVOID, ULONG)) GetProcAddress(advapi32, "SystemFunction036");
+#define RtlGenRandom SystemFunction036
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOLEAN NTAPI RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
+#ifdef __cplusplus
+}
+#endif
 
 void kernelrandombytes(unsigned char *x,unsigned long long xlen)
 {

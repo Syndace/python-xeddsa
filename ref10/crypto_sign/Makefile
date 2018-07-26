@@ -1,34 +1,71 @@
-CC     = /usr/bin/gcc
-CFLAGS = -Wall -Werror -g
+CC     := gcc
+CFLAGS := -Wall -Werror
 
-SOURCES = $(wildcard *.c)
-OBJECTS = $(SOURCES:.c=.o)
+SOURCES := $(wildcard *.c)
+OBJECTS := $(SOURCES:.c=.o)
 
-LIBRARIES =    -lcrypto_hash    -lcrypto_hashblocks    -lcrypto_verify    -lfastrandombytes    -lcrypto_rng    -lcrypto_stream    -lcrypto_core    -lkernelrandombytes
-INCLUDES  = -I../crypto_hash -I../crypto_hashblocks -I../crypto_verify -I../fastrandombytes -I../crypto_rng -I../crypto_stream -I../crypto_core -I../kernelrandombytes
+MODULE := libcrypto_sign
+
+ifeq ($(OS),Windows_NT)
+	D := dll
+	S := lib
+
+	IMPORT_LIB = -Wl,--out-implib,"$@.$(S)"
+
+	MKDIR := mkdir
+	RMDIR := rd /s /q
+	RM    := del
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		D := so
+		S := a
+
+		IMPORT_LIB =
+
+		MKDIR := mkdir -p
+		RMDIR := rm -rf
+		RM    := rm -f
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		D := # TODO
+		S := # TODO
+
+		IMPORT_LIB = # TODO
+
+		MKDIR := mkdir -p
+		RMDIR := rm -rf
+		RM    := rm -f
+	endif
+endif
+
+LIBRARIES := -l:libcrypto_hash.$(S) -l:libcrypto_hashblocks.$(S) -l:libcrypto_verify.$(S) -l:libfastrandombytes.$(S)
+INCLUDES  :=  -I../crypto_hash       -I../crypto_hashblocks       -I../crypto_verify       -I../fastrandombytes
+
+LIBRARIES += -l:libcrypto_rng.$(S) -l:libcrypto_stream.$(S) -l:libcrypto_core.$(S) -l:libkernelrandombytes.$(S)
+INCLUDES  +=  -I../crypto_rng       -I../crypto_stream       -I../crypto_core       -I../kernelrandombytes
+
+DYNAMIC := bin/$(MODULE).$(D)
+STATIC  := bin/$(MODULE).$(S)
 
 .PHONY: all clean full_clean
 
-all: bin/libcrypto_sign.so bin/libcrypto_sign.a module.preprocessed
+all: $(DYNAMIC) $(STATIC)
 
-bin/libcrypto_sign.so: bin $(OBJECTS)
-	$(CC) $(CFLAGS) -shared -Wl,--no-undefined -o bin/libcrypto_sign.so *.o -L../bin/static $(LIBRARIES)
+$(DYNAMIC): bin $(OBJECTS)
+	$(CC) $(CFLAGS) -shared -Wl,--no-undefined $(IMPORT_LIB) -o "$@" *.o -L../bin/static $(LIBRARIES)
 
-bin/libcrypto_sign.a: bin/libcrypto_sign.so bin $(OBJECTS)
-	ar rcs bin/libcrypto_sign.a *.o
+$(STATIC): $(DYNAMIC) bin $(OBJECTS)
+	ar rcs "$@" *.o
 
 bin:
-	mkdir -p bin
+	$(MKDIR) "$@"
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -I../include -c -fPIC -x c -o "$@" "$<"
-
-module.preprocessed: module.h
-	$(CC) -I../include -E -o module.preprocessed module.h
+	$(CC) $(CFLAGS) $(INCLUDES) -I../include -DBUILD -c -fPIC -x c -o "$@" "$<"
 
 clean:
-	rm -f *.o
+	-$(RM) *.o
 
 full_clean: clean
-	rm -rf bin
-	rm -f module.preprocessed
+	-$(RMDIR) bin

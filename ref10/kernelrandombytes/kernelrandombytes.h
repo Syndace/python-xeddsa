@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef kernelrandombytes_h
 #define kernelrandombytes_h
 
@@ -5,7 +7,7 @@
 extern "C" {
 #endif
 
-extern void kernelrandombytes(unsigned char *,unsigned long long);
+extern void INTERFACE kernelrandombytes(unsigned char *,unsigned long long);
 
 #ifdef __cplusplus
 }

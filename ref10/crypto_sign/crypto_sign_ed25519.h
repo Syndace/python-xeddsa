@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef crypto_sign_ed25519_H
 #define crypto_sign_ed25519_H
 
@@ -9,9 +11,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int crypto_sign_ed25519_ref10(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *);
-extern int crypto_sign_ed25519_ref10_open(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *);
-extern int crypto_sign_ed25519_ref10_keypair(unsigned char *,unsigned char *);
+extern int INTERFACE crypto_sign_ed25519_ref10(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *);
+extern int INTERFACE crypto_sign_ed25519_ref10_open(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *);
+extern int INTERFACE crypto_sign_ed25519_ref10_keypair(unsigned char *,unsigned char *);
 #ifdef __cplusplus
 }
 #endif

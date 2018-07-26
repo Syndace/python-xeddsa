@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef crypto_verify_32_H
 #define crypto_verify_32_H
 
@@ -6,7 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int crypto_verify_32_ref(const unsigned char *,const unsigned char *);
+extern int INTERFACE crypto_verify_32_ref(const unsigned char *,const unsigned char *);
 #ifdef __cplusplus
 }
 #endif

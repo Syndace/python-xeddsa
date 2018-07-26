@@ -1,3 +1,5 @@
+#include "cross_platform.h"
+
 #ifndef crypto_rng_salsa20_H
 #define crypto_rng_salsa20_H
 
@@ -7,7 +9,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int crypto_rng_salsa20_ref(unsigned char *,unsigned char *,const unsigned char *);
+extern int INTERFACE crypto_rng_salsa20_ref(unsigned char *,unsigned char *,const unsigned char *);
 #ifdef __cplusplus
 }
 #endif

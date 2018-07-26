@@ -7,7 +7,7 @@ def fe_bytes(fe_bytes_BYTES = None):
     if isinstance(fe_bytes_BYTES, _crypto_sign.ffi.CData):
         return fe_bytes_BYTES
     else:
-        return _crypto_sign.ffi.new("uint8_t[32]", fe_bytes_BYTES)
+        return _crypto_sign.ffi.new("unsigned char[32]", fe_bytes_BYTES)
 
 def fe(fe_FE = None):
     if isinstance(fe_FE, _crypto_sign.ffi.CData):
@@ -69,7 +69,7 @@ def ge_p3_bytes(ge_p3_bytes_BYTES = None):
     if isinstance(ge_p3_bytes_BYTES, _crypto_sign.ffi.CData):
         return ge_p3_bytes_BYTES
     else:
-        return _crypto_sign.ffi.new("uint8_t[32]", ge_p3_bytes_BYTES)
+        return _crypto_sign.ffi.new("unsigned char[32]", ge_p3_bytes_BYTES)
 
 def ge_p3_tobytes(ge_p3_POINT):
     result = ge_p3_bytes()
@@ -80,7 +80,7 @@ def scalar_bytes(scalar_bytes_SCALAR = None):
     if isinstance(scalar_bytes_SCALAR, _crypto_sign.ffi.CData):
         return scalar_bytes_SCALAR
     else:
-        return _crypto_sign.ffi.new("uint8_t[32]", scalar_bytes_SCALAR)
+        return _crypto_sign.ffi.new("unsigned char[32]", scalar_bytes_SCALAR)
 
 def ge_scalarmult_base(scalar_bytes_SCALAR):
     result = ge_p3.empty()
@@ -94,13 +94,13 @@ def sc_bytes(sc_bytes_BYTES = None):
     if isinstance(sc_bytes_BYTES, _crypto_sign.ffi.CData):
         return sc_bytes_BYTES
     else:
-        return _crypto_sign.ffi.new("uint8_t[32]", sc_bytes_BYTES)
+        return _crypto_sign.ffi.new("unsigned char[32]", sc_bytes_BYTES)
 
 def sc_reduce_bytes(sc_reduce_bytes_BYTES):
     if isinstance(sc_reduce_bytes_BYTES, _crypto_sign.ffi.CData):
         return sc_reduce_bytes_BYTES
     else:
-        return _crypto_sign.ffi.new("uint8_t[64]", sc_reduce_bytes_BYTES)
+        return _crypto_sign.ffi.new("unsigned char[64]", sc_reduce_bytes_BYTES)
 
 def sc_reduce(sc_reduce_bytes_SC):
     sc_reduce_bytes_SC = sc_reduce_bytes(sc_reduce_bytes_SC)

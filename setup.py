@@ -7,7 +7,7 @@ import build_sign_cffi_module
 
 setup(
     name = "XEdDSA",
-    version = "0.2.1",
+    version = "0.3.0",
     description = "A python implementation of the XEdDSA signature scheme.",
     author = "Tim Henkes",
     url = "https://github.com/Syndace/python-xeddsa",
