@@ -1,6 +1,8 @@
 # I can't believe they moved reduce from the global space :(
 from functools import reduce
 
+import os
+
 def bytesToString(data):
     return bytes(bytearray(data))
 
@@ -24,11 +26,15 @@ class XEdDSA(object):
         if self._decryption_key and not self._encryption_key:
             self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
 
-    def sign(self, message, nonce):
+    def sign(self, message, nonce = None):
         if not self._decryption_key:
             raise MissingKeyException("Cannot sign using this XEdDSA instance, Montgomery decryption key missing")
 
         message = toBytes(message)
+
+        if nonce == None:
+            nonce = os.urandom(64)
+
         nonce = toBytes(nonce)
 
         return self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))

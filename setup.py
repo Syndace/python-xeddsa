@@ -7,7 +7,7 @@ with open("README.md") as f:
 
 setup(
     name = "XEdDSA",
-    version = "0.3.1", # TODO: Don't forget to update the url's in the build.py file!
+    version = "0.3.2", # TODO: Don't forget to update the url's in the build.py file!
     description = "A python implementation of the XEdDSA signature scheme.",
     long_description = long_description,
     long_description_content_type = "text/markdown",

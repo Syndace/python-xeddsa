@@ -14,7 +14,7 @@ env:
 install:
   - pip install pynacl==$PYNACL_VERSION
   - pip install cffi==$CFFI_VERSION
-  - pip install -r requirements.txt
+  - pip install pytest
   - python setup.py install
 
 script: py.test

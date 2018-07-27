@@ -1,8 +1,5 @@
-from __future__ import print_function
-
 # I can't believe they moved reduce from the global space :(
 from functools import reduce
-import pytest
 
 from xeddsa.implementations import XEdDSA25519
 
