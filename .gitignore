@@ -1,4 +1,7 @@
 build/
+dist/
+XEdDSA.egg-info/
+.eggs/
 *.o
 *.so
 *.preprocessed

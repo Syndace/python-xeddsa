@@ -1,9 +1,6 @@
 CC     := gcc
 CFLAGS := -Wall -Werror
 
-SOURCES := $(wildcard *.c)
-OBJECTS := $(filter-out urandom.o test.o, $(SOURCES:.c=.o))
-
 MODULE := libkernelrandombytes
 
 ifeq ($(OS),Windows_NT)
@@ -18,7 +15,8 @@ ifeq ($(OS),Windows_NT)
 
 	COPY_OBJECT = if not exist kernelrandombytes.o copy "$@" kernelrandombytes.o
 
-	URANDOM :=
+	OBJECTS   := rtlgenrandom.o
+	LIBRARIES := -lADVAPI32
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -33,21 +31,23 @@ else
 
 		COPY_OBJECT = cp -n "$@" kernelrandombytes.o
 
-		URANDOM := urandom.o
+		OBJECTS   := getrandom3.o getrandom2.o getrandom.o getentropy2.o getentropy.o urandom.o
+		LIBRARIES :=
 	endif
 	ifeq ($(UNAME_S),Darwin)
 		D := # TODO
 		S := # TODO
 
-		IMPORT_LIB = # TODO
+		IMPORT_LIB =
 
 		MKDIR := mkdir -p
 		RMDIR := rm -rf
 		RM    := rm -f
 
-		COPY_OBJECT = # TODO
+		COPY_OBJECT = cp -n "$@" kernelrandombytes.o
 
-		URANDOM :=
+		OBJECTS   := secrandomcopybytes.o
+		LIBRARIES :=
 	endif
 endif
 
@@ -76,14 +76,10 @@ test: bin/test
 bin:
 	$(MKDIR) "$@"
 
-kernelrandombytes.o: | $(OBJECTS) $(URANDOM)
+kernelrandombytes.o: | $(OBJECTS)
 
 %.o: %.c
-	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -DBUILD -c -fPIC -x c -o "$@" "$<"
-	-$(COPY_OBJECT)
-
-rtlgenrandom.o: rtlgenrandom.c
-	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -DBUILD -c -fPIC -x c -o "$@" "$<" -lADVAPI32
+	-$(CC) $(CFLAGS) $(INCLUDES) -I../include -DBUILD -c -fPIC -x c -o "$@" "$<" $(LIBRARIES)
 	-$(COPY_OBJECT)
 
 clean:
