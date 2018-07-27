@@ -1,7 +1,5 @@
 ![PyPI](https://img.shields.io/pypi/v/XEdDSA.svg)
-
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/XEdDSA.svg)
-
 [![Build Status](https://travis-ci.org/Syndace/python-xeddsa.svg?branch=master)](https://travis-ci.org/Syndace/python-xeddsa)
 
 # python-xeddsa
