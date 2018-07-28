@@ -1,6 +1,3 @@
-# I can't believe they moved reduce from the global space :(
-from functools import reduce
-
 import os
 
 def bytesToString(data):
@@ -24,7 +21,23 @@ class XEdDSA(object):
         self._encryption_key = toBytes(encryption_key)
 
         if self._decryption_key and not self._encryption_key:
-            self._encryption_key = self.__class__._restoreEncryptionKey(self._decryption_key)
+            self._encryption_key = self.__class__.restoreEncryptionKey(self._decryption_key)
+
+    @staticmethod
+    def restoreEncryptionKey(decryption_key):
+        """
+        Restore the encryption key from a given Montgomery decryption key and return it.
+        """
+
+        raise NotImplementedError
+
+    @staticmethod
+    def generateDecryptionKey():
+        """
+        Generate a Montgomery decryption key to be used for XEdDSA.
+        """
+
+        raise NotImplementedError
 
     def sign(self, message, nonce = None):
         if not self._decryption_key:
@@ -43,18 +56,10 @@ class XEdDSA(object):
         if not self._encryption_key:
             raise MissingKeyException("Cannot verify using this XEdDSA instance, Montgomery encryption key missing")
 
-        message = toBytes(message)
+        message   = toBytes(message)
         signature = toBytes(signature)
 
         return self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
-
-    @classmethod
-    def _restoreEncryptionKey(cls, decryption_key):
-        """
-        Restore the encryption key from a given Montgomery decryption key and return it.
-        """
-
-        raise NotImplementedError
 
     @classmethod
     def _sign(cls, message, nonce, verification_key, signing_key):

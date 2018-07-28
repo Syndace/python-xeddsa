@@ -1,8 +1,6 @@
 import copy
 import hashlib
-
-# I can't believe they moved reduce from the global space :(
-from functools import reduce
+import os
 
 from ..xeddsa import XEdDSA, bytesToString, toBytes
 
@@ -12,18 +10,25 @@ from nacl.exceptions import BadSignatureError
 from nacl.public import PrivateKey as Curve25519DecryptionKey
 from nacl.signing import VerifyKey as Ed25519VerificationKey
 
-def sc_fromint(value):
-    result = []
-
-    for i in range(32):
-        result.append(value & 0xFF)
-        value >>= 8
-
-    return result
-
 class XEdDSA25519(XEdDSA):
-    @classmethod
-    def _restoreEncryptionKey(cls, decryption_key):
+    @staticmethod
+    def generateDecryptionKey():
+        priv = toBytes(os.urandom(32))
+
+        # The following step is referred to as "clamping".
+        # The following links to a mailing list discussion about what clamping does:
+        # https://moderncrypto.org/mail-archive/curves/2017/000858.html
+
+        # I am not sure why, but without clamping the private key XEdDSA does not work.
+        # Maybe the ref10 implementation expects all scalars to be clamped.
+        priv[0]  &= 248
+        priv[31] &=  63
+        priv[31] |=  64
+
+        return priv
+
+    @staticmethod
+    def restoreEncryptionKey(decryption_key):
         return toBytes(bytes(Curve25519DecryptionKey(bytesToString(decryption_key)).public_key))
 
     @classmethod
@@ -37,23 +42,28 @@ class XEdDSA25519(XEdDSA):
         a = signing_key
 
         # r = hash_1(a || M || Z) (mod q)
-        r = cls.__hash(cls.__concat(a, M, Z), 1)
+        r = cls.__hash(a + M + Z, 1)
         r = sc_reduce(r)
 
         # R = rB
         R = list(ge_p3_tobytes(ge_scalarmult_base(r)))
 
         # h = hash(R || A || M) (mod q)
-        h = cls.__hash(cls.__concat(R, A, M))
+        h = cls.__hash(R + A + M)
         h = sc_reduce(h)
 
         # s = r + ha (mod q)
         s = list(sc_muladd(h, a, r))
 
-        return bytesToString(cls.__concat(R, s))
+        return toBytes(R + s)
 
     @classmethod
     def _verify(cls, message, signature, verification_key):
+        # Here we use the fact, that
+        # "XEd25519 signatures are valid Ed25519 signatures [1] and vice versa, [...]."
+        # (https://signal.org/docs/specifications/xeddsa/#curve25519)
+        # to reduce the amount of security critical code we have to write ourselves.
+
         verification_key = bytesToString(verification_key)
         signature        = bytesToString(signature)
         message          = bytesToString(message)
@@ -106,21 +116,20 @@ class XEdDSA25519(XEdDSA):
 
         return list(ed_pub)
 
-    @staticmethod
-    def __concat(*bytes):
-        return reduce(lambda x, y: x + y, bytes)
-
     @classmethod
     def __hash(cls, bytes, index = None):
         def _hash(data):
-            bytestring = bytesToString(data)
-            hash_digest = hashlib.sha512(bytestring).digest()
-            return toBytes(hash_digest)
+            return toBytes(hashlib.sha512(bytesToString(data)).digest())
 
         if index:
-            padding_int = pow(2, 256) - 1 - index
-            padding = sc_fromint(padding_int)
-            data = cls.__concat(padding, bytes)
-            return _hash(data)
+            # If an index is set, we are supposed to calculate:
+            #     hash(2 ^ b - 1 - i || X)
+            #
+            # If b = 256, then 2 ^ b - 1 = [ 0xFF ] * 32
+            # Now, subtracting i from the result can be done like this,
+            # assuming i <= 0xFF
+            padding = [ 0xFF ] * 32
+            padding[0] -= index
+            return _hash(padding + bytes)
         else:
             return _hash(bytes)

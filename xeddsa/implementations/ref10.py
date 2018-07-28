@@ -1,5 +1,8 @@
 import _crypto_sign
 
+class Failed(Exception):
+    pass
+
 ###############################################################################
 # fe.h                                                                        #
 ###############################################################################
@@ -17,42 +20,107 @@ def fe(fe_FE = None):
 
 def fe_frombytes(fe_bytes_BYTES):
     result = fe()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_frombytes(result, fe_bytes(fe_bytes_BYTES))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_frombytes(
+        result,
+        fe_bytes(fe_bytes_BYTES)
+    )
+
     return result
 
 def fe_tobytes(fe_FE):
     result = fe_bytes()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_tobytes(result, fe(fe_FE))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_tobytes(
+        result,
+        fe(fe_FE)
+    )
+
     return result
 
 def fe_1():
     result = fe()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_1(result)
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_1(
+        result
+    )
+
     return result
 
 def fe_add(fe_ADDEND_A, fe_ADDEND_B):
     result = fe()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_add(result, fe(fe_ADDEND_A), fe(fe_ADDEND_B))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_add(
+        result,
+        fe(fe_ADDEND_A),
+        fe(fe_ADDEND_B)
+    )
+
     return result
 
 def fe_sub(fe_MINUEND, fe_SUBTRAHEND):
     result = fe()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_sub(result, fe(fe_MINUEND), fe(fe_SUBTRAHEND))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_sub(
+        result,
+        fe(fe_MINUEND),
+        fe(fe_SUBTRAHEND)
+    )
+
     return result
 
 def fe_mul(fe_MULTIPLICAND, fe_MULTIPLIER):
     result = fe()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_mul(result, fe(fe_MULTIPLICAND), fe(fe_MULTIPLIER))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_mul(
+        result,
+        fe(fe_MULTIPLICAND),
+        fe(fe_MULTIPLIER)
+    )
+
     return result
 
 def fe_invert(fe_FE):
     result = fe()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_invert(result, fe(fe_FE))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_invert(
+        result,
+        fe(fe_FE)
+    )
+
     return result
 
 ###############################################################################
 # ge.h                                                                        #
 ###############################################################################
+class ge_p2(object):
+    def __init__(self, ge_p2_POINT = None):
+        self.__point = ge_p2_POINT
+
+    @classmethod
+    def empty(cls):
+        return cls(_crypto_sign.ffi.new("ge_p2 *"))
+
+    @property
+    def point(self):
+        return self.__point
+
+def ge_p2_bytes(ge_p2_bytes_BYTES = None):
+    if isinstance(ge_p2_bytes_BYTES, _crypto_sign.ffi.CData):
+        return ge_p2_bytes_BYTES
+    else:
+        return _crypto_sign.ffi.new("unsigned char[32]", ge_p2_bytes_BYTES)
+
+def ge_tobytes(ge_p2_POINT):
+    result = ge_p2_bytes()
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_tobytes(
+        result,
+        ge_p2_POINT.point
+    )
+
+    return result
+
 class ge_p3(object):
     def __init__(self, ge_p3_POINT = None):
         self.__point = ge_p3_POINT
@@ -73,7 +141,25 @@ def ge_p3_bytes(ge_p3_bytes_BYTES = None):
 
 def ge_p3_tobytes(ge_p3_POINT):
     result = ge_p3_bytes()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_p3_tobytes(result, ge_p3_POINT.point)
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_p3_tobytes(
+        result,
+        ge_p3_POINT.point
+    )
+
+    return result
+
+def ge_frombytes_negate_vartime(ge_p3_bytes_BYTES):
+    result = ge_p3.empty()
+
+    success = _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_frombytes_negate_vartime(
+        result.point,
+        ge_p3_bytes(ge_p3_bytes_BYTES)
+    )
+
+    if success != 0:
+        raise Failed()
+
     return result
 
 def scalar_bytes(scalar_bytes_SCALAR = None):
@@ -84,7 +170,24 @@ def scalar_bytes(scalar_bytes_SCALAR = None):
 
 def ge_scalarmult_base(scalar_bytes_SCALAR):
     result = ge_p3.empty()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_scalarmult_base(result.point, scalar_bytes(scalar_bytes_SCALAR))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_scalarmult_base(
+        result.point,
+        scalar_bytes(scalar_bytes_SCALAR)
+    )
+
+    return result
+
+def ge_double_scalarmult_vartime(scalar_bytes_SCA, ge_p3_PA, scalar_bytes_SCB):
+    result = ge_p2.empty()
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_double_scalarmult_vartime(
+        result.point,
+        scalar_bytes(scalar_bytes_SCA),
+        ge_p3_PA.point,
+        scalar_bytes(scalar_bytes_SCB)
+    )
+
     return result
 
 ###############################################################################
@@ -104,12 +207,23 @@ def sc_reduce_bytes(sc_reduce_bytes_BYTES):
 
 def sc_reduce(sc_reduce_bytes_SC):
     sc_reduce_bytes_SC = sc_reduce_bytes(sc_reduce_bytes_SC)
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_reduce(sc_reduce_bytes_SC)
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_reduce(
+        sc_reduce_bytes_SC
+    )
+
     return sc_bytes(list(sc_reduce_bytes_SC)[:32])
 
 def sc_muladd(sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND):
     result = sc_bytes()
-    _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_muladd(result, sc_bytes(sc_bytes_MULTIPLICAND), sc_bytes(sc_bytes_MULTIPLIER), sc_bytes(sc_bytes_ADDEND))
+
+    _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_muladd(
+        result,
+        sc_bytes(sc_bytes_MULTIPLICAND),
+        sc_bytes(sc_bytes_MULTIPLIER),
+        sc_bytes(sc_bytes_ADDEND)
+    )
+
     return result
 
 ###############################################################################

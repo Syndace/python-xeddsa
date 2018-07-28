@@ -1,6 +1,3 @@
-# I can't believe they moved reduce from the global space :(
-from functools import reduce
-
 from xeddsa.implementations import XEdDSA25519
 
 montgomery_private_keys = [
@@ -16,7 +13,7 @@ montgomery_private_keys = [
     [ 160,  13, 213, 129,  63,  20,  71,  67,  23,   3,  91, 163, 156, 187, 219, 254, 129,  60, 121,  37,  83, 242, 209,  91,  81, 208, 130, 135,  92, 192,   8,  84 ]
 ]
 
-montgomery_public_keys = map(XEdDSA25519._restoreEncryptionKey, montgomery_private_keys)
+montgomery_public_keys = map(XEdDSA25519.restoreEncryptionKey, montgomery_private_keys)
 
 twisted_edwards_private_keys = [
     [  64,  81, 123, 142, 221, 174,  16,  38, 255, 223,  32,  95, 158, 218,  21, 218, 204,  14, 249, 236, 175,  89, 128, 135,   8, 249,  66,  45,  48, 180,  87,  76 ],

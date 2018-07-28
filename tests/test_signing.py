@@ -2,13 +2,15 @@ import os
 
 from xeddsa.implementations import XEdDSA25519
 
-from test_conversion import montgomery_private_keys
-
 def test_signing():
-    for _ in range(100):
-        message = os.urandom(100)
+    for _ in range(50):
+        message = os.urandom(50)
 
-        for mont_priv in montgomery_private_keys:
-            xeddsa = XEdDSA25519(decryption_key = mont_priv)
+        for _ in range(50):
+            mont_priv = XEdDSA25519.generateDecryptionKey()
+            mont_pub  = XEdDSA25519.restoreEncryptionKey(mont_priv)
 
-            assert xeddsa.verify(message, xeddsa.sign(message))
+            signing_xeddsa   = XEdDSA25519(decryption_key = mont_priv)
+            verifying_xeddsa = XEdDSA25519(encryption_key = mont_pub)
+
+            assert verifying_xeddsa.verify(message, signing_xeddsa.sign(message))
