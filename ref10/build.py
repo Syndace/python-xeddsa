@@ -70,9 +70,10 @@ elif platform.system() == "Windows":
     print("Downloading precompiled binaries...")
     print("Make sure the system can access https://github.com.")
 
-    with urlopen(url) as zip_memory:
-        with open(zip_location, "wb") as zip_file:
-            zip_file.write(zip_memory.read())
+    zip_memory = urlopen(url)
+    with open(zip_location, "wb") as zip_file:
+        zip_file.write(zip_memory.read())
+    zip_memory.close()
 
     binaries_zipfile = zipfile.ZipFile(zip_location)
     binaries_zipfile.extractall(ref10_dir)
