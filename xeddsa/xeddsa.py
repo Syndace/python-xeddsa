@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import os
 
 def bytesToString(data):
@@ -21,7 +23,9 @@ class XEdDSA(object):
         self._encryption_key = toBytes(encryption_key)
 
         if self._decryption_key and not self._encryption_key:
-            self._encryption_key = self.__class__.restoreEncryptionKey(self._decryption_key)
+            self._encryption_key = toBytes(
+                self.__class__.restoreEncryptionKey(self._decryption_key)
+            )
 
     @staticmethod
     def restoreEncryptionKey(decryption_key):
@@ -41,25 +45,35 @@ class XEdDSA(object):
 
     def sign(self, message, nonce = None):
         if not self._decryption_key:
-            raise MissingKeyException("Cannot sign using this XEdDSA instance, Montgomery decryption key missing")
-
-        message = toBytes(message)
+            raise MissingKeyException(
+                "Cannot sign using this XEdDSA instance, " +
+                "Montgomery decryption key missing."
+            )
 
         if nonce == None:
             nonce = os.urandom(64)
 
-        nonce = toBytes(nonce)
+        ed_pub, ed_priv = self.__class__._mont_priv_to_ed_pair(self._decryption_key)
 
-        return self._sign(message, nonce, *self.__class__._mont_priv_to_ed_pair(self._decryption_key))
+        return bytesToString(self._sign(
+            toBytes(message),
+            toBytes(nonce),
+            toBytes(ed_pub),
+            toBytes(ed_priv)
+        ))
 
     def verify(self, message, signature):
         if not self._encryption_key:
-            raise MissingKeyException("Cannot verify using this XEdDSA instance, Montgomery encryption key missing")
+            raise MissingKeyException(
+                "Cannot verify using this XEdDSA instance, " +
+                "Montgomery encryption key missing."
+            )
 
-        message   = toBytes(message)
-        signature = toBytes(signature)
-
-        return self._verify(message, signature, self.__class__._mont_pub_to_ed_pub(self._encryption_key))
+        return self._verify(
+            toBytes(message),
+            toBytes(signature),
+            toBytes(self.__class__._mont_pub_to_ed_pub(self._encryption_key))
+        )
 
     @classmethod
     def _sign(cls, message, nonce, verification_key, signing_key):

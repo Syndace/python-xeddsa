@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import copy
 import hashlib
 import os
@@ -25,11 +27,11 @@ class XEdDSA25519(XEdDSA):
         priv[31] &=  63
         priv[31] |=  64
 
-        return priv
+        return bytesToString(priv)
 
     @staticmethod
     def restoreEncryptionKey(decryption_key):
-        return toBytes(bytes(Curve25519DecryptionKey(bytesToString(decryption_key)).public_key))
+        return bytes(Curve25519DecryptionKey(bytesToString(decryption_key)).public_key)
 
     @classmethod
     def _sign(cls, message, nonce, verification_key, signing_key):
@@ -75,6 +77,8 @@ class XEdDSA25519(XEdDSA):
 
     @classmethod
     def _mont_priv_to_ed_pair(cls, mont_priv):
+        mont_priv = toBytes(mont_priv)
+
         # Prepare a buffer for the twisted Edwards private key
         ed_priv = copy.deepcopy(mont_priv)
 
@@ -93,10 +97,12 @@ class XEdDSA25519(XEdDSA):
         # Get the correct private key based on the sign stored above
         sc_cmov(ed_priv, ed_priv_neg, sign_bit)
 
-        return list(ed_pub), ed_priv
+        return bytesToString(list(ed_pub)), bytesToString(ed_priv)
 
     @classmethod
     def _mont_pub_to_ed_pub(cls, mont_pub):
+        mont_pub = toBytes(mont_pub)
+
         # Read the public key as a field element
         mont_pub = fe_frombytes(mont_pub)
 
@@ -114,7 +120,7 @@ class XEdDSA25519(XEdDSA):
         ed_pub = fe_mul(mont_pub_minus_one, mont_pub_plus_one_inv)
         ed_pub = fe_tobytes(ed_pub)
 
-        return list(ed_pub)
+        return bytesToString(list(ed_pub))
 
     @classmethod
     def __hash(cls, bytes, index = None):
