@@ -61,6 +61,16 @@ class XEdDSA25519(XEdDSA):
 
     @classmethod
     def _verify(cls, message, signature, verification_key):
+        # Get the sign bit from the s part of the signature.
+        sign_bit = (signature[63] >> 7) & 1
+
+        # Set the sign bit to zero in the s part of the signature.
+        signature[63] &= 0x7F
+
+        # Restore the sign bit on the verification key, which should have 0 as its current
+        # sign bit.
+        verification_key[31] |= sign_bit << 7
+
         # Here we use the fact, that
         # "XEd25519 signatures are valid Ed25519 signatures [1] and vice versa, [...]."
         # (https://signal.org/docs/specifications/xeddsa/#curve25519)
@@ -71,7 +81,10 @@ class XEdDSA25519(XEdDSA):
         message          = bytesToString(message)
 
         try:
-            return Ed25519VerificationKey(verification_key).verify(message, signature) == message
+            return Ed25519VerificationKey(verification_key).verify(
+                message,
+                signature
+            ) == message
         except BadSignatureError:
             return False
 
@@ -114,10 +127,10 @@ class XEdDSA25519(XEdDSA):
         mont_pub_plus_one  = fe_add(mont_pub, fe_ONE)
 
         # Prepare inv(u + 1)
-        mont_pub_plus_one_inv = fe_invert(mont_pub_plus_one)
+        mont_pub_plus_one = fe_invert(mont_pub_plus_one)
 
         # Calculate y = (u - 1) * inv(u + 1) (mod p)
-        ed_pub = fe_mul(mont_pub_minus_one, mont_pub_plus_one_inv)
+        ed_pub = fe_mul(mont_pub_minus_one, mont_pub_plus_one)
         ed_pub = fe_tobytes(ed_pub)
 
         return bytesToString(list(ed_pub))
