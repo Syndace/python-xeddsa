@@ -21,8 +21,10 @@ class XEdDSA(object):
         Create an XEdDSA object from Montgomery key material, to encrypt AND sign data
         using just one Montgomery key pair.
 
-        :param mont_priv: A bytes-like object encoding the private key with length MONT_PRIV_KEY_SIZE or None.
-        :param mont_pub: A bytes-like object encoding the public key with length MONT_PUB_KEY_SIZE or None.
+        :param mont_priv: A bytes-like object encoding the private key with length
+            MONT_PRIV_KEY_SIZE or None.
+        :param mont_pub: A bytes-like object encoding the public key with length
+            MONT_PUB_KEY_SIZE or None.
 
         If both mont_priv and mont_pub are None, a new key pair is generated.
 
@@ -93,8 +95,10 @@ class XEdDSA(object):
         """
         Restore the Montgomery public key from a Montgomery private key.
 
-        :param mont_priv: A bytes-like object encoding the private key with length MONT_PRIV_KEY_SIZE.
-        :returns: A bytes-like object encoding the public key with length MONT_PUB_KEY_SIZE.
+        :param mont_priv: A bytes-like object encoding the private key with length
+            MONT_PRIV_KEY_SIZE.
+        :returns: A bytes-like object encoding the public key with length
+            MONT_PUB_KEY_SIZE.
         :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
@@ -113,7 +117,8 @@ class XEdDSA(object):
         """
         Restore the Montgomery public key from a Montgomery private key.
 
-        :param mont_priv: A bytearray encoding the private keywith length MONT_PRIV_KEY_SIZE.
+        :param mont_priv: A bytearray encoding the private keywith length
+            MONT_PRIV_KEY_SIZE.
         :returns: A bytearray encoding the public key with length MONT_PUB_KEY_SIZE.
         """
 
@@ -124,8 +129,10 @@ class XEdDSA(object):
         """
         Derive a Twisted Edwards key pair from given Montgomery private key.
 
-        :param mont_priv: A bytes-like object encoding the private key with length MONT_PRIV_KEY_SIZE.
-        :returns: A tuple of bytes-like objects encoding the private key with length ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
+        :param mont_priv: A bytes-like object encoding the private key with length
+            MONT_PRIV_KEY_SIZE.
+        :returns: A tuple of bytes-like objects encoding the private key with length
+            ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
         :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
@@ -146,8 +153,10 @@ class XEdDSA(object):
         """
         Derive a Twisted Edwards key pair from given Montgomery private key.
 
-        :param mont_priv: A bytearray encoding the private key with length MONT_PRIV_KEY_SIZE.
-        :returns: A tuple of bytearrays encoding the private key with length ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
+        :param mont_priv: A bytearray encoding the private key with length
+            MONT_PRIV_KEY_SIZE.
+        :returns: A tuple of bytearrays encoding the private key with length
+            ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
         """
 
         raise NotImplementedError
@@ -157,7 +166,8 @@ class XEdDSA(object):
         """
         Derive a Twisted Edwards public key from given Montgomery public key.
 
-        :param mont_pub: A bytes-like object encoding the public key with length MONT_PUB_KEY_SIZE.
+        :param mont_pub: A bytes-like object encoding the public key with length
+            MONT_PUB_KEY_SIZE.
         :returns: A bytes-like object encoding the public key with length ED_PUB_KEY_SIZE.
         :raises TypeError: If any of the parameters is passed with the wrong type.
         """
@@ -177,7 +187,8 @@ class XEdDSA(object):
         """
         Derive a Twisted Edwards public key from given Montgomery public key.
 
-        :param mont_pub: A bytearray encoding the public key with length MONT_PUB_KEY_SIZE.
+        :param mont_pub: A bytearray encoding the public key with length
+            MONT_PUB_KEY_SIZE.
         :returns: A bytearray encoding the public key with length ED_PUB_KEY_SIZE.
         """
 
@@ -243,7 +254,8 @@ class XEdDSA(object):
         Verify signed data using the Montgomery public key stored by this XEdDSA instance.
 
         :param data: A bytes-like object containing the data that was signed.
-        :param signature: A bytes-like object encoding the signature with length SIGNATURE_SIZE.
+        :param signature: A bytes-like object encoding the signature with length
+            SIGNATURE_SIZE.
         :returns: A boolean indicating whether the signature was valid or not.
         :raises TypeError: If any of the parameters is passed with the wrong type.
         """

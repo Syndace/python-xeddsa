@@ -14,7 +14,12 @@
 #
 import os
 import sys
-sys.path.append(os.path.abspath('..'))
+
+this_file_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(this_file_path, ".."))
+sys.path.append(os.path.join(this_file_path, "..", "xeddsa"))
+
+import version
 
 
 # -- Project information -----------------------------------------------------
@@ -24,9 +29,9 @@ copyright = '2018, Tim Henkes'
 author = 'Tim Henkes'
 
 # The short X.Y version
-version = ''
+version = version.__version__
 # The full version, including alpha/beta/rc tags
-release = ''
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -76,7 +81,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

@@ -1,13 +1,19 @@
 from setuptools import setup, find_packages
 
 import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "xeddsa"))
+
+import version
 
 with open("README.md") as f:
     long_description = f.read()
 
 setup(
     name = "XEdDSA",
-    version = "0.3.6", # TODO: Don't forget to update the url's in the build.py file!
+    # TODO: Don't forget to update the url's in the build.py file after updates to ref10!
+    version = version.__version__,
     description = "A python implementation of the XEdDSA signature scheme.",
     long_description = long_description,
     long_description_content_type = "text/markdown",
@@ -23,7 +29,7 @@ setup(
     include_package_data = True,
     zip_safe = False,
     classifiers = [
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
 
         "Intended Audience :: Developers",
 
