@@ -13,7 +13,7 @@ montgomery_private_keys = [
     b"\xa0\x0d\xd5\x81\x3f\x14\x47\x43\x17\x03\x5b\xa3\x9c\xbb\xdb\xfe\x81\x3c\x79\x25\x53\xf2\xd1\x5b\x51\xd0\x82\x87\x5c\xc0\x08\x54",
 ]
 
-montgomery_public_keys = map(XEdDSA25519.restoreEncryptionKey, montgomery_private_keys)
+montgomery_public_keys = map(XEdDSA25519.mont_pub_from_mont_priv, montgomery_private_keys)
 
 twisted_edwards_private_keys = [
     b"\x40\x51\x7b\x8e\xdd\xae\x10\x26\xff\xdf\x20\x5f\x9e\xda\x15\xda\xcc\x0e\xf9\xec\xaf\x59\x80\x87\x08\xf9\x42\x2d\x30\xb4\x57\x4c",
@@ -43,11 +43,11 @@ twisted_edwards_public_keys = [
 
 def test_conversion():
     for mont_priv, mont_pub, wanted_ed_priv, wanted_ed_pub in zip(montgomery_private_keys, montgomery_public_keys, twisted_edwards_private_keys, twisted_edwards_public_keys):
-        calculated_ed_pub, calculated_ed_priv = XEdDSA25519._mont_priv_to_ed_pair(mont_priv)
+        calculated_ed_priv, calculated_ed_pub = XEdDSA25519.mont_priv_to_ed_pair(mont_priv)
 
         assert calculated_ed_priv == wanted_ed_priv
         assert calculated_ed_pub  == wanted_ed_pub
 
-        calculated_ed_pub = XEdDSA25519._mont_pub_to_ed_pub(mont_pub)
+        calculated_ed_pub = XEdDSA25519.mont_pub_to_ed_pub(mont_pub)
 
         assert calculated_ed_pub == wanted_ed_pub

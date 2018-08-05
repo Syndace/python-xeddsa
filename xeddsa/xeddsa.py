@@ -2,108 +2,277 @@ from __future__ import absolute_import
 
 import os
 
-def bytesToString(data):
-    return bytes(bytearray(data))
-
-def toBytes(data):
-    def toInt(x):
-        try:
-            return ord(x)
-        except TypeError:
-            return x
-
-    try:
-        return [ toInt(x) for x in data ]
-    except TypeError:
-        return data
-
 class XEdDSA(object):
-    def __init__(self, decryption_key = None, encryption_key = None):
-        self._decryption_key = toBytes(decryption_key)
-        self._encryption_key = toBytes(encryption_key)
+    """
+    The base class for all XEdDSA implementations.
+    Do not use this class directly, use subclasses for specific key types instead.
 
-        if self._decryption_key and not self._encryption_key:
-            self._encryption_key = toBytes(
-                self.__class__.restoreEncryptionKey(self._decryption_key)
+    The xeddsa.implementations module ships such subclasses.
+    """
+
+    MONT_PRIV_KEY_SIZE = NotImplemented
+    MONT_PUB_KEY_SIZE  = NotImplemented
+    ED_PRIV_KEY_SIZE   = NotImplemented
+    ED_PUB_KEY_SIZE    = NotImplemented
+    SIGNATURE_SIZE     = NotImplemented
+
+    def __init__(self, mont_priv = None, mont_pub = None):
+        """
+        Create an XEdDSA object from Montgomery key material, to encrypt AND sign data
+        using just one Montgomery key pair.
+
+        :param mont_priv: A bytes-like object encoding the private key with length MONT_PRIV_KEY_SIZE or None.
+        :param mont_pub: A bytes-like object encoding the public key with length MONT_PUB_KEY_SIZE or None.
+
+        If both mont_priv and mont_pub are None, a new key pair is generated.
+
+        :raises NotImplementedError: If the class is directly initialized.
+        :raises TypeError: If any of the parameters is passed with the wrong type.
+        """
+
+        cls = self.__class__
+
+        if not (
+            isinstance(cls.MONT_PRIV_KEY_SIZE, int) and
+            isinstance(cls.MONT_PUB_KEY_SIZE,  int) and
+            isinstance(cls.ED_PRIV_KEY_SIZE,   int) and
+            isinstance(cls.ED_PUB_KEY_SIZE,    int) and
+            isinstance(cls.SIGNATURE_SIZE,     int)
+        ):
+            raise NotImplementedError("Can't initiate the XEdDSA class directly.")
+
+        if mont_priv == None and mont_pub == None:
+            mont_priv = cls.generate_mont_priv()
+
+        if not (
+            mont_priv == None or
+            isinstance(mont_priv, bytes) and len(mont_priv) == cls.MONT_PRIV_KEY_SIZE
+        ):
+            raise TypeError(
+                "The mont_priv parameter must be either None or a bytes-like object " +
+                "with length " + cls.MONT_PRIV_KEY_SIZE + "."
             )
 
-    @staticmethod
-    def restoreEncryptionKey(decryption_key):
+        if mont_priv != None and mont_pub == None:
+            mont_pub = cls.mont_pub_from_mont_priv(mont_priv)
+
+        if not (
+            mont_pub == None or
+            isinstance(mont_pub, bytes) and len(mont_pub) == cls.MONT_PUB_KEY_SIZE
+        ):
+            raise TypeError(
+                "The mont_pub parameter must be either None or a bytes-like object " +
+                "with length " + cls.MONT_PUB_KEY_SIZE + "."
+            )
+
+        self.__mont_priv = mont_priv
+        self.__mont_pub  = mont_pub
+
+    @classmethod
+    def generate_mont_priv(cls):
         """
-        Restore the encryption key from a given Montgomery decryption key and return it.
+        Return a Montgomery private key to be used with XEdDSA.
+
+        :returns: The private key as a bytes-like object with length MONT_PRIV_KEY_SIZE.
+        """
+
+        return bytes(cls._generate_mont_priv())
+
+    @staticmethod
+    def _generate_mont_priv():
+        """
+        Return a Montgomery private key to be used with XEdDSA.
+
+        :returns: The private key as a bytearray with length MONT_PRIV_KEY_SIZE.
         """
 
         raise NotImplementedError
 
-    @staticmethod
-    def generateDecryptionKey():
+    @classmethod
+    def mont_pub_from_mont_priv(cls, mont_priv):
         """
-        Generate a Montgomery decryption key to be used for XEdDSA.
+        Restore the Montgomery public key from a Montgomery private key.
+
+        :param mont_priv: A bytes-like object encoding the private key with length MONT_PRIV_KEY_SIZE.
+        :returns: A bytes-like object encoding the public key with length MONT_PUB_KEY_SIZE.
+        :raises TypeError: If any of the parameters is passed with the wrong type.
+        """
+
+        if not (
+            isinstance(mont_priv, bytes) and len(mont_priv) == cls.MONT_PRIV_KEY_SIZE
+        ):
+            raise TypeError(
+                "The mont_priv parameter must be a bytes-like object with length " +
+                cls.MONT_PRIV_KEY_SIZE + "."
+            )
+
+        return bytes(cls._mont_pub_from_mont_priv(bytearray(mont_priv)))
+
+    @staticmethod
+    def _mont_pub_from_mont_priv(mont_priv):
+        """
+        Restore the Montgomery public key from a Montgomery private key.
+
+        :param mont_priv: A bytearray encoding the private keywith length MONT_PRIV_KEY_SIZE.
+        :returns: A bytearray encoding the public key with length MONT_PUB_KEY_SIZE.
         """
 
         raise NotImplementedError
 
-    def sign(self, message, nonce = None):
-        if not self._decryption_key:
+    @classmethod
+    def mont_priv_to_ed_pair(cls, mont_priv):
+        """
+        Derive a Twisted Edwards key pair from given Montgomery private key.
+
+        :param mont_priv: A bytes-like object encoding the private key with length MONT_PRIV_KEY_SIZE.
+        :returns: A tuple of bytes-like objects encoding the private key with length ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
+        :raises TypeError: If any of the parameters is passed with the wrong type.
+        """
+
+        if not (
+            isinstance(mont_priv, bytes) and len(mont_priv) == cls.MONT_PRIV_KEY_SIZE
+        ):
+            raise TypeError(
+                "The mont_priv parameter must be a bytes-like object with length " +
+                cls.MONT_PRIV_KEY_SIZE + "."
+            )
+
+        ed_priv, ed_pub = cls._mont_priv_to_ed_pair(bytearray(mont_priv))
+
+        return bytes(ed_priv), bytes(ed_pub)
+
+    @staticmethod
+    def _mont_priv_to_ed_pair(mont_priv):
+        """
+        Derive a Twisted Edwards key pair from given Montgomery private key.
+
+        :param mont_priv: A bytearray encoding the private key with length MONT_PRIV_KEY_SIZE.
+        :returns: A tuple of bytearrays encoding the private key with length ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def mont_pub_to_ed_pub(cls, mont_pub):
+        """
+        Derive a Twisted Edwards public key from given Montgomery public key.
+
+        :param mont_pub: A bytes-like object encoding the public key with length MONT_PUB_KEY_SIZE.
+        :returns: A bytes-like object encoding the public key with length ED_PUB_KEY_SIZE.
+        :raises TypeError: If any of the parameters is passed with the wrong type.
+        """
+
+        if not (
+            isinstance(mont_pub, bytes) and len(mont_pub) == cls.MONT_PUB_KEY_SIZE
+        ):
+            raise TypeError(
+                "The mont_pub parameter must be a bytes-like object with length " +
+                cls.MONT_PUB_KEY_SIZE + "."
+            )
+
+        return bytes(cls._mont_pub_to_ed_pub(bytearray(mont_pub)))
+
+    @staticmethod
+    def _mont_pub_to_ed_pub(mont_pub):
+        """
+        Derive a Twisted Edwards public key from given Montgomery public key.
+
+        :param mont_pub: A bytearray encoding the public key with length MONT_PUB_KEY_SIZE.
+        :returns: A bytearray encoding the public key with length ED_PUB_KEY_SIZE.
+        """
+
+        raise NotImplementedError
+
+    def sign(self, data, nonce = None):
+        """
+        Sign data using the Montgomery private key stored by this XEdDSA instance.
+
+        :param data: A bytes-like object containing the data to sign.
+        :param nonce: A bytes-like object with length 64 or None.
+        :returns: A bytes-like object encoding the signature with length SIGNATURE_SIZE.
+
+        If the nonce parameter is None, a new nonce is generated and used.
+
+        :raises MissingKeyException: If the Montgomery private key is not available.
+        :raises TypeError: If any of the parameters is passed with the wrong type.
+        """
+
+        cls = self.__class__
+
+        if not self.__mont_priv:
             raise MissingKeyException(
-                "Cannot sign using this XEdDSA instance, " +
-                "Montgomery decryption key missing."
+                "Cannot sign using this XEdDSA instance, Montgomery private key missing."
             )
+
+        if not isinstance(data, bytes):
+            raise TypeError("The data parameter must be a bytes-like object.")
 
         if nonce == None:
             nonce = os.urandom(64)
 
-        ed_pub, ed_priv = self.__class__._mont_priv_to_ed_pair(self._decryption_key)
-
-        return bytesToString(self._sign(
-            toBytes(message),
-            toBytes(nonce),
-            toBytes(ed_pub),
-            toBytes(ed_priv)
-        ))
-
-    def verify(self, message, signature):
-        if not self._encryption_key:
-            raise MissingKeyException(
-                "Cannot verify using this XEdDSA instance, " +
-                "Montgomery encryption key missing."
+        if not (isinstance(nonce, bytes) and len(nonce) == 64):
+            raise TypeError(
+                "The nonce parameter must be None or a bytes-like object with length 64."
             )
 
-        return self._verify(
-            toBytes(message),
-            toBytes(signature),
-            toBytes(self.__class__._mont_pub_to_ed_pub(self._encryption_key))
+        ed_priv, ed_pub = cls._mont_priv_to_ed_pair(bytearray(self.__mont_priv))
+
+        return bytes(cls._sign(
+            bytearray(data),
+            bytearray(nonce),
+            ed_priv,
+            ed_pub
+        ))
+
+    @staticmethod
+    def _sign(data, nonce, ed_priv, ed_pub):
+        """
+        Sign data using given Twisted Edwards key pair.
+
+        :param data: A bytearray containing the data to sign.
+        :param nonce: A bytearray with length 64.
+        :param ed_priv: A bytearray encoding the private key with length ED_PRIV_KEY_SIZE.
+        :param ed_pub: A bytearray encoding the public key with length ED_PUB_KEY_SIZE.
+        :returns: A bytearray encoding the signature with length SIGNATURE_SIZE.
+        """
+
+        raise NotImplementedError
+
+    def verify(self, data, signature):
+        """
+        Verify signed data using the Montgomery public key stored by this XEdDSA instance.
+
+        :param data: A bytes-like object containing the data that was signed.
+        :param signature: A bytes-like object encoding the signature with length SIGNATURE_SIZE.
+        :returns: A boolean indicating whether the signature was valid or not.
+        :raises TypeError: If any of the parameters is passed with the wrong type.
+        """
+
+        cls = self.__class__
+
+        if not isinstance(data, bytes):
+            raise TypeError("The data parameter must be a bytes-like object.")
+
+        if not (isinstance(signature, bytes) and len(signature) == cls.SIGNATURE_SIZE):
+            raise TypeError(
+                "The signature parameter must a bytes-like object with length " +
+                "SIGNATURE_SIZE."
+            )
+
+        return cls._verify(
+            bytearray(data),
+            bytearray(signature),
+            cls._mont_pub_to_ed_pub(bytearray(self.__mont_pub))
         )
 
-    @classmethod
-    def _sign(cls, message, nonce, verification_key, signing_key):
+    @staticmethod
+    def _verify(data, signature, ed_pub):
         """
-        Return the detached signature.
-        """
+        Verify signed data using given Twisted Edwards public key.
 
-        raise NotImplementedError
-
-    @classmethod
-    def _verify(cls, message, signature, verification_key):
-        """
-        Return a boolean indicating verification success.
-        """
-
-        raise NotImplementedError
-
-    @classmethod
-    def _mont_priv_to_ed_pair(cls, mont_priv):
-        """
-        Derive a twisted Edwards key pair from a Montgomery private key.
-        Return public key, private key.
-        """
-
-        raise NotImplementedError
-
-    @classmethod
-    def _mont_pub_to_ed_pub(cls, mont_pub):
-        """
-        Derive a twisted Edwards public key from a Montgomery public key.
+        :param data: A bytearray containing the data that was signed.
+        :param signature: A bytearray encoding the signature with length SIGNATURE_SIZE.
+        :returns: A boolean indicating whether the signature was valid or not.
         """
 
         raise NotImplementedError

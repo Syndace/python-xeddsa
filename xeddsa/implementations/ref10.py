@@ -5,20 +5,30 @@ import _crypto_sign
 class Failed(Exception):
     pass
 
+def __wrap(ffi_type, x = None):
+    if isinstance(x, _crypto_sign.ffi.CData):
+        return x
+    elif isinstance(x, bytearray):
+        return _crypto_sign.ffi.new(ffi_type, bytes(x))
+    elif x == None:
+        return _crypto_sign.ffi.new(ffi_type)
+    else:
+        raise TypeError("Wrong type: " + str(type(x)))
+
+def __toBytearray(x):
+    if isinstance(x, _crypto_sign.ffi.CData):
+        return bytearray(list(x))
+    else:
+        raise TypeError("Wrong type: " + str(type(x)))
+
 ###############################################################################
 # fe.h                                                                        #
 ###############################################################################
 def fe_bytes(fe_bytes_BYTES = None):
-    if isinstance(fe_bytes_BYTES, _crypto_sign.ffi.CData):
-        return fe_bytes_BYTES
-    else:
-        return _crypto_sign.ffi.new("unsigned char[32]", fe_bytes_BYTES)
+    return __wrap("unsigned char[32]", fe_bytes_BYTES)
 
 def fe(fe_FE = None):
-    if isinstance(fe_FE, _crypto_sign.ffi.CData):
-        return fe_FE
-    else:
-        return _crypto_sign.ffi.new("int32_t[10]", fe_FE)
+    return __wrap("int32_t[10]", fe_FE)
 
 def fe_frombytes(fe_bytes_BYTES):
     result = fe()
@@ -38,7 +48,7 @@ def fe_tobytes(fe_FE):
         fe(fe_FE)
     )
 
-    return result
+    return __toBytearray(result)
 
 def fe_1():
     result = fe()
@@ -108,10 +118,7 @@ class ge_p2(object):
         return self.__point
 
 def ge_p2_bytes(ge_p2_bytes_BYTES = None):
-    if isinstance(ge_p2_bytes_BYTES, _crypto_sign.ffi.CData):
-        return ge_p2_bytes_BYTES
-    else:
-        return _crypto_sign.ffi.new("unsigned char[32]", ge_p2_bytes_BYTES)
+    return __wrap("unsigned char[32]", ge_p2_bytes_BYTES)
 
 def ge_tobytes(ge_p2_POINT):
     result = ge_p2_bytes()
@@ -121,7 +128,7 @@ def ge_tobytes(ge_p2_POINT):
         ge_p2_POINT.point
     )
 
-    return result
+    return __toBytearray(result)
 
 class ge_p3(object):
     def __init__(self, ge_p3_POINT = None):
@@ -136,10 +143,7 @@ class ge_p3(object):
         return self.__point
 
 def ge_p3_bytes(ge_p3_bytes_BYTES = None):
-    if isinstance(ge_p3_bytes_BYTES, _crypto_sign.ffi.CData):
-        return ge_p3_bytes_BYTES
-    else:
-        return _crypto_sign.ffi.new("unsigned char[32]", ge_p3_bytes_BYTES)
+    return __wrap("unsigned char[32]", ge_p3_bytes_BYTES)
 
 def ge_p3_tobytes(ge_p3_POINT):
     result = ge_p3_bytes()
@@ -149,7 +153,7 @@ def ge_p3_tobytes(ge_p3_POINT):
         ge_p3_POINT.point
     )
 
-    return result
+    return __toBytearray(result)
 
 def ge_frombytes_negate_vartime(ge_p3_bytes_BYTES):
     result = ge_p3.empty()
@@ -165,10 +169,7 @@ def ge_frombytes_negate_vartime(ge_p3_bytes_BYTES):
     return result
 
 def scalar_bytes(scalar_bytes_SCALAR = None):
-    if isinstance(scalar_bytes_SCALAR, _crypto_sign.ffi.CData):
-        return scalar_bytes_SCALAR
-    else:
-        return _crypto_sign.ffi.new("unsigned char[32]", scalar_bytes_SCALAR)
+    return __wrap("unsigned char[32]", scalar_bytes_SCALAR)
 
 def ge_scalarmult_base(scalar_bytes_SCALAR):
     result = ge_p3.empty()
@@ -196,16 +197,10 @@ def ge_double_scalarmult_vartime(scalar_bytes_SCA, ge_p3_PA, scalar_bytes_SCB):
 # sc.h                                                                        #
 ###############################################################################
 def sc_bytes(sc_bytes_BYTES = None):
-    if isinstance(sc_bytes_BYTES, _crypto_sign.ffi.CData):
-        return sc_bytes_BYTES
-    else:
-        return _crypto_sign.ffi.new("unsigned char[32]", sc_bytes_BYTES)
+    return __wrap("unsigned char[32]", sc_bytes_BYTES)
 
 def sc_reduce_bytes(sc_reduce_bytes_BYTES):
-    if isinstance(sc_reduce_bytes_BYTES, _crypto_sign.ffi.CData):
-        return sc_reduce_bytes_BYTES
-    else:
-        return _crypto_sign.ffi.new("unsigned char[64]", sc_reduce_bytes_BYTES)
+    return __wrap("unsigned char[64]", sc_reduce_bytes_BYTES)
 
 def sc_reduce(sc_reduce_bytes_SC):
     sc_reduce_bytes_SC = sc_reduce_bytes(sc_reduce_bytes_SC)
@@ -214,7 +209,9 @@ def sc_reduce(sc_reduce_bytes_SC):
         sc_reduce_bytes_SC
     )
 
-    return sc_bytes(list(sc_reduce_bytes_SC)[:32])
+    sc_reduce_bytes_SC = __toBytearray(sc_reduce_bytes_SC)[:32]
+
+    return __toBytearray(sc_bytes(sc_reduce_bytes_SC))
 
 def sc_muladd(sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND):
     result = sc_bytes()
@@ -226,19 +223,19 @@ def sc_muladd(sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND):
         sc_bytes(sc_bytes_ADDEND)
     )
 
-    return result
+    return __toBytearray(result)
 
 ###############################################################################
 # XEdDSA additions                                                            #
 ###############################################################################
-sc_bytes_BASE_POINT_ORDER_MINUS_ONE = sc_bytes([
+sc_bytes_BASE_POINT_ORDER_MINUS_ONE = sc_bytes(bytearray([
     0xEC, 0xD3, 0xF5, 0x5C, 0x1A, 0x63, 0x12, 0x58,
     0xD6, 0x9C, 0xF7, 0xA2, 0xDE, 0xF9, 0xDE, 0x14,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
-])
+]))
 
-sc_bytes_ZERO = sc_bytes([ 0x00 ] * 32)
+sc_bytes_ZERO = sc_bytes(bytearray([ 0x00 ] * 32))
 
 def sc_neg(sc_bytes_BYTES):
     return sc_muladd(sc_bytes_BASE_POINT_ORDER_MINUS_ONE, sc_bytes_BYTES, sc_bytes_ZERO)

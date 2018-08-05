@@ -4,7 +4,7 @@ import copy
 import hashlib
 import os
 
-from ..xeddsa import XEdDSA, bytesToString, toBytes
+from ..xeddsa import XEdDSA
 
 from .ref10 import *
 
@@ -13,85 +13,42 @@ from nacl.public import PrivateKey as Curve25519DecryptionKey
 from nacl.signing import VerifyKey as Ed25519VerificationKey
 
 class XEdDSA25519(XEdDSA):
+    """
+    An implementation of XEdDSA for Montgomery Curve25519 and Twisted Edwards Ed25519
+    keys.
+    """
+
+    MONT_PRIV_KEY_SIZE = 32
+    MONT_PUB_KEY_SIZE  = 32
+    ED_PRIV_KEY_SIZE   = 32
+    ED_PUB_KEY_SIZE    = 32
+    SIGNATURE_SIZE     = 64
+
     @staticmethod
-    def generateDecryptionKey():
-        priv = toBytes(os.urandom(32))
+    def _generate_mont_priv():
+        priv = bytearray(os.urandom(32))
 
         # The following step is referred to as "clamping".
         # The following links to a mailing list discussion about what clamping does:
         # https://moderncrypto.org/mail-archive/curves/2017/000858.html
 
-        # I am not sure why, but without clamping the private key XEdDSA does not work.
+        # I am not sure why, but without clamping XEdDSA does not work.
         # Maybe the ref10 implementation expects all scalars to be clamped.
         priv[0]  &= 248
         priv[31] &=  63
         priv[31] |=  64
 
-        return bytesToString(priv)
+        return priv
 
     @staticmethod
-    def restoreEncryptionKey(decryption_key):
-        return bytes(Curve25519DecryptionKey(bytesToString(decryption_key)).public_key)
+    def _mont_pub_from_mont_priv(mont_priv):
+        mont_priv_bytes = bytes(mont_priv)
+        mont_pub_bytes  = bytes(Curve25519DecryptionKey(mont_priv_bytes).public_key)
 
-    @classmethod
-    def _sign(cls, message, nonce, verification_key, signing_key):
-        # Aliases for consistency with the specification
-        M = message
-        Z = nonce
+        return bytearray(mont_pub_bytes)
 
-        # A, a = calculate_key_pair(k)
-        A = verification_key
-        a = signing_key
-
-        # r = hash_1(a || M || Z) (mod q)
-        r = cls.__hash(a + M + Z, 1)
-        r = sc_reduce(r)
-
-        # R = rB
-        R = list(ge_p3_tobytes(ge_scalarmult_base(r)))
-
-        # h = hash(R || A || M) (mod q)
-        h = cls.__hash(R + A + M)
-        h = sc_reduce(h)
-
-        # s = r + ha (mod q)
-        s = list(sc_muladd(h, a, r))
-
-        return toBytes(R + s)
-
-    @classmethod
-    def _verify(cls, message, signature, verification_key):
-        # Get the sign bit from the s part of the signature.
-        sign_bit = (signature[63] >> 7) & 1
-
-        # Set the sign bit to zero in the s part of the signature.
-        signature[63] &= 0x7F
-
-        # Restore the sign bit on the verification key, which should have 0 as its current
-        # sign bit.
-        verification_key[31] |= sign_bit << 7
-
-        # Here we use the fact, that
-        # "XEd25519 signatures are valid Ed25519 signatures [1] and vice versa, [...]."
-        # (https://signal.org/docs/specifications/xeddsa/#curve25519)
-        # to reduce the amount of security critical code we have to write ourselves.
-
-        verification_key = bytesToString(verification_key)
-        signature        = bytesToString(signature)
-        message          = bytesToString(message)
-
-        try:
-            return Ed25519VerificationKey(verification_key).verify(
-                message,
-                signature
-            ) == message
-        except BadSignatureError:
-            return False
-
-    @classmethod
-    def _mont_priv_to_ed_pair(cls, mont_priv):
-        mont_priv = toBytes(mont_priv)
-
+    @staticmethod
+    def _mont_priv_to_ed_pair(mont_priv):
         # Prepare a buffer for the twisted Edwards private key
         ed_priv = copy.deepcopy(mont_priv)
 
@@ -110,12 +67,10 @@ class XEdDSA25519(XEdDSA):
         # Get the correct private key based on the sign stored above
         sc_cmov(ed_priv, ed_priv_neg, sign_bit)
 
-        return bytesToString(list(ed_pub)), bytesToString(ed_priv)
+        return ed_priv, ed_pub
 
-    @classmethod
-    def _mont_pub_to_ed_pub(cls, mont_pub):
-        mont_pub = toBytes(mont_pub)
-
+    @staticmethod
+    def _mont_pub_to_ed_pub(mont_pub):
         # Read the public key as a field element
         mont_pub = fe_frombytes(mont_pub)
 
@@ -133,22 +88,69 @@ class XEdDSA25519(XEdDSA):
         ed_pub = fe_mul(mont_pub_minus_one, mont_pub_plus_one)
         ed_pub = fe_tobytes(ed_pub)
 
-        return bytesToString(list(ed_pub))
+        return ed_pub
 
-    @classmethod
-    def __hash(cls, bytes, index = None):
-        def _hash(data):
-            return toBytes(hashlib.sha512(bytesToString(data)).digest())
+    @staticmethod
+    def _sign(data, nonce, ed_priv, ed_pub):
+        # Aliases for consistency with the specification
+        M = data
+        Z = nonce
 
-        if index:
-            # If an index is set, we are supposed to calculate:
-            #     hash(2 ^ b - 1 - i || X)
-            #
-            # If b = 256, then 2 ^ b - 1 = [ 0xFF ] * 32
-            # Now, subtracting i from the result can be done like this,
-            # assuming i <= 0xFF
-            padding = [ 0xFF ] * 32
-            padding[0] -= index
-            return _hash(padding + bytes)
-        else:
-            return _hash(bytes)
+        # A, a = calculate_key_pair(k)
+        A = ed_pub
+        a = ed_priv
+
+        # r = hash_1(a || M || Z) (mod q)
+
+        # If the hash has an index as above, that means, we are supposed to calculate:
+        #     hash(2 ^ b - 1 - i || X)
+        #
+        # If b = 256 (which is the case for 25519 XEdDSA), then 2 ^ b - 1 = [ 0xFF ] * 32
+        # Now, subtracting i from the result can be done by subtracting i from the first
+        # byte (assuming i <= 0xFF).
+        padding = bytearray(b"\xFF" * 32)
+        padding[0] -= 1
+        r = bytearray(hashlib.sha512(bytes(padding + a + M + Z)).digest())
+        r = sc_reduce(r)
+
+        # R = rB
+        R = ge_p3_tobytes(ge_scalarmult_base(r))
+
+        # h = hash(R || A || M) (mod q)
+        h = bytearray(hashlib.sha512(bytes(R + A + M)).digest())
+        h = sc_reduce(h)
+
+        # s = r + ha (mod q)
+        s = sc_muladd(h, a, r)
+
+        return R + s
+
+    @staticmethod
+    def _verify(data, signature, ed_pub):
+        # Create copies of the parameters to not modify the originals.
+        signature = copy.deepcopy(signature)
+        ed_pub    = copy.deepcopy(ed_pub)
+
+        # Get the sign bit from the s part of the signature.
+        sign_bit = (signature[63] >> 7) & 1
+
+        # Set the sign bit to zero in the s part of the signature.
+        signature[63] &= 0x7F
+
+        # Restore the sign bit on the verification key, which should have 0 as its current
+        # sign bit.
+        ed_pub[31] |= sign_bit << 7
+
+        # Here we use the fact, that
+        # "XEd25519 signatures are valid Ed25519 signatures [1] and vice versa, [...]."
+        # (https://signal.org/docs/specifications/xeddsa/#curve25519)
+        # to reduce the amount of security critical code we have to write ourselves.
+
+        data      = bytes(data)
+        signature = bytes(signature)
+        ed_pub    = bytes(ed_pub)
+
+        try:
+            return Ed25519VerificationKey(ed_pub).verify(data, signature) == data
+        except BadSignatureError:
+            return False

@@ -6,6 +6,8 @@ XEdDSA.egg-info/
 *.so
 *.preprocessed
 
+docs/_build
+
 .pytest_cache
 *.pyc
 
