@@ -2,9 +2,7 @@ XEdDSA - A python implementation of the XEdDSA signature scheme.
 ================================================================
 
 .. toctree::
-    :maxdepth: 2
-
-    xeddsa
+    Package: xeddsa <xeddsa/package>
 
 Indices and tables
 ==================

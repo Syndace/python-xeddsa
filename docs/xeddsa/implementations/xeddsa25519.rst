@@ -1,5 +1,5 @@
-Module: xeddsa.implementations.xeddsa25519
-==========================================
+xeddsa25519
+===========
 
 .. autoclass:: xeddsa.implementations.XEdDSA25519
     :members:

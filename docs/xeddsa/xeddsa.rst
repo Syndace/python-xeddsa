@@ -1,5 +1,5 @@
-Module: xeddsa.xeddsa
-=====================
+xeddsa
+======
 
 .. autoclass:: xeddsa.XEdDSA
     :members:
