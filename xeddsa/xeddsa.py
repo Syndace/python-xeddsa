@@ -27,9 +27,6 @@ class XEdDSA(object):
             MONT_PUB_KEY_SIZE or None.
 
         If both mont_priv and mont_pub are None, a new key pair is generated.
-
-        :raises NotImplementedError: If the class is directly initialized.
-        :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
         cls = self.__class__
@@ -41,31 +38,25 @@ class XEdDSA(object):
             isinstance(cls.ED_PUB_KEY_SIZE,    int) and
             isinstance(cls.SIGNATURE_SIZE,     int)
         ):
-            raise NotImplementedError("Can't initiate the XEdDSA class directly.")
+            raise NotImplementedError("Can't instantiate the XEdDSA class directly.")
 
         if mont_priv == None and mont_pub == None:
             mont_priv = cls.generate_mont_priv()
 
-        if not (
-            mont_priv == None or
-            isinstance(mont_priv, bytes) and len(mont_priv) == cls.MONT_PRIV_KEY_SIZE
-        ):
-            raise TypeError(
-                "The mont_priv parameter must be either None or a bytes-like object " +
-                "with length " + cls.MONT_PRIV_KEY_SIZE + "."
-            )
+        if not (mont_priv == None or isinstance(mont_priv, bytes)):
+            raise TypeError("Wrong type passed for the mont_priv parameter.")
+
+        if mont_priv != None and len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
+            raise ValueError("Invalid value passed for the mont_priv parameter.")
 
         if mont_priv != None and mont_pub == None:
             mont_pub = cls.mont_pub_from_mont_priv(mont_priv)
 
-        if not (
-            mont_pub == None or
-            isinstance(mont_pub, bytes) and len(mont_pub) == cls.MONT_PUB_KEY_SIZE
-        ):
-            raise TypeError(
-                "The mont_pub parameter must be either None or a bytes-like object " +
-                "with length " + cls.MONT_PUB_KEY_SIZE + "."
-            )
+        if not (mont_pub == None or isinstance(mont_pub, bytes)):
+            raise TypeError("Wrong type passed for the mont_pub parameter.")
+
+        if mont_pub != None and len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
+            raise ValueError("Invalid value passed for the mont_pub parameter.")
 
         self.__mont_priv = mont_priv
         self.__mont_pub  = mont_pub
@@ -99,16 +90,13 @@ class XEdDSA(object):
             MONT_PRIV_KEY_SIZE.
         :returns: A bytes-like object encoding the public key with length
             MONT_PUB_KEY_SIZE.
-        :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
-        if not (
-            isinstance(mont_priv, bytes) and len(mont_priv) == cls.MONT_PRIV_KEY_SIZE
-        ):
-            raise TypeError(
-                "The mont_priv parameter must be a bytes-like object with length " +
-                cls.MONT_PRIV_KEY_SIZE + "."
-            )
+        if not isinstance(mont_priv, bytes):
+            raise TypeError("Wrong type passed for the mont_priv parameter.")
+
+        if len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
+            raise ValueError("Invalid value passed for the mont_priv parameter.")
 
         return bytes(cls._mont_pub_from_mont_priv(bytearray(mont_priv)))
 
@@ -133,16 +121,13 @@ class XEdDSA(object):
             MONT_PRIV_KEY_SIZE.
         :returns: A tuple of bytes-like objects encoding the private key with length
             ED_PRIV_KEY_SIZE and the public key with length ED_PUB_KEY_SIZE.
-        :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
-        if not (
-            isinstance(mont_priv, bytes) and len(mont_priv) == cls.MONT_PRIV_KEY_SIZE
-        ):
-            raise TypeError(
-                "The mont_priv parameter must be a bytes-like object with length " +
-                cls.MONT_PRIV_KEY_SIZE + "."
-            )
+        if not isinstance(mont_priv, bytes):
+            raise TypeError("Wrong type passed for the mont_priv parameter.")
+
+        if len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
+            raise ValueError("Invalid value passed for the mont_priv parameter.")
 
         ed_priv, ed_pub = cls._mont_priv_to_ed_pair(bytearray(mont_priv))
 
@@ -169,16 +154,13 @@ class XEdDSA(object):
         :param mont_pub: A bytes-like object encoding the public key with length
             MONT_PUB_KEY_SIZE.
         :returns: A bytes-like object encoding the public key with length ED_PUB_KEY_SIZE.
-        :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
-        if not (
-            isinstance(mont_pub, bytes) and len(mont_pub) == cls.MONT_PUB_KEY_SIZE
-        ):
-            raise TypeError(
-                "The mont_pub parameter must be a bytes-like object with length " +
-                cls.MONT_PUB_KEY_SIZE + "."
-            )
+        if not isinstance(mont_pub, bytes):
+            raise TypeError("Wrong type passed for the mont_pub parameter.")
+
+        if len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
+            raise ValueError("Invalid value passed for the mont_pub parameter.")
 
         return bytes(cls._mont_pub_to_ed_pub(bytearray(mont_pub)))
 
@@ -205,7 +187,6 @@ class XEdDSA(object):
         If the nonce parameter is None, a new nonce is generated and used.
 
         :raises MissingKeyException: If the Montgomery private key is not available.
-        :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
         cls = self.__class__
@@ -221,10 +202,11 @@ class XEdDSA(object):
         if nonce == None:
             nonce = os.urandom(64)
 
-        if not (isinstance(nonce, bytes) and len(nonce) == 64):
-            raise TypeError(
-                "The nonce parameter must be None or a bytes-like object with length 64."
-            )
+        if not isinstance(nonce, bytes):
+            raise TypeError("Wrong type passed for the nonce parameter.")
+
+        if len(nonce) != 64:
+            raise ValueError("Invalid value passed for the nonce parameter.")
 
         ed_priv, ed_pub = cls._mont_priv_to_ed_pair(bytearray(self.__mont_priv))
 
@@ -257,7 +239,6 @@ class XEdDSA(object):
         :param signature: A bytes-like object encoding the signature with length
             SIGNATURE_SIZE.
         :returns: A boolean indicating whether the signature was valid or not.
-        :raises TypeError: If any of the parameters is passed with the wrong type.
         """
 
         cls = self.__class__
@@ -265,11 +246,11 @@ class XEdDSA(object):
         if not isinstance(data, bytes):
             raise TypeError("The data parameter must be a bytes-like object.")
 
-        if not (isinstance(signature, bytes) and len(signature) == cls.SIGNATURE_SIZE):
-            raise TypeError(
-                "The signature parameter must a bytes-like object with length " +
-                "SIGNATURE_SIZE."
-            )
+        if not isinstance(signature, bytes):
+            raise TypeError("Wrong type passed for the signature parameter.")
+
+        if len(signature) != cls.SIGNATURE_SIZE:
+            raise ValueError("Invalid value passed for the signature parameter.")
 
         return cls._verify(
             bytearray(data),
