@@ -1,19 +1,11 @@
 build/
 dist/
 XEdDSA.egg-info/
-.eggs/
-*.o
-*.so
-*.preprocessed
+*.pyc
+
+.pytest_cache
 
 docs/_build
 
-.pytest_cache
-*.pyc
-
 ref10/bin
-ref10/*/bin
-
-xeddsa/implementations/cffi/_crypto*
-
-*.tmp
+ref10/build

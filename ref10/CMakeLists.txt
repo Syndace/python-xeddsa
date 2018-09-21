@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-INCLUDE(CheckSymbolExists)
+include(CheckSymbolExists)
 
 if (UNIX)
     CHECK_SYMBOL_EXISTS(getentropy         "sys/random.h"            RANDOM_SOURCE_getentropy)
@@ -10,12 +10,30 @@ if (UNIX)
     CHECK_SYMBOL_EXISTS(SYS_getrandom      "unistd.h;syscall.h"      RANDOM_SOURCE_getrandom3)
     CHECK_SYMBOL_EXISTS(SecRandomCopyBytes "Security/Security.h"     RANDOM_SOURCE_secrandomcopybytes)
 
-    if () # None of the above
+    if (RANDOM_SOURCE_getentropy OR RANDOM_SOURCE_getentropy2 OR RANDOM_SOURCE_getrandom OR RANDOM_SOURCE_getrandom2 OR RANDOM_SOURCE_getrandom3 OR RANDOM_SOURCE_secrandomcopybytes)
+        set(RANDOM_SOURCE_urandom FALSE)
+    else ()
         set(RANDOM_SOURCE_urandom TRUE)
     endif ()
+else (UNIX)
+    set(RANDOM_SOURCE_getentropy         FALSE)
+    set(RANDOM_SOURCE_getentropy2        FALSE)
+    set(RANDOM_SOURCE_getrandom          FALSE)
+    set(RANDOM_SOURCE_getrandom2         FALSE)
+    set(RANDOM_SOURCE_getrandom3         FALSE)
+    set(RANDOM_SOURCE_secrandomcopybytes FALSE)
+    set(RANDOM_SOURCE_urandom            FALSE)
 endif (UNIX)
 
-set(RANDOM_SOURCE_rtlgenrandom WIN32)
+if (WIN32)
+    set(RANDOM_SOURCE_rtlgenrandom TRUE)
+else (WIN32)
+    set(RANDOM_SOURCE_rtlgenrandom FALSE)
+endif (WIN32)
+
+if (NOT UNIX OR WIN32)
+    message(FATAL_ERROR "Unsupported operating system (neither UNIX nor Windows). CMake will exit.")
+endif ()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/static)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/dynamic)
@@ -178,16 +196,36 @@ add_library(fastrandombytes_dynamic SHARED ${fastrandombytes_sources})
 #####################
 
 set(kernelrandombytes_sources
-    kernelrandombytes/getentropy2.c
-    kernelrandombytes/getentropy.c
-    kernelrandombytes/getrandom2.c
-    kernelrandombytes/getrandom3.c
-    kernelrandombytes/getrandom.c
-    kernelrandombytes/rtlgenrandom.c
-    kernelrandombytes/secrandomcopybytes.c
     kernelrandombytes/test.c
-    kernelrandombytes/urandom.c
 )
+
+if (RANDOM_SOURCE_getentropy)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy.c)
+endif ()
+
+if (RANDOM_SOURCE_getentropy2)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy2.c)
+endif ()
+
+if (RANDOM_SOURCE_getrandom)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom.c)
+endif ()
+
+if (RANDOM_SOURCE_getrandom2)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom2.c)
+endif ()
+
+if (RANDOM_SOURCE_getrandom3)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom3.c)
+endif ()
+
+if (RANDOM_SOURCE_secrandomcopybytes)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/secrandomcopybytes.c)
+endif ()
+
+if (RANDOM_SOURCE_rtlgenrandom)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
+endif ()
 
 add_library(kernelrandombytes_static  STATIC ${kernelrandombytes_sources})
 add_library(kernelrandombytes_dynamic SHARED ${kernelrandombytes_sources})
@@ -196,17 +234,58 @@ add_library(kernelrandombytes_dynamic SHARED ${kernelrandombytes_sources})
 # DEPENDENCIES #
 ################
 
-target_link_libraries(crypto_sign_static  crypto_hash_static  crypto_verify_static  fastrandombytes_static)
-target_link_libraries(crypto_sign_dynamic crypto_hash_dynamic crypto_verify_dynamic fastrandombytes_dynamic)
+target_link_libraries(crypto_sign_static
+    crypto_hash_static
+    crypto_hashblocks_static
+    crypto_verify_static
+    fastrandombytes_static
+    crypto_rng_static
+    crypto_stream_static
+    crypto_core_static
+    kernelrandombytes_static
+)
+
+target_link_libraries(crypto_sign_dynamic
+    crypto_hash_dynamic
+    crypto_hashblocks_dynamic
+    crypto_verify_dynamic
+    fastrandombytes_dynamic
+    crypto_rng_dynamic
+    crypto_stream_dynamic
+    crypto_core_dynamic
+    kernelrandombytes_dynamic
+)
+
+set(crypto_sign_include_directories
+    crypto_hash
+    crypto_hashblocks
+    crypto_verify
+    fastrandombytes
+    crypto_rng
+    crypto_stream
+    crypto_core
+    kernelrandombytes
+)
+
+target_include_directories(crypto_sign_static  PRIVATE ${crypto_sign_include_directories})
+target_include_directories(crypto_sign_dynamic PRIVATE ${crypto_sign_include_directories})
 
 target_link_libraries(crypto_hash_static  crypto_hashblocks_static)
 target_link_libraries(crypto_hash_dynamic crypto_hashblocks_dynamic)
+target_include_directories(crypto_hash_static  PRIVATE crypto_hashblocks)
+target_include_directories(crypto_hash_dynamic PRIVATE crypto_hashblocks)
 
-target_link_libraries(fastrandombytes_static  crypto_rng_static  kernelrandombytes_static)
-target_link_libraries(fastrandombytes_dynamic crypto_rng_dynamic kernelrandombytes_dynamic)
+target_link_libraries(fastrandombytes_static  crypto_rng_static  crypto_stream_static  crypto_core_static  kernelrandombytes_static)
+target_link_libraries(fastrandombytes_dynamic crypto_rng_dynamic crypto_stream_dynamic crypto_core_dynamic kernelrandombytes_dynamic)
+target_include_directories(fastrandombytes_static  PRIVATE crypto_rng crypto_stream crypto_core kernelrandombytes)
+target_include_directories(fastrandombytes_dynamic PRIVATE crypto_rng crypto_stream crypto_core kernelrandombytes)
 
-target_link_libraries(crypto_rng_static  crypto_stream_static)
-target_link_libraries(crypto_rng_dynamic crypto_stream_dynamic)
+target_link_libraries(crypto_rng_static  crypto_stream_static  crypto_core_static)
+target_link_libraries(crypto_rng_dynamic crypto_stream_dynamic crypto_core_dynamic)
+target_include_directories(crypto_rng_static  PRIVATE crypto_stream crypto_core)
+target_include_directories(crypto_rng_dynamic PRIVATE crypto_stream crypto_core)
 
 target_link_libraries(crypto_stream_static  crypto_core_static)
 target_link_libraries(crypto_stream_dynamic crypto_core_dynamic)
+target_include_directories(crypto_stream_static  PRIVATE crypto_core)
+target_include_directories(crypto_stream_dynamic PRIVATE crypto_core)
