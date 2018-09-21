@@ -7,7 +7,8 @@ if (UNIX)
     CHECK_SYMBOL_EXISTS(getentropy         "unistd.h"                RANDOM_SOURCE_getentropy2)
     CHECK_SYMBOL_EXISTS(getrandom          "unistd.h;sys/random.h"   RANDOM_SOURCE_getrandom)
     CHECK_SYMBOL_EXISTS(getrandom          "unistd.h;linux/random.h" RANDOM_SOURCE_getrandom2)
-    CHECK_SYMBOL_EXISTS(SYS_getrandom      "unistd.h;syscall.h"      RANDOM_SOURCE_getrandom3)
+    #CHECK_SYMBOL_EXISTS(SYS_getrandom      "unistd.h;syscall.h"      RANDOM_SOURCE_getrandom3)
+    set(RANDOM_SOURCE_getrandom3 FALSE)
     CHECK_SYMBOL_EXISTS(SecRandomCopyBytes "Security/Security.h"     RANDOM_SOURCE_secrandomcopybytes)
 
     if (RANDOM_SOURCE_getentropy OR RANDOM_SOURCE_getentropy2 OR RANDOM_SOURCE_getrandom OR RANDOM_SOURCE_getrandom2 OR RANDOM_SOURCE_getrandom3 OR RANDOM_SOURCE_secrandomcopybytes)
@@ -261,6 +262,10 @@ endif ()
 
 if (RANDOM_SOURCE_rtlgenrandom)
     list(APPEND kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
+endif ()
+
+if (RANDOM_SOURCE_urandom)
+    list(APPEND kernelrandombytes_sources kernelrandombytes/urandom.c)
 endif ()
 
 add_library(kernelrandombytes_objects OBJECT ${kernelrandombytes_sources})
