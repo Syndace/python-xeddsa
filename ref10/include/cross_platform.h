@@ -7,20 +7,14 @@
 #define IMPORT __declspec(dllimport)
 #define EXPORT __declspec(dllexport)
 
-#elif __APPLE__
+#elif __unix__
 
-// On Apple OS', no such marking is required.
-#define IMPORT
-#define EXPORT
-
-#elif __linux__
-
-// On Linux, no such marking is required.
+// On UNIX (using gcc), no such marking is required.
 #define IMPORT
 #define EXPORT
 
 #else
-#   error "Unknown OS"
+#   error "Unsupported operating system (neither UNIX nor Windows)."
 #endif
 
 #ifdef BUILD

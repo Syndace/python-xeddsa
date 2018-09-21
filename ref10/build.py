@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import cffi
 import os
-import platform
 import subprocess
 import sys
 import zipfile
@@ -18,38 +17,43 @@ except:
 ref10_dir  = os.path.abspath("ref10")
 module_dir = os.path.join(ref10_dir, "crypto_sign")
 bin_dir    = os.path.join(ref10_dir, "bin")
+build_dir  = os.path.join(ref10_dir, "build")
 
 library_header = os.path.join(module_dir, "module.h")
 static_lib_dir = os.path.join(bin_dir, "static")
 
+try:
+    os.mkdir(build_dir)
+except OSError:
+    pass
+
 libraries = [
-    "crypto_sign",
-    "crypto_hash",
-    "crypto_hashblocks",
-    "crypto_verify",
-    "fastrandombytes",
-    "kernelrandombytes",
-    "crypto_rng",
-    "crypto_stream",
-    "crypto_core"
+    "crypto_sign_static",
+    "crypto_hash_static",
+    "crypto_hashblocks_static",
+    "crypto_verify_static",
+    "fastrandombytes_static",
+    "kernelrandombytes_static",
+    "crypto_rng_static",
+    "crypto_stream_static",
+    "crypto_core_static"
 ]
 
 class UnknownSystemException(Exception):
     pass
 
-if platform.system() == "Linux":
-    # On Linux, we HAVE to make the ref10 libraries, because the kernelrandombytes module
-    # can vary between different Linux systems.
+if os.name == "posix":
+    # On UNIX, we HAVE to make the ref10 libraries, because the kernelrandombytes module
+    # can vary between different UNIX systems.
     print("Compiling the ref10 library...")
-    print("Make sure \"make\" and \"gcc\" are installed and available.")
+    print("Make sure \"cmake\", \"make\" and \"gcc\" are installed and available.")
 
-    with open(os.devnull, "w") as psst:
-        subprocess.check_call([ "make" ], cwd = ref10_dir, stdout = psst, stderr = psst)
+    subprocess.check_call([ "cmake", ".." ], cwd = build_dir)
+    subprocess.check_call([ "make" ],        cwd = build_dir)
 
     print("Library built successfully!")
-
-elif platform.system() == "Windows":
-    libraries = [ "lib" + library for library in libraries ] + [ "ADVAPI32" ]
+elif os.name == "nt":
+    libraries += [ "ADVAPI32" ]
 
     # On Windows, the kernelrandombytes module is fixed, thus we can use precompiled binaries.
 
@@ -61,8 +65,8 @@ elif platform.system() == "Windows":
     if not is_32bit and not is_64bit:
         raise UnknownSystemException("This system was detected as neither 32-bit nor 64-bit.")
 
-    precompiled_windows_32bit = "https://github.com/Syndace/python-xeddsa/releases/download/v0.3.0-alpha/bin-windows-x86.zip"
-    precompiled_windows_64bit = "https://github.com/Syndace/python-xeddsa/releases/download/v0.3.0-alpha/bin-windows-amd64.zip"
+    precompiled_windows_32bit = "https://github.com/Syndace/python-xeddsa/releases/download/v0.4.3-beta/bin-windows-x86.zip"
+    precompiled_windows_64bit = "https://github.com/Syndace/python-xeddsa/releases/download/v0.4.3-beta/bin-windows-amd64.zip"
 
     url = precompiled_windows_64bit if is_64bit else precompiled_windows_32bit
 
@@ -83,9 +87,8 @@ elif platform.system() == "Windows":
     os.remove(zip_location)
 
     print("Binaries downloaded!")
-
 else:
-    raise UnknownSystemException("This system was detected as neither Linux nor Windows.")
+    raise UnknownSystemException("Unsupported operating system (neither UNIX nor Windows).")
 
 ffibuilder = cffi.FFI()
 

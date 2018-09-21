@@ -48,8 +48,12 @@ set(crypto_core_sources
     crypto_core/core.c
 )
 
-add_library(crypto_core_static  STATIC ${crypto_core_sources})
-add_library(crypto_core_dynamic SHARED ${crypto_core_sources})
+add_library(crypto_core_objects OBJECT ${crypto_core_sources})
+
+set_property(TARGET crypto_core_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_core_static  STATIC $<TARGET_OBJECTS:crypto_core_objects>)
+add_library(crypto_core_dynamic SHARED $<TARGET_OBJECTS:crypto_core_objects>)
 
 ###############
 # crypto_hash #
@@ -59,8 +63,12 @@ set(crypto_hash_sources
     crypto_hash/hash.c
 )
 
-add_library(crypto_hash_static  STATIC ${crypto_hash_sources})
-add_library(crypto_hash_dynamic SHARED ${crypto_hash_sources})
+add_library(crypto_hash_objects OBJECT ${crypto_hash_sources})
+
+set_property(TARGET crypto_hash_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_hash_static  STATIC $<TARGET_OBJECTS:crypto_hash_objects>)
+add_library(crypto_hash_dynamic SHARED $<TARGET_OBJECTS:crypto_hash_objects>)
 
 #####################
 # crypto_hashblocks #
@@ -70,8 +78,12 @@ set(crypto_hashblocks_sources
     crypto_hashblocks/blocks.c
 )
 
-add_library(crypto_hashblocks_static  STATIC ${crypto_hashblocks_sources})
-add_library(crypto_hashblocks_dynamic SHARED ${crypto_hashblocks_sources})
+add_library(crypto_hashblocks_objects OBJECT ${crypto_hashblocks_sources})
+
+set_property(TARGET crypto_hashblocks_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_hashblocks_static  STATIC $<TARGET_OBJECTS:crypto_hashblocks_objects>)
+add_library(crypto_hashblocks_dynamic SHARED $<TARGET_OBJECTS:crypto_hashblocks_objects>)
 
 ##############
 # crypto_rng #
@@ -81,8 +93,12 @@ set(crypto_rng_sources
     crypto_rng/rng.c
 )
 
-add_library(crypto_rng_static  STATIC ${crypto_rng_sources})
-add_library(crypto_rng_dynamic SHARED ${crypto_rng_sources})
+add_library(crypto_rng_objects OBJECT ${crypto_rng_sources})
+
+set_property(TARGET crypto_rng_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_rng_static  STATIC $<TARGET_OBJECTS:crypto_rng_objects>)
+add_library(crypto_rng_dynamic SHARED $<TARGET_OBJECTS:crypto_rng_objects>)
 
 #####################
 # crypto_scalarmult #
@@ -105,8 +121,12 @@ set(crypto_scalarmult_sources
     crypto_scalarmult/scalarmult.c
 )
 
-add_library(crypto_scalarmult_static  STATIC ${crypto_scalarmult_sources})
-add_library(crypto_scalarmult_dynamic SHARED ${crypto_scalarmult_sources})
+add_library(crypto_scalarmult_objects OBJECT ${crypto_scalarmult_sources})
+
+set_property(TARGET crypto_scalarmult_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_scalarmult_static  STATIC $<TARGET_OBJECTS:crypto_scalarmult_objects>)
+add_library(crypto_scalarmult_dynamic SHARED $<TARGET_OBJECTS:crypto_scalarmult_objects>)
 
 ###############
 # crypto_sign #
@@ -154,8 +174,12 @@ set(crypto_sign_sources
     crypto_sign/sign.c
 )
 
-add_library(crypto_sign_static  STATIC ${crypto_sign_sources})
-add_library(crypto_sign_dynamic SHARED ${crypto_sign_sources})
+add_library(crypto_sign_objects OBJECT ${crypto_sign_sources})
+
+set_property(TARGET crypto_sign_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_sign_static  STATIC $<TARGET_OBJECTS:crypto_sign_objects>)
+add_library(crypto_sign_dynamic SHARED $<TARGET_OBJECTS:crypto_sign_objects>)
 
 #################
 # crypto_stream #
@@ -166,8 +190,12 @@ set(crypto_stream_sources
     crypto_stream/xor.c
 )
 
-add_library(crypto_stream_static  STATIC ${crypto_stream_sources})
-add_library(crypto_stream_dynamic SHARED ${crypto_stream_sources})
+add_library(crypto_stream_objects OBJECT ${crypto_stream_sources})
+
+set_property(TARGET crypto_stream_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_stream_static  STATIC $<TARGET_OBJECTS:crypto_stream_objects>)
+add_library(crypto_stream_dynamic SHARED $<TARGET_OBJECTS:crypto_stream_objects>)
 
 #################
 # crypto_verify #
@@ -177,8 +205,12 @@ set(crypto_verify_sources
     crypto_verify/verify.c
 )
 
-add_library(crypto_verify_static  STATIC ${crypto_verify_sources})
-add_library(crypto_verify_dynamic SHARED ${crypto_verify_sources})
+add_library(crypto_verify_objects OBJECT ${crypto_verify_sources})
+
+set_property(TARGET crypto_verify_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(crypto_verify_static  STATIC $<TARGET_OBJECTS:crypto_verify_objects>)
+add_library(crypto_verify_dynamic SHARED $<TARGET_OBJECTS:crypto_verify_objects>)
 
 ###################
 # fastrandombytes #
@@ -188,8 +220,12 @@ set(fastrandombytes_sources
     fastrandombytes/fastrandombytes.c
 )
 
-add_library(fastrandombytes_static  STATIC ${fastrandombytes_sources})
-add_library(fastrandombytes_dynamic SHARED ${fastrandombytes_sources})
+add_library(fastrandombytes_objects OBJECT ${fastrandombytes_sources})
+
+set_property(TARGET fastrandombytes_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(fastrandombytes_static  STATIC $<TARGET_OBJECTS:fastrandombytes_objects>)
+add_library(fastrandombytes_dynamic SHARED $<TARGET_OBJECTS:fastrandombytes_objects>)
 
 #####################
 # kernelrandombytes #
@@ -227,8 +263,12 @@ if (RANDOM_SOURCE_rtlgenrandom)
     list(APPEND kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
 endif ()
 
-add_library(kernelrandombytes_static  STATIC ${kernelrandombytes_sources})
-add_library(kernelrandombytes_dynamic SHARED ${kernelrandombytes_sources})
+add_library(kernelrandombytes_objects OBJECT ${kernelrandombytes_sources})
+
+set_property(TARGET kernelrandombytes_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(kernelrandombytes_static  STATIC $<TARGET_OBJECTS:kernelrandombytes_objects>)
+add_library(kernelrandombytes_dynamic SHARED $<TARGET_OBJECTS:kernelrandombytes_objects>)
 
 ################
 # DEPENDENCIES #
@@ -256,7 +296,7 @@ target_link_libraries(crypto_sign_dynamic
     kernelrandombytes_dynamic
 )
 
-set(crypto_sign_include_directories
+target_include_directories(crypto_sign_objects PRIVATE
     crypto_hash
     crypto_hashblocks
     crypto_verify
@@ -267,25 +307,18 @@ set(crypto_sign_include_directories
     kernelrandombytes
 )
 
-target_include_directories(crypto_sign_static  PRIVATE ${crypto_sign_include_directories})
-target_include_directories(crypto_sign_dynamic PRIVATE ${crypto_sign_include_directories})
-
 target_link_libraries(crypto_hash_static  crypto_hashblocks_static)
 target_link_libraries(crypto_hash_dynamic crypto_hashblocks_dynamic)
-target_include_directories(crypto_hash_static  PRIVATE crypto_hashblocks)
-target_include_directories(crypto_hash_dynamic PRIVATE crypto_hashblocks)
+target_include_directories(crypto_hash_objects PRIVATE crypto_hashblocks)
 
 target_link_libraries(fastrandombytes_static  crypto_rng_static  crypto_stream_static  crypto_core_static  kernelrandombytes_static)
 target_link_libraries(fastrandombytes_dynamic crypto_rng_dynamic crypto_stream_dynamic crypto_core_dynamic kernelrandombytes_dynamic)
-target_include_directories(fastrandombytes_static  PRIVATE crypto_rng crypto_stream crypto_core kernelrandombytes)
-target_include_directories(fastrandombytes_dynamic PRIVATE crypto_rng crypto_stream crypto_core kernelrandombytes)
+target_include_directories(fastrandombytes_objects PRIVATE crypto_rng crypto_stream crypto_core kernelrandombytes)
 
 target_link_libraries(crypto_rng_static  crypto_stream_static  crypto_core_static)
 target_link_libraries(crypto_rng_dynamic crypto_stream_dynamic crypto_core_dynamic)
-target_include_directories(crypto_rng_static  PRIVATE crypto_stream crypto_core)
-target_include_directories(crypto_rng_dynamic PRIVATE crypto_stream crypto_core)
+target_include_directories(crypto_rng_objects PRIVATE crypto_stream crypto_core)
 
 target_link_libraries(crypto_stream_static  crypto_core_static)
 target_link_libraries(crypto_stream_dynamic crypto_core_dynamic)
-target_include_directories(crypto_stream_static  PRIVATE crypto_core)
-target_include_directories(crypto_stream_dynamic PRIVATE crypto_core)
+target_include_directories(crypto_stream_objects PRIVATE crypto_core)
