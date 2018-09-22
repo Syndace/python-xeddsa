@@ -306,6 +306,11 @@ target_compile_definitions(kernelrandombytes_objects PRIVATE BUILD)
 add_library(kernelrandombytes_static  STATIC $<TARGET_OBJECTS:kernelrandombytes_objects>)
 add_library(kernelrandombytes_dynamic SHARED $<TARGET_OBJECTS:kernelrandombytes_objects>)
 
+if (RANDOM_SOURCE_rtlgenrandom)
+    target_link_libraries(kernelrandombytes_static  ADVAPI32)
+    target_link_libraries(kernelrandombytes_dynamic ADVAPI32)
+endif ()
+
 ################
 # DEPENDENCIES #
 ################

@@ -1,3 +1,4 @@
+#include "kernelrandombytes.h"
 #include <Windows.h>
 
 #define RtlGenRandom SystemFunction036

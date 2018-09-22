@@ -1,3 +1,4 @@
+#include "kernelrandombytes.h"
 #include <unistd.h>
 
 void kernelrandombytes(unsigned char *x,unsigned long long xlen)

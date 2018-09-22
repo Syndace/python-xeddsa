@@ -1,3 +1,4 @@
+#include "kernelrandombytes.h"
 #include <unistd.h>
 #include <sys/random.h>
 
