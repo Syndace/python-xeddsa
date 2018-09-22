@@ -25,7 +25,7 @@ setup(
     install_requires = [ "cffi>=1.9.1", "pynacl>=1.0.1" ],
     setup_requires   = [ "cffi>=1.9.1" ],
     cffi_modules     = [ os.path.join("ref10", "build.py") + ":ffibuilder" ],
-    python_requires  = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4",
+    python_requires  = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4",
     include_package_data = True,
     zip_safe = False,
     classifiers = [
