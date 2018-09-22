@@ -1,6 +1,4 @@
-os:
-  - linux
-  - osx
+os: linux
 
 language: python
 python:
@@ -12,6 +10,24 @@ python:
 env:
   - PYNACL_VERSION=1.2.1 CFFI_VERSION=1.11.5 # Most recent versions on pip
   - PYNACL_VERSION=1.0.1 CFFI_VERSION=1.9.1  # Version in Debian 9's apt repositories
+
+matrix:
+  include:
+  - os: osx
+    language: generic
+    env: PYTHON_VERSION=2.7
+  - os: osx
+    language: generic
+    env: PYTHON_VERSION=3.4
+  - os: osx
+    language: generic
+    env: PYTHON_VERSION=3.5
+  - os: osx
+    language: generic
+    env: PYTHON_VERSION=3.6
+
+before_install:
+  - ./.travis/install.sh
 
 install:
   - pip install pynacl==$PYNACL_VERSION
