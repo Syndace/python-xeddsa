@@ -20,7 +20,6 @@ bin_dir    = os.path.join(ref10_dir, "bin")
 build_dir  = os.path.join(ref10_dir, "build")
 
 library_header = os.path.join(module_dir, "module.h")
-static_lib_dir = os.path.join(bin_dir, "static")
 
 try:
     os.mkdir(build_dir)
@@ -100,7 +99,7 @@ with open(library_header) as f:
 ffibuilder.set_source(
     "_crypto_sign",
     '#include "' + library_header + '"',
-    library_dirs = [ static_lib_dir ],
+    library_dirs = [ bin_dir ],
     libraries    = libraries
 )
 

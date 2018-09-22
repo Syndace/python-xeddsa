@@ -33,8 +33,9 @@ if (NOT (UNIX OR WIN32))
     message(FATAL_ERROR "Unsupported operating system (neither UNIX nor Windows). CMake will exit.")
 endif ()
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/static)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/dynamic)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 include_directories(include)
 
@@ -49,6 +50,7 @@ set(crypto_core_sources
 add_library(crypto_core_objects OBJECT ${crypto_core_sources})
 
 set_property(TARGET crypto_core_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_core_objects PRIVATE BUILD)
 
 add_library(crypto_core_static  STATIC $<TARGET_OBJECTS:crypto_core_objects>)
 add_library(crypto_core_dynamic SHARED $<TARGET_OBJECTS:crypto_core_objects>)
@@ -64,6 +66,7 @@ set(crypto_hash_sources
 add_library(crypto_hash_objects OBJECT ${crypto_hash_sources})
 
 set_property(TARGET crypto_hash_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_hash_objects PRIVATE BUILD)
 
 add_library(crypto_hash_static  STATIC $<TARGET_OBJECTS:crypto_hash_objects>)
 add_library(crypto_hash_dynamic SHARED $<TARGET_OBJECTS:crypto_hash_objects>)
@@ -79,6 +82,7 @@ set(crypto_hashblocks_sources
 add_library(crypto_hashblocks_objects OBJECT ${crypto_hashblocks_sources})
 
 set_property(TARGET crypto_hashblocks_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_hashblocks_objects PRIVATE BUILD)
 
 add_library(crypto_hashblocks_static  STATIC $<TARGET_OBJECTS:crypto_hashblocks_objects>)
 add_library(crypto_hashblocks_dynamic SHARED $<TARGET_OBJECTS:crypto_hashblocks_objects>)
@@ -94,6 +98,7 @@ set(crypto_rng_sources
 add_library(crypto_rng_objects OBJECT ${crypto_rng_sources})
 
 set_property(TARGET crypto_rng_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_rng_objects PRIVATE BUILD)
 
 add_library(crypto_rng_static  STATIC $<TARGET_OBJECTS:crypto_rng_objects>)
 add_library(crypto_rng_dynamic SHARED $<TARGET_OBJECTS:crypto_rng_objects>)
@@ -122,6 +127,7 @@ set(crypto_scalarmult_sources
 add_library(crypto_scalarmult_objects OBJECT ${crypto_scalarmult_sources})
 
 set_property(TARGET crypto_scalarmult_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_scalarmult_objects PRIVATE BUILD)
 
 add_library(crypto_scalarmult_static  STATIC $<TARGET_OBJECTS:crypto_scalarmult_objects>)
 add_library(crypto_scalarmult_dynamic SHARED $<TARGET_OBJECTS:crypto_scalarmult_objects>)
@@ -175,6 +181,7 @@ set(crypto_sign_sources
 add_library(crypto_sign_objects OBJECT ${crypto_sign_sources})
 
 set_property(TARGET crypto_sign_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_sign_objects PRIVATE BUILD)
 
 add_library(crypto_sign_static  STATIC $<TARGET_OBJECTS:crypto_sign_objects>)
 add_library(crypto_sign_dynamic SHARED $<TARGET_OBJECTS:crypto_sign_objects>)
@@ -191,6 +198,7 @@ set(crypto_stream_sources
 add_library(crypto_stream_objects OBJECT ${crypto_stream_sources})
 
 set_property(TARGET crypto_stream_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_stream_objects PRIVATE BUILD)
 
 add_library(crypto_stream_static  STATIC $<TARGET_OBJECTS:crypto_stream_objects>)
 add_library(crypto_stream_dynamic SHARED $<TARGET_OBJECTS:crypto_stream_objects>)
@@ -206,6 +214,7 @@ set(crypto_verify_sources
 add_library(crypto_verify_objects OBJECT ${crypto_verify_sources})
 
 set_property(TARGET crypto_verify_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(crypto_verify_objects PRIVATE BUILD)
 
 add_library(crypto_verify_static  STATIC $<TARGET_OBJECTS:crypto_verify_objects>)
 add_library(crypto_verify_dynamic SHARED $<TARGET_OBJECTS:crypto_verify_objects>)
@@ -221,6 +230,7 @@ set(fastrandombytes_sources
 add_library(fastrandombytes_objects OBJECT ${fastrandombytes_sources})
 
 set_property(TARGET fastrandombytes_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(fastrandombytes_objects PRIVATE BUILD)
 
 add_library(fastrandombytes_static  STATIC $<TARGET_OBJECTS:fastrandombytes_objects>)
 add_library(fastrandombytes_dynamic SHARED $<TARGET_OBJECTS:fastrandombytes_objects>)
@@ -233,37 +243,65 @@ set(kernelrandombytes_sources
     kernelrandombytes/test.c
 )
 
-if (RANDOM_SOURCE_getentropy)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy.c)
+set(RANDOM_SOURCE_ADDED FALSE)
+
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_getentropy)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
 endif ()
 
-if (RANDOM_SOURCE_getentropy2)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy2.c)
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_getentropy2)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy2.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
 endif ()
 
-if (RANDOM_SOURCE_getrandom)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom.c)
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_getrandom)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
 endif ()
 
-if (RANDOM_SOURCE_getrandom2)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom2.c)
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_getrandom2)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom2.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
 endif ()
 
-if (RANDOM_SOURCE_getrandom3)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom3.c)
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_getrandom3)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom3.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
 endif ()
 
-if (RANDOM_SOURCE_rtlgenrandom)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_rtlgenrandom)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
 endif ()
 
-if (RANDOM_SOURCE_urandom)
-    list(APPEND kernelrandombytes_sources kernelrandombytes/urandom.c)
+if (NOT RANDOM_SOURCE_ADDED)
+    if (RANDOM_SOURCE_urandom)
+        list(APPEND kernelrandombytes_sources kernelrandombytes/urandom.c)
+        set(RANDOM_SOURCE_ADDED TRUE)
+    endif ()
+endif ()
+
+if (NOT RANDOM_SOURCE_ADDED)
+    message(FATAL_ERROR "No secure random source found. CMake will exit.")
 endif ()
 
 add_library(kernelrandombytes_objects OBJECT ${kernelrandombytes_sources})
 
 set_property(TARGET kernelrandombytes_objects PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(kernelrandombytes_objects PRIVATE BUILD)
 
 add_library(kernelrandombytes_static  STATIC $<TARGET_OBJECTS:kernelrandombytes_objects>)
 add_library(kernelrandombytes_dynamic SHARED $<TARGET_OBJECTS:kernelrandombytes_objects>)
