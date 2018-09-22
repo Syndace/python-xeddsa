@@ -279,23 +279,9 @@ This makes it impossible to react to the failure, thus the possible failure gets
 
 ### 3.2.2 Mac OS
 
-On Mac OS, the go-to random API is `SecRandomCopyBytes`, which is available as a C function. The following shows an implementation of `kernelrandombytes` using the function:
+On Mac OS, the go-to random API is `SecRandomCopyBytes`, which is only available from objective-C and Swift, not from plain C.
 
-```cpp
-#include <Security/Security.h>
-
-void kernelrandombytes(unsigned char *x,unsigned long long xlen)
-{
-  int i;
-
-  while (xlen > 0) {
-    if (xlen < 256) i = xlen; else i = 256;
-    SecRandomCopyBytes(kSecRandomDefault, i, x);
-    x += i;
-    xlen -= i;
-  }
-}
-```
+For that reason, `/dev/urandom` is the probably best choice on Mac OS.
 
 ### 3.3. Cross-platform dynamic libraries
 
