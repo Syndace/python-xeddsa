@@ -27,7 +27,7 @@ matrix:
     env: PYTHON_VERSION=3.6
 
 before_install:
-  - ./.travis/install.sh
+  - ./.travis/before_install.sh
 
 install:
   - pip install pynacl==$PYNACL_VERSION
