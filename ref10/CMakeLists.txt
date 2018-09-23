@@ -37,6 +37,25 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
+foreach (OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_SOURCE_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_SOURCE_DIR}/bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_SOURCE_DIR}/bin)
+endforeach ()
+
+if (WIN32)
+    # When using the MinGW generator on Windows, the generated files are prefixed with
+    # "lib" and use the extension ".a" instead of ".lib". This is not Windows convention.
+    # Using following global settings it is possible to correct most of these issues.
+    # Sadly, these global settings don't apply to import libraries. These have to be
+    # corrected for each single target.
+    set(CMAKE_STATIC_LIBRARY_PREFIX "")
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
+
+    set(CMAKE_STATIC_LIBRARY_SUFFIX ".lib")
+endif (WIN32)
+
 include_directories(include)
 
 ###############
@@ -55,6 +74,12 @@ target_compile_definitions(crypto_core_objects PRIVATE BUILD)
 add_library(crypto_core_static  STATIC $<TARGET_OBJECTS:crypto_core_objects>)
 add_library(crypto_core_dynamic SHARED $<TARGET_OBJECTS:crypto_core_objects>)
 
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_core_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_core_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
+
 ###############
 # crypto_hash #
 ###############
@@ -70,6 +95,12 @@ target_compile_definitions(crypto_hash_objects PRIVATE BUILD)
 
 add_library(crypto_hash_static  STATIC $<TARGET_OBJECTS:crypto_hash_objects>)
 add_library(crypto_hash_dynamic SHARED $<TARGET_OBJECTS:crypto_hash_objects>)
+
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_hash_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_hash_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
 
 #####################
 # crypto_hashblocks #
@@ -87,6 +118,12 @@ target_compile_definitions(crypto_hashblocks_objects PRIVATE BUILD)
 add_library(crypto_hashblocks_static  STATIC $<TARGET_OBJECTS:crypto_hashblocks_objects>)
 add_library(crypto_hashblocks_dynamic SHARED $<TARGET_OBJECTS:crypto_hashblocks_objects>)
 
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_hashblocks_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_hashblocks_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
+
 ##############
 # crypto_rng #
 ##############
@@ -102,6 +139,12 @@ target_compile_definitions(crypto_rng_objects PRIVATE BUILD)
 
 add_library(crypto_rng_static  STATIC $<TARGET_OBJECTS:crypto_rng_objects>)
 add_library(crypto_rng_dynamic SHARED $<TARGET_OBJECTS:crypto_rng_objects>)
+
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_rng_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_rng_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
 
 #####################
 # crypto_scalarmult #
@@ -131,6 +174,12 @@ target_compile_definitions(crypto_scalarmult_objects PRIVATE BUILD)
 
 add_library(crypto_scalarmult_static  STATIC $<TARGET_OBJECTS:crypto_scalarmult_objects>)
 add_library(crypto_scalarmult_dynamic SHARED $<TARGET_OBJECTS:crypto_scalarmult_objects>)
+
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_scalarmult_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_scalarmult_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
 
 ###############
 # crypto_sign #
@@ -186,6 +235,12 @@ target_compile_definitions(crypto_sign_objects PRIVATE BUILD)
 add_library(crypto_sign_static  STATIC $<TARGET_OBJECTS:crypto_sign_objects>)
 add_library(crypto_sign_dynamic SHARED $<TARGET_OBJECTS:crypto_sign_objects>)
 
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_sign_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_sign_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
+
 #################
 # crypto_stream #
 #################
@@ -203,6 +258,12 @@ target_compile_definitions(crypto_stream_objects PRIVATE BUILD)
 add_library(crypto_stream_static  STATIC $<TARGET_OBJECTS:crypto_stream_objects>)
 add_library(crypto_stream_dynamic SHARED $<TARGET_OBJECTS:crypto_stream_objects>)
 
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_stream_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_stream_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
+
 #################
 # crypto_verify #
 #################
@@ -218,6 +279,12 @@ target_compile_definitions(crypto_verify_objects PRIVATE BUILD)
 
 add_library(crypto_verify_static  STATIC $<TARGET_OBJECTS:crypto_verify_objects>)
 add_library(crypto_verify_dynamic SHARED $<TARGET_OBJECTS:crypto_verify_objects>)
+
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(crypto_verify_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(crypto_verify_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
 
 ###################
 # fastrandombytes #
@@ -235,61 +302,63 @@ target_compile_definitions(fastrandombytes_objects PRIVATE BUILD)
 add_library(fastrandombytes_static  STATIC $<TARGET_OBJECTS:fastrandombytes_objects>)
 add_library(fastrandombytes_dynamic SHARED $<TARGET_OBJECTS:fastrandombytes_objects>)
 
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(fastrandombytes_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(fastrandombytes_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
+
 #####################
 # kernelrandombytes #
 #####################
-
-set(kernelrandombytes_sources
-    kernelrandombytes/test.c
-)
 
 set(RANDOM_SOURCE_ADDED FALSE)
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_getentropy)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy.c)
+        set(kernelrandombytes_sources kernelrandombytes/getentropy.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_getentropy2)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/getentropy2.c)
+        set(kernelrandombytes_sources kernelrandombytes/getentropy2.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_getrandom)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom.c)
+        set(kernelrandombytes_sources kernelrandombytes/getrandom.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_getrandom2)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom2.c)
+        set(kernelrandombytes_sources kernelrandombytes/getrandom2.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_getrandom3)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/getrandom3.c)
+        set(kernelrandombytes_sources kernelrandombytes/getrandom3.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_rtlgenrandom)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
+        set(kernelrandombytes_sources kernelrandombytes/rtlgenrandom.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
 
 if (NOT RANDOM_SOURCE_ADDED)
     if (RANDOM_SOURCE_urandom)
-        list(APPEND kernelrandombytes_sources kernelrandombytes/urandom.c)
+        set(kernelrandombytes_sources kernelrandombytes/urandom.c)
         set(RANDOM_SOURCE_ADDED TRUE)
     endif ()
 endif ()
@@ -306,10 +375,30 @@ target_compile_definitions(kernelrandombytes_objects PRIVATE BUILD)
 add_library(kernelrandombytes_static  STATIC $<TARGET_OBJECTS:kernelrandombytes_objects>)
 add_library(kernelrandombytes_dynamic SHARED $<TARGET_OBJECTS:kernelrandombytes_objects>)
 
+if (WIN32)
+    # Correct the import library.
+    set_target_properties(kernelrandombytes_dynamic PROPERTIES IMPORT_PREFIX "")
+    set_target_properties(kernelrandombytes_dynamic PROPERTIES IMPORT_SUFFIX ".lib")
+endif (WIN32)
+
 if (RANDOM_SOURCE_rtlgenrandom)
     target_link_libraries(kernelrandombytes_static  ADVAPI32)
     target_link_libraries(kernelrandombytes_dynamic ADVAPI32)
 endif ()
+
+#####################################
+# kernelrandombytes test executable #
+#####################################
+
+add_library(kernelrandombytes_test_objects OBJECT kernelrandombytes/test.c)
+
+target_compile_definitions(kernelrandombytes_test_objects PRIVATE BUILD)
+
+add_executable(kernelrandombytes_test_static  $<TARGET_OBJECTS:kernelrandombytes_test_objects>)
+add_executable(kernelrandombytes_test_dynamic $<TARGET_OBJECTS:kernelrandombytes_test_objects>)
+
+target_link_libraries(kernelrandombytes_test_static  kernelrandombytes_static)
+target_link_libraries(kernelrandombytes_test_dynamic kernelrandombytes_dynamic)
 
 ################
 # DEPENDENCIES #

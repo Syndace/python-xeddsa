@@ -12,9 +12,10 @@ This code was not written by a cryptographer and is most probably **NOT SECURE**
 ### Installation
 Install the package using pip (`pip install XEdDSA`) or manually using `python setup.py install`, as you're used to.
 
-__NOTE__: On UNIX, the installation uses the `cmake`, `make` and `gcc` tools.
+__NOTE__: On UNIX, the installation uses the `cmake` and `make` tools.
 
-__NOTE__: On Windows, precompiled binaries are downloaded during the installation.
+__NOTE__: On Windows, `cmake` is used and a MinGW environment is required.
+If compilation fails, precompiled binaries are downloaded during the installation.
 Make sure you have an active internet connection and access to `https://github.com`.
 The installation requires the Microsoft Visual C++ Build Tools.
 Those can be installed using the standalone version you can download [here](https://visualstudio.microsoft.com/downloads/),
@@ -32,14 +33,24 @@ On UNIX, run following commands to build the ref10 library:
 $ cd ref10/
 $ mkdir build
 $ cd build/
-$ cmake ..
+$ cmake -G "Unix Makefiles" ..
 $ make
 ```
 
 To clean up the build artifacts, just delete the whole build and bin directories inside of the ref10 directory.
 
 #### Building ref10 on Windows
-__TODO__
+On Windows, building ref10 is just as simple. Make sure you are in a MinGW environment an run:
+
+```Bash
+$ cd ref10/
+$ mkdir build
+$ cd build/
+$ cmake -G "MinGW Makefiles" ..
+$ mingw32-make
+```
+
+To clean up the build artifacts, just delete the whole build and bin directories inside of the ref10 directory.
 
 ### NOTICE
 This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.

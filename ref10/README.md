@@ -111,7 +111,7 @@ The only module that needs special treatment is `kernelrandombytes`.
 
 ### 2.2.3. The easy ones
 
-__NOTE__: To keep things simple, this guide only shows, how to pack the dependencies into static libraries. Because static libraries are not linked, static libraries do not check refernces at build-time, which simplifies the following steps a lot.
+__NOTE__: To keep things simple, this guide only shows, how to pack the dependencies into static libraries. Because static libraries are not linked, static libraries do not check references at build-time, which simplifies the following steps a lot.
 
 The source code of each of these modules is split into two locations, with the exception of `fastrandombytes`, which has all of its sources in the base directory:
 
@@ -230,9 +230,7 @@ The kernelrandombytes module uses system-dependent code to retrieve cryptographi
 
 The version shipped with SUPERCOP only contains implementations for UNIX-like systems.
 
-This section covers adding implementations for Windows and Mac.
-
-### 3.2.1 Windows
+This section covers adding an implementation for Windows.
 
 On Windows there are two main sources for cryptographically secure random bytes: `CryptGenRandom` and `rand_s`. Both have major disadvantages:
 
@@ -277,12 +275,6 @@ __NOTE__: The documentation of `RtlGenRandom` states, that the function could fa
 Sadly, the documentation does not state, WHY the function could fail.
 This makes it impossible to react to the failure, thus the possible failure gets ignored in the example above.
 
-### 3.2.2 Mac OS
-
-On Mac OS, the go-to random API is `SecRandomCopyBytes`, which is only available from objective-C and Swift, not from plain C.
-
-For that reason, `/dev/urandom` is the probably best choice on Mac OS.
-
 ### 3.3. Cross-platform dynamic libraries
 
 The guide uses `gcc` to compile the sources into shared object files and `ar` to create static libraries.
@@ -318,7 +310,7 @@ extern void __declspec(dllimport) myExportedFunction();
 
 #### Static libraries
 
-MinGW comes with the `ar` tool, which can be used just the same way as on some unices to build static libraries:
+MinGW comes with the `ar` tool, which can be used just the same way as on some unixes to build static libraries:
 
 ```bash
 $ gcc -c -fpic *.c
