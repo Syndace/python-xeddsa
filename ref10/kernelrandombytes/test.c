@@ -1,4 +1,4 @@
-extern void kernelrandombytes(unsigned char *x,unsigned long long xlen);
+#include "kernelrandombytes.h"
 
 unsigned char x[65536];
 unsigned long long freq[256];

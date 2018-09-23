@@ -12,27 +12,45 @@ This code was not written by a cryptographer and is most probably **NOT SECURE**
 ### Installation
 Install the package using pip (`pip install XEdDSA`) or manually using `python setup.py install`, as you're used to.
 
-__NOTE__: On Linux, the installation uses the `make` and `gcc` tools.
+__NOTE__: On UNIX, the installation uses the `cmake` and `make` tools.
 
-__NOTE__: On Windows, precompiled binaries get downloaded during the installation.
+__NOTE__: On Windows, `cmake` is used and a MinGW environment is required.
+If compilation fails, precompiled binaries are downloaded during the installation.
 Make sure you have an active internet connection and access to `https://github.com`.
 The installation requires the Microsoft Visual C++ Build Tools.
 Those can be installed using the standalone version you can download [here](https://visualstudio.microsoft.com/downloads/),
 or as part of Visual Studio, for example the free [Community Edition](https://visualstudio.microsoft.com/vs/community/). 
 
 ### Manually building ref10
-Following section explains how to manually compile the ref10 library, which is not required when using pip or `python setup.py install`.
+Following section explains how to manually compile the ref10 library, which is __not__ required when using pip or `python setup.py install`.
 
 For detailed information on what the ref10 library is and how it was built, look at `ref10/README.md`.
 
-#### Building ref10 on Linux
-On Linux, building the required libraries is as simple as running `make` in the `ref10/` directory.
+#### Building ref10 on UNIX
+On UNIX, run following commands to build the ref10 library:
+
+```Bash
+$ cd ref10/
+$ mkdir build
+$ cd build/
+$ cmake -G "Unix Makefiles" ..
+$ make
+```
+
+To clean up the build artifacts, just delete the whole build and bin directories inside of the ref10 directory.
 
 #### Building ref10 on Windows
-On Windows, building the required libraries is about as easy as on Linux.
+On Windows, building ref10 is just as simple. Make sure you are in a MinGW environment an run:
 
-First, install [MinGW](http://www.mingw.org/) or [MinGW-w64](https://mingw-w64.org/doku.php).
-Now, open your MinGW terminal and run `make` or `mingw32-make` (whatever works) in the `ref10/` directory.
+```Bash
+$ cd ref10/
+$ mkdir build
+$ cd build/
+$ cmake -G "MinGW Makefiles" ..
+$ mingw32-make
+```
+
+To clean up the build artifacts, just delete the whole build and bin directories inside of the ref10 directory.
 
 ### NOTICE
 This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.

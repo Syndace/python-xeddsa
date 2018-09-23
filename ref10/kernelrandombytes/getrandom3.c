@@ -1,6 +1,6 @@
+#include "kernelrandombytes.h"
 #include <unistd.h>
 #include <syscall.h>
-#include <linux/random.h>
 
 void kernelrandombytes(unsigned char *x,unsigned long long xlen)
 {

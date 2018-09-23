@@ -6,7 +6,9 @@ ref10 by D. J. Bernstein is a solid implementation of these low-level functions.
 
 This guide explains the steps to extract the ref10 implementation from the SUPERCOP benchmarking system.
 
-__NOTE__: The SUPERCOP benchmark assumes a Linux system and so does the first part of this guide. The following steps explain how to extract the required C source code and how to compile it into static libraries and shared object files. Section `3. Making the code portable` contains notes about cross-platform usage.
+__NOTE__: You do __NOT__ have to follow this guide to use python-xeddsa.
+
+__NOTE__: The SUPERCOP benchmark assumes a UNIX-like system and so does the first part of this guide. The following steps explain how to extract the required C source code and how to compile it into static libraries and shared object files. Section `3. Making the code portable` contains notes about cross-platform usage.
 
 ### 1. Download and run the benchmark
 
@@ -109,7 +111,7 @@ The only module that needs special treatment is `kernelrandombytes`.
 
 ### 2.2.3. The easy ones
 
-__NOTE__: To keep things simple, this guide only shows, how to pack the dependencies into static libraries. Because static libraries are not linked, static libraries do not check refernces at build-time, which simplifies the following steps a lot.
+__NOTE__: To keep things simple, this guide only shows, how to pack the dependencies into static libraries. Because static libraries are not linked, static libraries do not check references at build-time, which simplifies the following steps a lot.
 
 The source code of each of these modules is split into two locations, with the exception of `fastrandombytes`, which has all of its sources in the base directory:
 
@@ -226,11 +228,9 @@ In the same way all int-type headers can be refactored, using following type-tab
 
 The kernelrandombytes module uses system-dependent code to retrieve cryptographically secure random bytes.
 
-The version shipped with SUPERCOP only contains implementations for Linux.
+The version shipped with SUPERCOP only contains implementations for UNIX-like systems.
 
-This section covers adding implementations for Windows and Mac.
-
-### 3.2.1 Windows
+This section covers adding an implementation for Windows.
 
 On Windows there are two main sources for cryptographically secure random bytes: `CryptGenRandom` and `rand_s`. Both have major disadvantages:
 
@@ -275,26 +275,6 @@ __NOTE__: The documentation of `RtlGenRandom` states, that the function could fa
 Sadly, the documentation does not state, WHY the function could fail.
 This makes it impossible to react to the failure, thus the possible failure gets ignored in the example above.
 
-### 3.2.2 Mac OS
-
-On Mac OS, the go-to random API is `SecRandomCopyBytes`, which is available as a C function. The following shows an implementation of `kernelrandombytes` using the function:
-
-```cpp
-#include <Security/Security.h>
-
-void kernelrandombytes(unsigned char *x,unsigned long long xlen)
-{
-  int i;
-
-  while (xlen > 0) {
-    if (xlen < 256) i = xlen; else i = 256;
-    SecRandomCopyBytes(kSecRandomDefault, i, x);
-    x += i;
-    xlen -= i;
-  }
-}
-```
-
 ### 3.3. Cross-platform dynamic libraries
 
 The guide uses `gcc` to compile the sources into shared object files and `ar` to create static libraries.
@@ -303,7 +283,7 @@ This section covers the required commands to build static and dynamic versions o
 
 ### 3.3.1 Windows
 
-On Windows, [MinGW](http://www.mingw.org/) or it's 64-bit pendant [MinGW-w64](https://mingw-w64.org/doku.php) offers an open source `gcc` environment, which allows to use slightly modified Linux commands to compile Windows-native static and dynamic libraries.
+On Windows, [MinGW](http://www.mingw.org/) or it's 64-bit pendant [MinGW-w64](https://mingw-w64.org/doku.php) offers an open source `gcc` environment, which allows to use slightly modified UNIX commands to compile Windows-native static and dynamic libraries.
 
 The file extension for dynamic libraries is `.dll` and for static libraries `.lib`.
 Dynamic libraries come with an additional static library called "import library", which contains the code to load the corresponding dynamic library.
@@ -330,7 +310,7 @@ extern void __declspec(dllimport) myExportedFunction();
 
 #### Static libraries
 
-MinGW comes with the `ar` tool, which can be used just the same way as on Linux to build static libraries:
+MinGW comes with the `ar` tool, which can be used just the same way as on some unixes to build static libraries:
 
 ```bash
 $ gcc -c -fpic *.c
@@ -339,7 +319,7 @@ $ ar rcs mylib.lib *.o
 
 #### Dynamic libraries
 
-These are example commands for Linux:
+These are example commands for UNIX:
 
 ```bash
 $ gcc -c -fpic *.c
