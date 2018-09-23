@@ -1,1 +1,2 @@
 recursive-include ref10 build.py CMakeLists.txt README* *.c *.h
+prune ref10/build/
