@@ -3,9 +3,19 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "xeddsa"))
+version_file_path = os.path.join(
+	os.path.dirname(os.path.abspath(__file__)),
+	"xeddsa",
+	"version.py"
+)
 
-import version
+version = {}
+
+try:
+	execfile(version_file_path, version)
+except:
+	with open(version_file_path) as fp:
+		exec(fp.read(), version)
 
 with open("README.md") as f:
     long_description = f.read()
@@ -13,7 +23,7 @@ with open("README.md") as f:
 setup(
     name = "XEdDSA",
     # TODO: Don't forget to update the url's in the build.py file after updates to ref10!
-    version = version.__version__,
+    version = version["__version__"],
     description = "A python implementation of the XEdDSA signature scheme.",
     long_description = long_description,
     long_description_content_type = "text/markdown",
@@ -37,10 +47,6 @@ setup(
         "Topic :: Security :: Cryptography",
 
         "License :: OSI Approved :: MIT License",
-
-        "Operating System :: OS Independent",
-
-        "Programming Language :: Python :: Implementation :: CPython",
 
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",

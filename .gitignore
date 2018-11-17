@@ -12,3 +12,4 @@ ref10/bin
 ref10/build
 
 install.sh
+Makefile
