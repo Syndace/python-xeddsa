@@ -54,4 +54,4 @@ To clean up the build artifacts, just delete the whole build and bin directories
 
 ### NOTICE
 This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.
-The [version 1.0 roadmap](https://download.libsodium.org/doc/internals/roadmap.html) of libsodium lists XEdDSA, it might only take a few more months to get a stable and secure implementation.
+The [version 1.0 roadmap](https://libsodium.gitbook.io/doc/roadmap) of libsodium lists XEdDSA, it might only take a few more months to get a stable and secure implementation.
