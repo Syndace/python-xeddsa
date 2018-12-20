@@ -20,6 +20,11 @@ except:
 with open("README.md") as f:
     long_description = f.read()
 
+setup_requires = [ "cffi>=1.9.1" ]
+
+if os.getenv("READTHEDOCS") == "True":
+    setup_requires.append("cmake")
+
 setup(
     name = "XEdDSA",
     # TODO: Don't forget to update the url's in the build.py file after updates to ref10!
@@ -33,7 +38,7 @@ setup(
     license = "MIT",
     packages = find_packages(),
     install_requires = [ "cffi>=1.9.1", "pynacl>=1.0.1" ],
-    setup_requires   = [ "cffi>=1.9.1" ],
+    setup_requires   = setup_requires,
     cffi_modules     = [ os.path.join("ref10", "build.py") + ":ffibuilder" ],
     python_requires  = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4",
     include_package_data = True,
