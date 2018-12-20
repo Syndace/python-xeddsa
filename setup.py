@@ -22,7 +22,7 @@ with open("README.md") as f:
 
 setup_requires = [ "cffi>=1.9.1" ]
 
-if os.getenv("READTHEDOCS") == "True":
+if not os.getenv("READTHEDOCS") is None:
     setup_requires.append("cmake")
 
 setup(
