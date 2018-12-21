@@ -45,9 +45,16 @@ def call_cmake(output):
     try:
         # Try to call CMake
         subprocess.check_call([ "cmake", "-G", output, ".." ], cwd = build_dir)
-    except subprocess.CalledProcessError:
+    except FileNotFoundError:
         # Of that call fails, try to install CMake using the "cmake" package
-        subprocess.check_call( [ sys.executable, "-m", "pip", "install", "cmake", "--user" ])
+        subprocess.check_call([
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "cmake",
+            "--user"
+        ])
 
         # Make sure the newly installed CMake executables can be found in the path
         os.path.append(os.path.expanduser("~/.local/bin"))
