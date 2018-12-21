@@ -41,6 +41,20 @@ libraries = [
 class UnknownSystemException(Exception):
     pass
 
+def call_cmake(output):
+    try:
+        # Try to call CMake
+        subprocess.check_call([ "cmake", "-G", output, ".." ], cwd = build_dir)
+    except subprocess.CalledProcessError:
+        # Of that call fails, try to install CMake using the "cmake" package
+        subprocess.check_call( [ sys.executable, "-m", "pip", "install", "cmake", "--user" ])
+
+        # Make sure the newly installed CMake executables can be found in the path
+        os.path.append(os.path.expanduser("~/.local/bin"))
+
+        # And try again
+        subprocess.check_call([ "cmake", "-G", output, ".." ], cwd = build_dir)
+
 if os.name == "posix":
     # On UNIX, we HAVE to make the ref10 libraries, because the kernelrandombytes module
     # can vary between different UNIX systems.
@@ -48,7 +62,7 @@ if os.name == "posix":
     print("The compilation requires CMake and the \"make\" tool.")
     print("The \"cmake\" and \"make\" commands are used.")
 
-    subprocess.check_call([ "cmake", "-G", "Unix Makefiles", ".." ], cwd = build_dir)
+    call_cmake("Unix Makefiles")
     subprocess.check_call([ "make" ], cwd = build_dir)
 
     print("Library built successfully!")
@@ -62,7 +76,7 @@ elif os.name == "nt":
     print("The \"cmake\" and \"mingw32-make\" commands are used.")
 
     try:
-        subprocess.check_call([ "cmake", "-G", "MinGW Makefiles", ".." ], cwd = build_dir)
+        call_cmake("MinGW Makefiles")
         subprocess.check_call([ "mingw32-make" ], cwd = build_dir)
 
         print("Library built successfully!")
