@@ -29,7 +29,7 @@ setup(
     long_description_content_type = "text/markdown",
     url = "https://github.com/Syndace/python-xeddsa",
     author = "Tim Henkes",
-    author_email = "tim@cifg.io",
+    author_email = "me@syndace.dev",
     license = "MIT",
     packages = find_packages(),
     install_requires = [ "cffi>=1.9.1", "pynacl>=1.0.1" ],
