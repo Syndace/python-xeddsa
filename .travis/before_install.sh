@@ -9,6 +9,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     brew install pyenv-virtualenv
     echo "> eval \"$(pyenv init -)\""
     eval "$(pyenv init -)"
+    echo "> pyenv versions"
+    pyenv versions
     echo "> eval \"$(pyenv virtualenv-init -)\""
     eval "$(pyenv virtualenv-init -)"
     echo "> pyenv install $PYTHON_VERSION"
