@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-    #echo "> brew update"
-    #brew update
+    echo "> brew update"
+    brew update
     echo "> brew install pyenv"
     brew install pyenv
     echo "> brew install pyenv-virtualenv"
