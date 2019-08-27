@@ -55,3 +55,5 @@ To clean up the build artifacts, just delete the whole build and bin directories
 ### NOTICE
 This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.
 The [version 1.0 roadmap](https://libsodium.gitbook.io/doc/roadmap) of libsodium lists XEdDSA, it might only take a few more months to get a stable and secure implementation.
+
+__UPDATE__: It seems like libsodium dropped their plans to include XEdDSA natively. Instead, they plan to include public APIs for the crypto-primitives required to build XEdDSA. As soon as this API is stable and included in the repositories of debian stable, this library will switch from ref10 to libsodium.

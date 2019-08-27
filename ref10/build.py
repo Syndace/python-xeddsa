@@ -1,18 +1,10 @@
-from __future__ import absolute_import
-from __future__ import print_function
-
 import cffi
 import os
 import subprocess
 import sys
 import zipfile
 
-try:
-    # Python 3
-    from urllib.request import urlopen
-except:
-    # Python 2
-    from urllib2 import urlopen
+from urllib.request import urlopen
 
 ref10_dir  = os.path.abspath("ref10")
 module_dir = os.path.join(ref10_dir, "crypto_sign")

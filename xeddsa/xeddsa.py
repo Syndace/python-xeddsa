@@ -1,8 +1,6 @@
-from __future__ import absolute_import
-
 import os
 
-class XEdDSA(object):
+class XEdDSA:
     """
     The base class for all XEdDSA implementations.
     Do not use this class directly, use subclasses for specific key types instead.
@@ -40,22 +38,22 @@ class XEdDSA(object):
         ):
             raise NotImplementedError("Can't instantiate the XEdDSA class directly.")
 
-        if mont_priv == None and mont_pub == None:
+        if mont_priv is None and mont_pub is None:
             mont_priv = cls.generate_mont_priv()
 
-        if not (mont_priv == None or isinstance(mont_priv, bytes)):
+        if not (mont_priv is None or isinstance(mont_priv, bytes)):
             raise TypeError("Wrong type passed for the mont_priv parameter.")
 
-        if mont_priv != None and len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
+        if mont_priv is not None and len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
             raise ValueError("Invalid value passed for the mont_priv parameter.")
 
-        if mont_priv != None and mont_pub == None:
+        if mont_priv is not None and mont_pub is None:
             mont_pub = cls.mont_pub_from_mont_priv(mont_priv)
 
-        if not (mont_pub == None or isinstance(mont_pub, bytes)):
+        if not (mont_pub is None or isinstance(mont_pub, bytes)):
             raise TypeError("Wrong type passed for the mont_pub parameter.")
 
-        if mont_pub != None and len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
+        if mont_pub is not None and len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
             raise ValueError("Invalid value passed for the mont_pub parameter.")
 
         self.__mont_priv = mont_priv
@@ -105,7 +103,7 @@ class XEdDSA(object):
         """
         Restore the Montgomery public key from a Montgomery private key.
 
-        :param mont_priv: A bytearray encoding the private keywith length
+        :param mont_priv: A bytearray encoding the private key with length
             MONT_PRIV_KEY_SIZE.
         :returns: A bytearray encoding the public key with length MONT_PUB_KEY_SIZE.
         """
@@ -199,7 +197,7 @@ class XEdDSA(object):
         if not isinstance(data, bytes):
             raise TypeError("The data parameter must be a bytes-like object.")
 
-        if nonce == None:
+        if nonce is None:
             nonce = os.urandom(64)
 
         if not isinstance(nonce, bytes):
