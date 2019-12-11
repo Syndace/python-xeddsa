@@ -26,10 +26,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy"
@@ -55,10 +55,10 @@ setup(
     long_description_content_type = "text/markdown",
     license = "MIT",
     packages = find_packages(),
-    install_requires = [ "cffi>=1.9.1", "pynacl>=1.0.1" ],
-    setup_requires   = [ "cffi>=1.9.1" ],
+    install_requires = [ "cffi>=1.12.2,<2", "pynacl>=1.3.0,<2" ],
+    setup_requires   = [ "cffi>=1.12.2,<2" ],
     cffi_modules     = [ os.path.join("ref10", "build.py") + ":ffibuilder" ],
-    python_requires  = ">=3.4, <4",
+    python_requires  = ">=3.5,<4",
     include_package_data = True,
     zip_safe = False,
     classifiers = classifiers,
