@@ -1,101 +1,117 @@
+# Pylint can't statically verify interaction with the C extension.
+# Dynamic introspection of living objects during run-time is not an option either.
+# pylint: disable=c-extension-no-member
+
+from typing import ClassVar, TypeVar, Type
+
 import _crypto_sign
 
 class Failed(Exception):
     pass
 
-def __wrap(ffi_type, x = None):
-    if isinstance(x, _crypto_sign.ffi.CData):
-        return x
-    elif isinstance(x, bytearray):
-        return _crypto_sign.ffi.new(ffi_type, bytes(x))
-    elif x == None:
-        return _crypto_sign.ffi.new(ffi_type)
-    else:
-        raise TypeError("Wrong type: " + str(type(x)))
+T = TypeVar("T", bound="FFIType")
 
-def __toBytearray(x):
-    if isinstance(x, _crypto_sign.ffi.CData):
-        return bytearray(list(x))
-    else:
-        raise TypeError("Wrong type: " + str(type(x)))
+class FFIType:
+    FFI_TYPE: ClassVar[str] = NotImplemented
+
+    def __init__(self, data):
+        self.__data = data
+
+    def get(self):
+        return self.__data
+
+    def __bytes__(self) -> bytes:
+        return bytes(self.__data)
+
+    @classmethod
+    def empty(cls: Type[T]) -> T:
+        if cls.FFI_TYPE == NotImplemented:
+            raise NotImplementedError("You can't use FFIType directly, but have to subclass it!")
+
+        return cls(_crypto_sign.ffi.new(cls.FFI_TYPE))
+
+    @classmethod
+    def wrap(cls: Type[T], data: bytes) -> T:
+        return cls(_crypto_sign.ffi.new(cls.FFI_TYPE, data))
 
 ###############################################################################
 # fe.h                                                                        #
 ###############################################################################
-def fe_bytes(fe_bytes_BYTES = None):
-    return __wrap("unsigned char[32]", fe_bytes_BYTES)
 
-def fe(fe_FE = None):
-    return __wrap("int32_t[10]", fe_FE)
+class FieldElementBytes(FFIType):
+    FFI_TYPE: ClassVar[str] = "unsigned char[32]"
 
-def fe_frombytes(fe_bytes_BYTES):
-    result = fe()
+class FieldElement(FFIType):
+    FFI_TYPE: ClassVar[str] = "int32_t[10]"
+
+def fe_frombytes(fe_bytes: FieldElementBytes) -> FieldElement:
+    result = FieldElement.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_frombytes(
-        result,
-        fe_bytes(fe_bytes_BYTES)
+        result.get(),
+        fe_bytes.get()
     )
 
     return result
 
-def fe_tobytes(fe_FE):
-    result = fe_bytes()
+def fe_tobytes(fe: FieldElement) -> FieldElementBytes:
+    result = FieldElementBytes.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_tobytes(
-        result,
-        fe(fe_FE)
+        result.get(),
+        fe.get()
     )
 
-    return __toBytearray(result)
+    return result
 
-def fe_1():
-    result = fe()
+def fe_1() -> FieldElement:
+    result = FieldElement.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_1(
-        result
+        result.get()
     )
 
     return result
 
-def fe_add(fe_ADDEND_A, fe_ADDEND_B):
-    result = fe()
+def fe_add(addend_a: FieldElement, addend_b: FieldElement) -> FieldElement:
+    result = FieldElement.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_add(
-        result,
-        fe(fe_ADDEND_A),
-        fe(fe_ADDEND_B)
+        result.get(),
+        addend_a.get(),
+        addend_b.get()
     )
 
     return result
 
-def fe_sub(fe_MINUEND, fe_SUBTRAHEND):
-    result = fe()
+def fe_sub(minuend: FieldElement, subtrahend: FieldElement) -> FieldElement:
+    result = FieldElement.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_sub(
-        result,
-        fe(fe_MINUEND),
-        fe(fe_SUBTRAHEND)
+        result.get(),
+        minuend.get(),
+        subtrahend.get()
     )
 
     return result
 
-def fe_mul(fe_MULTIPLICAND, fe_MULTIPLIER):
-    result = fe()
+def fe_mul(multiplicand: FieldElement, multiplier: FieldElement) -> FieldElement:
+    result = FieldElement.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_mul(
-        result,
-        fe(fe_MULTIPLICAND),
-        fe(fe_MULTIPLIER)
+        result.get(),
+        multiplicand.get(),
+        multiplier.get()
     )
 
     return result
 
-def fe_invert(fe_FE):
-    result = fe()
+def fe_invert(fe: FieldElement) -> FieldElement:
+    result = FieldElement.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_fe_invert(
-        result,
-        fe(fe_FE)
+        result.get(),
+        fe.get()
     )
 
     return result
@@ -103,62 +119,44 @@ def fe_invert(fe_FE):
 ###############################################################################
 # ge.h                                                                        #
 ###############################################################################
-class ge_p2(object):
-    def __init__(self, ge_p2_POINT = None):
-        self.__point = ge_p2_POINT
+class GroupElementP2(FFIType):
+    FFI_TYPE: ClassVar[str] = "ge_p2 *"
 
-    @classmethod
-    def empty(cls):
-        return cls(_crypto_sign.ffi.new("ge_p2 *"))
+class GroupElementP2Bytes(FFIType):
+    FFI_TYPE: ClassVar[str] = "unsigned char[32]"
 
-    @property
-    def point(self):
-        return self.__point
-
-def ge_p2_bytes(ge_p2_bytes_BYTES = None):
-    return __wrap("unsigned char[32]", ge_p2_bytes_BYTES)
-
-def ge_tobytes(ge_p2_POINT):
-    result = ge_p2_bytes()
+def ge_tobytes(ge: GroupElementP2) -> GroupElementP2Bytes:
+    result = GroupElementP2Bytes.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_tobytes(
-        result,
-        ge_p2_POINT.point
+        result.get(),
+        ge.get()
     )
 
-    return __toBytearray(result)
+    return result
 
-class ge_p3(object):
-    def __init__(self, ge_p3_POINT = None):
-        self.__point = ge_p3_POINT
+class GroupElementP3(FFIType):
+    FFI_TYPE: ClassVar[str] = "ge_p3 *"
 
-    @classmethod
-    def empty(cls):
-        return cls(_crypto_sign.ffi.new("ge_p3 *"))
+class GroupElementP3Bytes(FFIType):
+    FFI_TYPE: ClassVar[str] = "unsigned char[32]"
 
-    @property
-    def point(self):
-        return self.__point
-
-def ge_p3_bytes(ge_p3_bytes_BYTES = None):
-    return __wrap("unsigned char[32]", ge_p3_bytes_BYTES)
-
-def ge_p3_tobytes(ge_p3_POINT):
-    result = ge_p3_bytes()
+def ge_p3_tobytes(ge: GroupElementP3) -> GroupElementP3Bytes:
+    result = GroupElementP3Bytes.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_p3_tobytes(
-        result,
-        ge_p3_POINT.point
+        result.get(),
+        ge.get()
     )
 
-    return __toBytearray(result)
+    return result
 
-def ge_frombytes_negate_vartime(ge_p3_bytes_BYTES):
-    result = ge_p3.empty()
+def ge_frombytes_negate_vartime(ge_bytes: GroupElementP3Bytes) -> GroupElementP3:
+    result = GroupElementP3.empty()
 
     success = _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_frombytes_negate_vartime(
-        result.point,
-        ge_p3_bytes(ge_p3_bytes_BYTES)
+        result.get(),
+        ge_bytes.get()
     )
 
     if success != 0:
@@ -166,27 +164,27 @@ def ge_frombytes_negate_vartime(ge_p3_bytes_BYTES):
 
     return result
 
-def scalar_bytes(scalar_bytes_SCALAR = None):
-    return __wrap("unsigned char[32]", scalar_bytes_SCALAR)
+class ScalarBytes(FFIType):
+    FFI_TYPE: ClassVar[str] = "unsigned char[32]"
 
-def ge_scalarmult_base(scalar_bytes_SCALAR):
-    result = ge_p3.empty()
+def ge_scalarmult_base(sc: ScalarBytes) -> GroupElementP3:
+    result = GroupElementP3.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_scalarmult_base(
-        result.point,
-        scalar_bytes(scalar_bytes_SCALAR)
+        result.get(),
+        sc.get()
     )
 
     return result
 
-def ge_double_scalarmult_vartime(scalar_bytes_SCA, ge_p3_PA, scalar_bytes_SCB):
-    result = ge_p2.empty()
+def ge_double_scalarmult_vartime(sc_a: ScalarBytes, ge: GroupElementP3, sc_b: ScalarBytes) -> GroupElementP2:
+    result = GroupElementP2.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_ge_double_scalarmult_vartime(
-        result.point,
-        scalar_bytes(scalar_bytes_SCA),
-        ge_p3_PA.point,
-        scalar_bytes(scalar_bytes_SCB)
+        result.get(),
+        sc_a.get(),
+        ge.get(),
+        sc_b.get()
     )
 
     return result
@@ -194,68 +192,68 @@ def ge_double_scalarmult_vartime(scalar_bytes_SCA, ge_p3_PA, scalar_bytes_SCB):
 ###############################################################################
 # sc.h                                                                        #
 ###############################################################################
-def sc_bytes(sc_bytes_BYTES = None):
-    return __wrap("unsigned char[32]", sc_bytes_BYTES)
+class ScalarReduceBytes(FFIType):
+    FFI_TYPE: ClassVar[str] = "unsigned char[64]"
 
-def sc_reduce_bytes(sc_reduce_bytes_BYTES):
-    return __wrap("unsigned char[64]", sc_reduce_bytes_BYTES)
+    def to_scalar(self) -> ScalarBytes:
+        return ScalarBytes.wrap(bytes(self)[:32])
 
-def sc_reduce(sc_reduce_bytes_SC):
-    sc_reduce_bytes_SC = sc_reduce_bytes(sc_reduce_bytes_SC)
-
+def sc_reduce(sc: ScalarReduceBytes) -> ScalarBytes:
     _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_reduce(
-        sc_reduce_bytes_SC
+        sc.get()
     )
 
-    sc_reduce_bytes_SC = __toBytearray(sc_reduce_bytes_SC)[:32]
+    return sc.to_scalar()
 
-    return __toBytearray(sc_bytes(sc_reduce_bytes_SC))
-
-def sc_muladd(sc_bytes_MULTIPLICAND, sc_bytes_MULTIPLIER, sc_bytes_ADDEND):
-    result = sc_bytes()
+def sc_muladd(multiplicand: ScalarBytes, multiplier: ScalarBytes, addend: ScalarBytes) -> ScalarBytes:
+    result = ScalarBytes.empty()
 
     _crypto_sign.lib.crypto_sign_ed25519_ref10_sc_muladd(
-        result,
-        sc_bytes(sc_bytes_MULTIPLICAND),
-        sc_bytes(sc_bytes_MULTIPLIER),
-        sc_bytes(sc_bytes_ADDEND)
+        result.get(),
+        multiplicand.get(),
+        multiplier.get(),
+        addend.get()
     )
 
-    return __toBytearray(result)
+    return result
 
 ###############################################################################
 # XEdDSA additions                                                            #
 ###############################################################################
-sc_bytes_BASE_POINT_ORDER_MINUS_ONE = sc_bytes(bytearray([
+BASE_POINT_ORDER_MINUS_ONE = ScalarBytes.wrap(bytes([
     0xEC, 0xD3, 0xF5, 0x5C, 0x1A, 0x63, 0x12, 0x58,
     0xD6, 0x9C, 0xF7, 0xA2, 0xDE, 0xF9, 0xDE, 0x14,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
 ]))
 
-sc_bytes_ZERO = sc_bytes(bytearray([ 0x00 ] * 32))
+ZERO = ScalarBytes.wrap(bytes([ 0x00 ] * 32))
 
-def sc_neg(sc_bytes_BYTES):
-    return sc_muladd(sc_bytes_BASE_POINT_ORDER_MINUS_ONE, sc_bytes_BYTES, sc_bytes_ZERO)
+def sc_neg(sc: ScalarBytes) -> ScalarBytes:
+    return sc_muladd(BASE_POINT_ORDER_MINUS_ONE, sc, ZERO)
 
-def sc_cmov(sc_bytes_A, sc_bytes_B, byte_CONDITION):
-    # Make sure the condition is either a one or a zero
-    condition = (byte_CONDITION & 0xFF) != 0x00
+def sc_cmov(sc_a: ScalarBytes, sc_b: ScalarBytes, condition: bool) -> ScalarBytes:
+    condition_bit = int(condition)
 
     # Create an eight bit mask for the condition, either all ones or all zeros
-    condition_mask = ( condition << 0 |
-                       condition << 1 |
-                       condition << 2 |
-                       condition << 3 |
-                       condition << 4 |
-                       condition << 5 |
-                       condition << 6 |
-                       condition << 7 )
+    condition_mask = ( condition_bit << 0 |
+                       condition_bit << 1 |
+                       condition_bit << 2 |
+                       condition_bit << 3 |
+                       condition_bit << 4 |
+                       condition_bit << 5 |
+                       condition_bit << 6 |
+                       condition_bit << 7 )
+
+    sc_bytes_a = bytes(sc_a)
+    sc_bytes_b = bytes(sc_b)
+
+    result_mut = bytearray(sc_bytes_a)
 
     for i in range(32):
         # Mix together the two scalars a and b by xor'ing them
         # tmp = a ^ b
-        tmp = sc_bytes_A[i] ^ sc_bytes_B[i]
+        tmp = sc_bytes_a[i] ^ sc_bytes_b[i]
 
         # Now, apply the condition mask to the temporary result, which creates either of:
         # - tmp = (a ^ b) & 0xFF = a ^ b, if the condition is true
@@ -266,4 +264,6 @@ def sc_cmov(sc_bytes_A, sc_bytes_B, byte_CONDITION):
         # This results in either of the following based on the condition:
         # - a ^ tmp = a ^ (a ^ b) = b, if the condition is true
         # - a ^ tmp = a ^ (0    ) = a, if the condition is false
-        sc_bytes_A[i] ^= tmp
+        result_mut[i] ^= tmp
+
+    return ScalarBytes.wrap(bytes(result_mut))

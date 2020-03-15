@@ -3,10 +3,10 @@ import os
 from xeddsa.implementations import XEdDSA25519
 
 def test_signing():
-    for _ in range(50):
-        message = os.urandom(50)
+    for _ in range(100):
+        message = os.urandom(100)
 
-        for _ in range(50):
+        for _ in range(100):
             mont_priv = XEdDSA25519.generate_mont_priv()
             mont_pub  = XEdDSA25519.mont_pub_from_mont_priv(mont_priv)
 

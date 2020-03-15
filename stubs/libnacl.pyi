@@ -1,0 +1,16 @@
+from typing import Tuple
+
+X25519PrivateKey = bytes
+X25519PublicKey  = bytes
+
+Ed25519PublicKey = bytes
+Ed25519Signature = bytes
+
+SHA512Digest = bytes
+
+def crypto_box_keypair() -> Tuple[X25519PublicKey, X25519PrivateKey]: ...
+def crypto_hash_sha512(msg: bytes) -> SHA512Digest: ...
+def crypto_scalarmult_base(sk: X25519PrivateKey) -> X25519PublicKey: ...
+def crypto_sign_verify_detached(sig: Ed25519Signature, msg: bytes, vk: Ed25519PublicKey) -> bytes: ...
+
+def randombytes(size: int) -> bytes: ...

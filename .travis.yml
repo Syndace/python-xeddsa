@@ -2,82 +2,71 @@ matrix:
   include:
   - os: linux
     language: python
-    python: "3.5"
-    env: PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
-  - os: linux
-    language: python
-    python: "3.5"
-    env: PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    python: "3.6"
+    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
     language: python
     python: "3.6"
-    env: PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
-  - os: linux
-    language: python
-    python: "3.6"
-    env: PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: linux
     language: python
     python: "3.7"
-    env: PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
     language: python
     python: "3.7"
-    env: PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: linux
     language: python
     python: "3.8"
-    env: PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
     language: python
     python: "3.8"
-    env: PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: linux
     language: python
     python: "pypy3"
-    env: PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
     language: python
     python: "pypy3"
-    env: PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.5.9 PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: PYTHON_VERSION=3.6.9 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.5.9 PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: PYTHON_VERSION=3.6.9 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.6.9 PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: PYTHON_VERSION=3.7.5 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.6.9 PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: PYTHON_VERSION=3.7.5 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.7.5 PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: PYTHON_VERSION=3.8.2 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.7.5 PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: PYTHON_VERSION=3.8.2 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.8.0 PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
+    env: PYTHON_VERSION=pypy3.6-7.3.0 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.8.0 PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
-  - os: osx
-    language: generic
-    env: PYTHON_VERSION=pypy3.6-7.2.0 PYNACL_VERSION=1.3.0 CFFI_VERSION=1.13.2 # Most recent versions on pip
-  - os: osx
-    language: generic
-    env: PYTHON_VERSION=pypy3.6-7.2.0 PYNACL_VERSION=1.0.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: PYTHON_VERSION=pypy3.6-7.3.0 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
 
 before_install:
   - . .travis/before_install.sh
 
 install:
-  - pip install pynacl==$PYNACL_VERSION
+  - pip install libnacl==$LIBNACL_VERSION
   - pip install cffi==$CFFI_VERSION
-  - pip install pytest
+  - pip install pytest mypy pylint
   - python setup.py install
 
-script: py.test
+script:
+  - MYPYPATH=stubs mypy --show-error-codes xeddsa/
+  - pylint xeddsa/
+  - pytest
