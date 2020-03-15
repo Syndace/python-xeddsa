@@ -63,10 +63,12 @@ before_install:
 install:
   - pip install libnacl==$LIBNACL_VERSION
   - pip install cffi==$CFFI_VERSION
-  - pip install pytest mypy pylint
+  - pip install pytest pylint
+  - '[[ "$TRAVIS_PYTHON_VERSION" = "pypy3" || "$PYTHON_VERSION" = "pypy3.6-7.3.0" ]] || pip install mypy'
   - python setup.py install
 
 script:
-  - MYPYPATH=stubs mypy --show-error-codes xeddsa/
+  - export MYPYPATH=stubs
+  - '[[ "$TRAVIS_PYTHON_VERSION" = "pypy3" || "$PYTHON_VERSION" = "pypy3.6-7.3.0" ]] || mypy --show-error-codes xeddsa/'
   - pylint xeddsa/
   - pytest
