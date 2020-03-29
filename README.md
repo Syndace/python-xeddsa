@@ -1,59 +1,16 @@
 [![PyPI](https://img.shields.io/pypi/v/XEdDSA.svg)](https://pypi.org/project/XEdDSA/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/XEdDSA.svg)](https://pypi.org/project/XEdDSA/)
 [![Build Status](https://travis-ci.org/Syndace/python-xeddsa.svg?branch=master)](https://travis-ci.org/Syndace/python-xeddsa)
+[![Documentation Status](https://readthedocs.org/projects/python-xeddsa/badge/?version=latest)](https://python-xeddsa.readthedocs.io/en/latest/?badge=latest)
 
-# python-xeddsa
-#### A python implementation of the XEdDSA signature scheme.
-This python library offers an open implementation of the XEdDSA signature scheme as specified [here](https://signal.org/docs/specifications/xeddsa/).
+# python-xeddsa #
 
-### !!! IMPORTANT WARNING !!!
-This code was not written by a cryptographer and is most probably **NOT SECURE**.
+Python bindings to [libxeddsa](https://github.com/Syndace/libxeddsa).
 
-### Installation
-Install the package using pip (`pip install XEdDSA`) or manually using `python setup.py install`, as you're used to.
+## Installation ##
 
-__NOTE__: On UNIX, the installation uses the `cmake` and `make` tools.
+python-xeddsa is available on (64 bit) Linux, MacOS and Windows. [libsodium](https://download.libsodium.org/doc/) must be installed on the system.
 
-__NOTE__: On Windows, `cmake` is used and a MinGW environment is required.
-If compilation fails, precompiled binaries are downloaded during the installation.
-Make sure you have an active internet connection and access to `https://github.com`.
-The installation requires the Microsoft Visual C++ Build Tools.
-Those can be installed using the standalone version you can download [here](https://visualstudio.microsoft.com/downloads/),
-or as part of Visual Studio, for example the free [Community Edition](https://visualstudio.microsoft.com/vs/community/). 
+Install the latest release using pip (`pip install XEdDSA`) or manually from source by running `pip install .` (preferred) or `python setup.py install` in the cloned repository.
 
-### Manually building ref10
-Following section explains how to manually compile the ref10 library, which is __not__ required when using pip or `python setup.py install`.
-
-For detailed information on what the ref10 library is and how it was built, look at `ref10/README.md`.
-
-#### Building ref10 on UNIX
-On UNIX, run following commands to build the ref10 library:
-
-```Bash
-$ cd ref10/
-$ mkdir build
-$ cd build/
-$ cmake -G "Unix Makefiles" ..
-$ make
-```
-
-To clean up the build artifacts, just delete the whole build and bin directories inside of the ref10 directory.
-
-#### Building ref10 on Windows
-On Windows, building ref10 is just as simple. Make sure you are in a MinGW environment an run:
-
-```Bash
-$ cd ref10/
-$ mkdir build
-$ cd build/
-$ cmake -G "MinGW Makefiles" ..
-$ mingw32-make
-```
-
-To clean up the build artifacts, just delete the whole build and bin directories inside of the ref10 directory.
-
-### NOTICE
-This implementation is meant as a transitional solution until one of the big crypto-libraries like libsodium picks up XEdDSA.
-The [version 1.0 roadmap](https://libsodium.gitbook.io/doc/roadmap) of libsodium lists XEdDSA, it might only take a few more months to get a stable and secure implementation.
-
-__UPDATE__: It seems like libsodium dropped their plans to include XEdDSA natively. Instead, they plan to include public APIs for the crypto-primitives required to build XEdDSA. As soon as this API is stable and included in the repositories of debian stable, this library will switch from ref10 to libsodium.
+If a locally installed version of libxeddsa is available, python-xeddsa tries to use that. Otherwise it uses prebuilt binaries of the library.

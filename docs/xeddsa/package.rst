@@ -2,6 +2,6 @@ xeddsa
 ======
 
 .. toctree::
+    Module: bindings <bindings>
     Module: xeddsa <xeddsa>
-
-    Package: implementations <implementations/package>
+    Module: xeddsa25519 <xeddsa25519>

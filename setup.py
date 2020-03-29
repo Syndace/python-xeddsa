@@ -42,7 +42,7 @@ if version["tag"] == "alpha":
 if version["tag"] == "beta":
     classifiers.append("Development Status :: 4 - Beta")
 
-if version["tag"] == "rc":
+if version["tag"] == "stable":
     classifiers.append("Development Status :: 5 - Production/Stable")
 
 del project["categories"]
@@ -54,9 +54,9 @@ setup(
     long_description_content_type = "text/markdown",
     license = "MIT",
     packages = find_packages(),
-    install_requires = [ "cffi>=1.12.2,<2", "libnacl>=1.7.1,<=2" ],
+    install_requires = [ "cffi>=1.12.2,<2", "libnacl>=1.6.1,<=2" ],
     setup_requires   = [ "cffi>=1.12.2,<2" ],
-    cffi_modules     = [ os.path.join("ref10", "build.py") + ":ffibuilder" ],
+    cffi_modules     = [ os.path.join("libxeddsa", "build.py") + ":ffibuilder" ],
     python_requires  = ">=3.6,<4",
     include_package_data = True,
     zip_safe = False,

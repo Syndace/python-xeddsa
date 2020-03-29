@@ -8,9 +8,3 @@ XEdDSA.egg-info/
 .mypy_cache
 
 docs/_build
-
-ref10/bin
-ref10/build
-
-install.sh
-Makefile

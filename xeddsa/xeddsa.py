@@ -1,13 +1,13 @@
-from typing import ClassVar, Optional, Tuple
+from typing import ClassVar, Optional
 
 import libnacl
 
+from .bindings import Nonce
+
 MontPriv  = bytes # MONT_PRIV_KEY_SIZE bytes
 MontPub   = bytes # MONT_PUB_KEY_SIZE bytes
-EdPriv    = bytes # ED_PRIV_KEY_SIZE bytes
 EdPub     = bytes # ED_PUB_KEY_SIZE bytes
 Signature = bytes # SIGNATURE_SIZE bytes
-Nonce     = bytes # 64 bytes
 
 class MissingKeyException(Exception):
     pass
@@ -16,13 +16,10 @@ class XEdDSA:
     """
     The base class for all XEdDSA implementations.
     Do not use this class directly, use subclasses for specific key types instead.
-
-    The :mod:`xeddsa.implementations` module ships such subclasses.
     """
 
     MONT_PRIV_KEY_SIZE : ClassVar[int] = NotImplemented
     MONT_PUB_KEY_SIZE  : ClassVar[int] = NotImplemented
-    ED_PRIV_KEY_SIZE   : ClassVar[int] = NotImplemented
     ED_PUB_KEY_SIZE    : ClassVar[int] = NotImplemented
     SIGNATURE_SIZE     : ClassVar[int] = NotImplemented
 
@@ -43,7 +40,6 @@ class XEdDSA:
         if any(map(lambda x: x == NotImplemented, [
             cls.MONT_PRIV_KEY_SIZE,
             cls.MONT_PUB_KEY_SIZE,
-            cls.ED_PRIV_KEY_SIZE,
             cls.ED_PUB_KEY_SIZE,
             cls.SIGNATURE_SIZE
         ])):
@@ -112,33 +108,6 @@ class XEdDSA:
         raise NotImplementedError
 
     @classmethod
-    def mont_priv_to_ed_pair(cls, mont_priv: MontPriv) -> Tuple[EdPriv, EdPub]:
-        """
-        Args:
-            mont_priv: The Montgomery private key.
-
-        Returns:
-            The Twisted Edwards private and public key derived from the Montgomery private key.
-        """
-
-        if len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
-            raise ValueError("The Montgomery private key must consist of MONT_PRIV_KEY_SIZE bytes.")
-
-        return cls._mont_priv_to_ed_pair(mont_priv)
-
-    @staticmethod
-    def _mont_priv_to_ed_pair(mont_priv: MontPriv) -> Tuple[EdPriv, EdPub]:
-        """
-        Args:
-            mont_priv: The Montgomery private key.
-
-        Returns:
-            The Twisted Edwards private and public key derived from the Montgomery private key.
-        """
-
-        raise NotImplementedError
-
-    @classmethod
     def mont_pub_to_ed_pub(cls, mont_pub: MontPub) -> EdPub:
         """
         Args:
@@ -165,16 +134,16 @@ class XEdDSA:
 
         raise NotImplementedError
 
-    def sign(self, data: bytes, nonce: Optional[Nonce] = None) -> Signature:
+    def sign(self, msg: bytes, nonce: Optional[Nonce] = None) -> Signature:
         """
-        Sign data using the Montgomery private key stored in this XEdDSA instance.
+        Sign a message using the Montgomery private key stored in this XEdDSA instance.
 
         Args:
-            data: The data to sign.
+            msg: The message to sign.
             nonce: The nonce to use while signing. If omitted or set to :obj:`None`, a nonce is generated.
 
         Returns:
-            The signature of the data, not including the data itself.
+            The signature of the message, not including the message itself.
 
         Raises:
             MissingKeyException: If the Montgomery private key is not available.
@@ -189,52 +158,49 @@ class XEdDSA:
         if len(nonce) != 64:
             raise ValueError("The nonce must consist of 64 bytes if given.")
 
-        ed_priv, ed_pub = self._mont_priv_to_ed_pair(self.__mont_priv)
-
-        return self._sign(data, nonce, ed_priv, ed_pub)
+        return self._sign(self.__mont_priv, msg, nonce)
 
     @staticmethod
-    def _sign(data: bytes, nonce: Nonce, ed_priv: EdPriv, ed_pub: EdPub) -> Signature:
+    def _sign(mont_priv: MontPriv, msg: bytes, nonce: Nonce) -> Signature:
         """
-        Sign data using the Twisted Edwards key pair.
+        Sign a message using a Montgomery private key.
 
         Args:
-            data: The data to sign.
+            mont_priv: The Montgomery private key to sign with.
+            msg: The message to sign.
             nonce: The nonce to use while signing.
-            ed_priv: The Twisted Edwards private key to sign with.
-            ed_pub: The Twisted Edwards public key to sign with.
 
         Returns:
-            The signature of the data, not including the data itself.
+            The signature of the message, not including the message itself.
         """
 
         raise NotImplementedError
 
-    def verify(self, data: bytes, signature: Signature) -> bool:
+    def verify(self, msg: bytes, sig: Signature) -> bool:
         """
         Verify a signature using the Montgomery public key stored in this XEdDSA instance.
 
         Args:
-            data: The data.
-            signature: The signature.
+            msg: The signed message.
+            sig: The signature.
 
         Returns:
             Whether the signature is valid.
         """
 
-        if len(signature) != self.__class__.SIGNATURE_SIZE:
+        if len(sig) != self.__class__.SIGNATURE_SIZE:
             raise ValueError("The signature must consist of SIGNATURE_SIZE bytes.")
 
-        return self._verify(data, signature, self._mont_pub_to_ed_pub(self.__mont_pub))
+        return self._verify(self._mont_pub_to_ed_pub(self.__mont_pub), msg, sig)
 
     @staticmethod
-    def _verify(data: bytes, signature: Signature, ed_pub: EdPub) -> bool:
+    def _verify(ed_pub: EdPub, msg: bytes, sig: Signature) -> bool:
         """
         Verify a signature using a Twisted Edwards public key.
 
         Args:
-            data: The data.
-            signature: The signature.
+            msg: The signed message.
+            sig: The signature.
             ed_pub: The Twisted Edwards public key.
 
         Returns:

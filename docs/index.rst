@@ -1,12 +1,5 @@
-XEdDSA - A python implementation of the XEdDSA signature scheme.
-================================================================
+python-xeddsa - Python bindings to libxeddsa.
+=============================================
 
 .. toctree::
     Package: xeddsa <xeddsa/package>
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

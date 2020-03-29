@@ -1,74 +1,101 @@
-matrix:
+jobs:
   include:
   - os: linux
+    dist: bionic
     language: python
     python: "3.6"
-    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
+    dist: bionic
     language: python
     python: "3.6"
-    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: DEBIAN_DEPS=true
   - os: linux
+    dist: bionic
     language: python
     python: "3.7"
-    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
+    dist: bionic
     language: python
     python: "3.7"
-    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: DEBIAN_DEPS=true
   - os: linux
+    dist: bionic
     language: python
     python: "3.8"
-    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
+    dist: bionic
     language: python
     python: "3.8"
-    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: DEBIAN_DEPS=true
   - os: linux
+    dist: bionic
     language: python
     python: "pypy3"
-    env: LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
   - os: linux
+    dist: bionic
     language: python
     python: "pypy3"
-    env: LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: DEBIAN_DEPS=true
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.6.9 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
+    env: TRAVIS_PYTHON_VERSION=3.6
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.6.9 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: TRAVIS_PYTHON_VERSION=3.6 DEBIAN_DEPS=true
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.7.5 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
+    env: TRAVIS_PYTHON_VERSION=3.7
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.7.5 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: TRAVIS_PYTHON_VERSION=3.7 DEBIAN_DEPS=true
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.8.2 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
+    env: TRAVIS_PYTHON_VERSION=3.8
   - os: osx
     language: generic
-    env: PYTHON_VERSION=3.8.2 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: TRAVIS_PYTHON_VERSION=3.8 DEBIAN_DEPS=true
   - os: osx
     language: generic
-    env: PYTHON_VERSION=pypy3.6-7.3.0 LIBNACL_VERSION=1.7.1 CFFI_VERSION=1.14.0 # Most recent versions on pip
+    env: TRAVIS_PYTHON_VERSION=pypy3
   - os: osx
     language: generic
-    env: PYTHON_VERSION=pypy3.6-7.3.0 LIBNACL_VERSION=1.6.1 CFFI_VERSION=1.12.2  # Version in Debian 10's apt repositories
+    env: TRAVIS_PYTHON_VERSION=pypy3 DEBIAN_DEPS=true
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.6
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.6 DEBIAN_DEPS=true
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.7
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.7 DEBIAN_DEPS=true
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.8
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.8 DEBIAN_DEPS=true
+
+addons:
+  apt:
+    packages:
+    - libsodium23
+    - libsodium-dev
+  homebrew:
+    packages:
+    - pyenv
+    - pyenv-virtualenv
+    - libsodium
+    update: true
 
 before_install:
-  - . .travis/before_install.sh
+- source ${TRAVIS_BUILD_DIR}/.travis/before_install.sh
 
 install:
-  - pip install libnacl==$LIBNACL_VERSION
-  - pip install cffi==$CFFI_VERSION
-  - pip install pytest pylint
-  - '[[ "$TRAVIS_PYTHON_VERSION" = "pypy3" || "$PYTHON_VERSION" = "pypy3.6-7.3.0" ]] || pip install mypy'
-  - python setup.py install
+- source ${TRAVIS_BUILD_DIR}/.travis/install.sh
 
 script:
-  - export MYPYPATH=stubs
-  - '[[ "$TRAVIS_PYTHON_VERSION" = "pypy3" || "$PYTHON_VERSION" = "pypy3.6-7.3.0" ]] || mypy --show-error-codes xeddsa/'
-  - pylint xeddsa/
-  - pytest
+- source ${TRAVIS_BUILD_DIR}/.travis/script.sh

@@ -1,7 +1,7 @@
-Module: xeddsa
-==============
+Module: xeddsa25519
+===================
 
-.. automodule:: xeddsa.xeddsa
+.. automodule:: xeddsa.xeddsa25519
     :members:
     :special-members:
     :undoc-members:

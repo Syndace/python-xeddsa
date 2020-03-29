@@ -1,7 +1,7 @@
-Module: xeddsa
-==============
+Module: bindings
+================
 
-.. automodule:: xeddsa.xeddsa
+.. automodule:: xeddsa.bindings
     :members:
     :special-members:
     :undoc-members:
