@@ -62,6 +62,14 @@ class XEdDSA:
         self.__mont_priv: Optional[MontPriv] = mont_priv
         self.__mont_pub: MontPub = mont_pub
 
+    @property
+    def mont_priv(self) -> Optional[MontPriv]:
+        return self.__mont_priv
+
+    @property
+    def mont_pub(self) -> MontPub:
+        return self.__mont_pub
+
     @classmethod
     def generate_mont_priv(cls) -> MontPriv:
         """
