@@ -4,7 +4,7 @@ export MYPYPATH=stubs/
 
 if [ "$TRAVIS_PYTHON_VERSION" != "pypy3" ]
 then
-    python -m mypy xeddsa/
+    python -m mypy --strict xeddsa/
 fi
 
 python -m pylint xeddsa/
