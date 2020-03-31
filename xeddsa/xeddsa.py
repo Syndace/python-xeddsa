@@ -122,7 +122,7 @@ class XEdDSA:
             mont_pub: The Montgomery public key.
 
         Returns:
-            The Twisted Edwards public key derived from the Montgomery public key.
+            The twisted Edwards public key derived from the Montgomery public key.
         """
 
         if len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
@@ -137,7 +137,7 @@ class XEdDSA:
             mont_pub: The Montgomery public key.
 
         Returns:
-            The Twisted Edwards public key derived from the Montgomery public key.
+            The twisted Edwards public key derived from the Montgomery public key.
         """
 
         raise NotImplementedError
@@ -204,12 +204,12 @@ class XEdDSA:
     @staticmethod
     def _verify(ed_pub: EdPub, msg: bytes, sig: Signature) -> bool:
         """
-        Verify a signature using a Twisted Edwards public key.
+        Verify a signature using a twisted Edwards public key.
 
         Args:
             msg: The signed message.
             sig: The signature.
-            ed_pub: The Twisted Edwards public key.
+            ed_pub: The twisted Edwards public key.
 
         Returns:
             Whether the signature is valid.

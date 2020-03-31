@@ -11,7 +11,7 @@ from .xeddsa import XEdDSA
 
 class XEdDSA25519(XEdDSA):
     """
-    An implementation of XEdDSA for Montgomery Curve25519 and Twisted Edwards Ed25519 keys.
+    An implementation of XEdDSA for Montgomery Curve25519 and twisted Edwards Ed25519 keys.
     """
 
     MONT_PRIV_KEY_SIZE : ClassVar[int] = 32
