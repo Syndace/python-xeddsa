@@ -1,5 +1,5 @@
 project = {
-    "name"         : "python-xeddsa",
+    "name"         : "XEdDSA",
     "description"  : "Python bindings to libxeddsa.",
     "url"          : "https://github.com/Syndace/python-xeddsa",
     "year"         : "2020",

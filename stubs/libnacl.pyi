@@ -1,13 +1,13 @@
 from typing import Tuple
 
-X25519PrivateKey = bytes
-X25519PublicKey  = bytes
+Curve25519PrivateKey = bytes
+Curve25519PublicKey  = bytes
 
-Ed25519PublicKey = bytes
-Ed25519Signature = bytes
+Ed25519PublicKey  = bytes
+Ed25519Signature  = bytes
 
-def crypto_box_keypair() -> Tuple[X25519PublicKey, X25519PrivateKey]: ...
-def crypto_scalarmult_base(sk: X25519PrivateKey) -> X25519PublicKey: ...
+def crypto_box_keypair() -> Tuple[Curve25519PublicKey, Curve25519PrivateKey]: ...
+def crypto_scalarmult_base(sk: Curve25519PrivateKey) -> Curve25519PublicKey: ...
 def crypto_sign_verify_detached(sig: Ed25519Signature, msg: bytes, vk: Ed25519PublicKey) -> bytes: ...
 
 def randombytes(size: int) -> bytes: ...
