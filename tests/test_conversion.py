@@ -32,10 +32,7 @@ montgomery_private_keys = [
     b"\x81\x3c\x79\x25\x53\xf2\xd1\x5b\x51\xd0\x82\x87\x5c\xc0\x08\x54",
 ]
 
-montgomery_public_keys = list(map(
-    XEdDSA25519.mont_pub_from_mont_priv,
-    montgomery_private_keys
-))
+montgomery_public_keys = list(map(XEdDSA25519.mont_pub_from_mont_priv, montgomery_private_keys))
 
 twisted_edwards_public_keys = [
     b"\x19\x9b\xa1\x30\x1e\xb5\x89\x4d\x8c\x7c\x02\xa0\xb7\xe2\x21\x9f" +
@@ -69,14 +66,8 @@ twisted_edwards_public_keys = [
     b"\x4f\xe8\xfc\xe0\x97\x0d\xcb\x24\xad\xb6\xbe\xb3\xe1\xcb\xfd\x4d",
 ]
 
-def test_conversion():
-    assert (len(montgomery_public_keys)  ==
-            len(twisted_edwards_public_keys))
+def test_conversion() -> None:
+    assert len(montgomery_public_keys) == len(twisted_edwards_public_keys)
 
-    for i in range(len(montgomery_public_keys)):
-        mont_pub      = montgomery_public_keys[i]
-        wanted_ed_pub = twisted_edwards_public_keys[i]
-
-        converted_ed_pub = XEdDSA25519.mont_pub_to_ed_pub(mont_pub)
-
-        assert converted_ed_pub == wanted_ed_pub
+    for mont_pub, ed_pub in zip(montgomery_public_keys, twisted_edwards_public_keys):
+        assert XEdDSA25519.mont_pub_to_ed_pub(mont_pub) == ed_pub

@@ -2,7 +2,7 @@ import os
 
 from xeddsa import XEdDSA25519
 
-def test_signing():
+def test_signing() -> None:
     for _ in range(100):
         msg = os.urandom(100)
 
