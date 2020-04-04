@@ -1,46 +1,90 @@
-from ctypes.util import find_library
+import ctypes.util
 import os
 import platform
 import sys
+from typing import Optional, Tuple
 
-import cffi
+import cffi # type: ignore[import]
 
 ffibuilder = cffi.FFI()
 
-libxeddsa_dir    = os.path.abspath("libxeddsa")
-libxeddsa_header = os.path.join(libxeddsa_dir, "xeddsa.h")
+libxeddsa_prebuilt_dir = os.path.dirname(os.path.abspath(__file__))
+libxeddsa_header = os.path.join(libxeddsa_prebuilt_dir, "xeddsa.h")
 
-system  = platform.system()
-machine = platform.machine()
+class LibraryNotFoundException(Exception):
+    pass
 
-if not (machine.lower() in [ "amd64", "x86_64" ] and sys.maxsize == 2 ** 63 - 1):
-    raise Exception("64 bit operating system and Python installation required.")
+def find_library(library: str) -> Tuple[Optional[str], str]:
+    names = [ library ]
 
-libxeddsa_library = None
-libsodium_library = None
+    if platform.system() == "Windows":
+        # Windows library naming convention does not include the `lib` prefix, but some library still ship
+        # with the prefix.
+        names.append("lib{}".format(library))
 
-if find_library("xeddsa") is not None:
-    libxeddsa_library = "xeddsa"
-    print("Using locally installed version of libxeddsa.")
+    for name in names:
+        library_path = ctypes.util.find_library(name)
+        if library_path is not None:
+            if os.path.isfile(library_path):
+                return os.path.dirname(library_path), name
 
-if libxeddsa_library is None:
+            return None, name
+
+    raise LibraryNotFoundException("Library {} not found.".format(name))
+
+def find_libxeddsa() -> Tuple[Optional[str], str]:
+    try:
+        return find_library("xeddsa")
+    except LibraryNotFoundException:
+        if os.getenv("LIBXEDDSA_FORCE_LOCAL"):
+            raise Exception("No locally installed version of libxeddsa found.")
+
+    print(
+        "No locally installed version of libxeddsa found, falling back to prebuilt binaries. Set the"
+        " 'LIBXEDDSA_FORCE_LOCAL' environment variable to prevent usage of prebuilt binaries."
+    )
+
+    system  = platform.system()
+    machine = platform.machine()
+
+    if not (machine.lower() in [ "amd64", "x86_64" ] and sys.maxsize == 2 ** 63 - 1):
+        raise Exception(
+            "Prebuilt binaries of libxeddsa are not available for the system architecture '{}' and 32 bit"
+            " Python interpreters. Build or install libxeddsa and make sure it can be found by Python/your C"
+            " compiler."
+            .format(machine)
+        )
+
     if system == "Linux":
-        libxeddsa_library = "xeddsa-linux-amd64"
+        return (libxeddsa_prebuilt_dir, "xeddsa-linux-amd64")
     if system == "Darwin":
-        libxeddsa_library = "xeddsa-macos-amd64"
+        return (libxeddsa_prebuilt_dir, "xeddsa-macos-amd64")
     if system == "Windows":
-        libxeddsa_library = "libxeddsa-windows-amd64"
-    print("Using prebuilt version of libxeddsa.")
+        return (libxeddsa_prebuilt_dir, "libxeddsa-windows-amd64")
 
-if system == "Linux":
-    libsodium_library = "sodium"
-if system == "Darwin":
-    libsodium_library = "sodium"
-if system == "Windows":
-    libsodium_library = "libsodium"
+    raise Exception(
+        "Prebuilt binaries of libxeddsa are not available for operating system '{}'. Build or install"
+        " libxeddsa and make sure it can be found by Python/your C compiler."
+        .format(system)
+    )
 
-if libxeddsa_library is None or libsodium_library is None:
-    raise Exception('Operating system "{}" not supported.'.format(system))
+def find_libsodium() -> Tuple[Optional[str], str]:
+    try:
+        return find_library("sodium")
+    except LibraryNotFoundException:
+        raise Exception(
+            "No locally installed version of libsodium found. Make sure libsodium is installed and can be"
+            " found by Python/your C compiler."
+        )
+
+libxeddsa_dir, libxeddsa_library = find_libxeddsa()
+libsodium_dir, libsodium_library = find_libsodium()
+
+library_dirs = []
+if libxeddsa_dir is not None:
+    library_dirs.append(libxeddsa_dir)
+if libsodium_dir is not None:
+    library_dirs.append(libsodium_dir)
 
 with open(libxeddsa_header) as f:
     ffibuilder.cdef(f.read())
@@ -48,7 +92,7 @@ with open(libxeddsa_header) as f:
 ffibuilder.set_source(
     "_libxeddsa",
     '#include "' + libxeddsa_header + '"',
-    library_dirs = [ libxeddsa_dir ],
+    library_dirs = library_dirs,
     libraries    = [ libxeddsa_library, libsodium_library ]
 )
 
