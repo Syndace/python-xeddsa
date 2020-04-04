@@ -1,19 +1,20 @@
-from setuptools import setup, find_packages
-
+# pylint: disable=exec-used
 import os
-import sys
+from typing import Dict, Union, List
+
+from setuptools import setup, find_packages # type: ignore[import]
 
 source_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "xeddsa")
 
-version = {}
+version_scope: Dict[str, Dict[str, str]] = {}
 with open(os.path.join(source_root, "version.py")) as f:
-	exec(f.read(), version)
-version = version["__version__"]
+    exec(f.read(), version_scope)
+version = version_scope["__version__"]
 
-project = {}
+project_scope: Dict[str, Dict[str, Union[str, List[str]]]] = {}
 with open(os.path.join(source_root, "project.py")) as f:
-	exec(f.read(), project)
-project = project["project"]
+    exec(f.read(), project_scope)
+project = project_scope["project"]
 
 with open("README.md") as f:
     long_description = f.read()
