@@ -38,15 +38,15 @@ def curve25519_sign(curve25519_priv: Curve25519Priv, msg: bytes, nonce: Nonce) -
 
     Args:
         curve25519_priv: The Curve25519 private key to sign `msg` with. The little-endian encoding of the u
-            coordinate as per `RFC 7748 <https://tools.ietf.org/html/rfc7748>`_ (on page 4).
+            coordinate as per `RFC 7748 <https://tools.ietf.org/html/rfc7748#page-4>`__ (on page 4).
         msg: The message to sign.
         nonce: 64 bytes of secure random data.
 
     Returns:
         An Ed25519-compatible signature that validates `msg` with the Ed25519 public key corresponding to this
         Curve25519 private key, as calculated by :func:`curve25519_pub_to_ed25519_pub`. The signature is 64
-        bytes long and follows the byte format defined in `RFC 8032 <https://tools.ietf.org/html/rfc8032>`_
-        (on page 8).
+        bytes long and follows the byte format defined in
+        `RFC 8032 <https://tools.ietf.org/html/rfc8032#page-8>`__ (on page 8).
     """
 
     sig_ffi = ffi.new(ED_25519_SIGNATURE_FFI)
@@ -66,12 +66,13 @@ def curve25519_pub_to_ed25519_pub(curve25519_pub: Curve25519Pub) -> Ed25519Pub:
 
     Args:
         curve25519_pub: The Curve25519 public key to convert into its Ed25519 equivalent. The little-endian
-            encoding of the u coordinate as per `RFC 7748 <https://tools.ietf.org/html/rfc7748>`_ (on page 4).
+            encoding of the u coordinate as per `RFC 7748 <https://tools.ietf.org/html/rfc7748#page-4>`__ (on
+            page 4).
 
     Returns:
         The Ed25519 public key corresponding to the Curve25519 public key. The little-endian encoding of the y
         coordinate (32 bytes) with the sign bit of the x coordinate stored in the most significant bit as per
-        `RFC 8032 <https://tools.ietf.org/html/rfc8032>`_ (on page 7).
+        `RFC 8032 <https://tools.ietf.org/html/rfc8032#page-7>`__ (on page 7).
     """
 
     ed25519_pub_ffi    = ffi.new(ED_25519_PUB_FFI)

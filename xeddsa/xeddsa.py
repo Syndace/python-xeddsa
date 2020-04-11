@@ -1,27 +1,42 @@
-from typing import ClassVar, Optional
+from abc import ABCMeta, abstractmethod
+from typing import Optional
 
 import libnacl
 
 from .bindings import Nonce
 
-MontPriv  = bytes # MONT_PRIV_KEY_SIZE bytes
-MontPub   = bytes # MONT_PUB_KEY_SIZE bytes
-EdPub     = bytes # ED_PUB_KEY_SIZE bytes
-Signature = bytes # SIGNATURE_SIZE bytes
+MontPriv  = bytes
+MontPub   = bytes
+EdPub     = bytes
+Signature = bytes
 
 class MissingKeyException(Exception):
     pass
 
-class XEdDSA:
+class XEdDSA(metaclass=ABCMeta):
     """
-    The base class for all XEdDSA implementations.
-    Do not use this class directly, use subclasses for specific key types instead.
+    The abstract base class for all XEdDSA implementations.
     """
 
-    MONT_PRIV_KEY_SIZE : ClassVar[int] = NotImplemented
-    MONT_PUB_KEY_SIZE  : ClassVar[int] = NotImplemented
-    ED_PUB_KEY_SIZE    : ClassVar[int] = NotImplemented
-    SIGNATURE_SIZE     : ClassVar[int] = NotImplemented
+    @staticmethod
+    @abstractmethod
+    def _get_mont_priv_key_size() -> int:
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_get_mont_priv_key_size`.")
+
+    @staticmethod
+    @abstractmethod
+    def _get_mont_pub_key_size() -> int:
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_get_mont_pub_key_size`.")
+
+    @staticmethod
+    @abstractmethod
+    def _get_ed_pub_key_size() -> int:
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_get_ed_pub_key_size`.")
+
+    @staticmethod
+    @abstractmethod
+    def _get_signature_size() -> int:
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_get_signature_size`.")
 
     def __init__(self, mont_priv: Optional[MontPriv] = None, mont_pub: Optional[MontPub] = None):
         """
@@ -35,27 +50,24 @@ class XEdDSA:
         If both ``mont_priv`` and ``mont_pub`` are :obj:`None`, a new key pair is generated.
         """
 
-        cls = self.__class__
-
-        if any(map(lambda x: x == NotImplemented, [
-            cls.MONT_PRIV_KEY_SIZE,
-            cls.MONT_PUB_KEY_SIZE,
-            cls.ED_PUB_KEY_SIZE,
-            cls.SIGNATURE_SIZE
-        ])):
-            raise NotImplementedError("Can't instantiate the XEdDSA class directly.")
+        wanted_mont_priv_key_size = self._get_mont_priv_key_size()
+        wanted_mont_pub_key_size  = self._get_mont_pub_key_size()
 
         if mont_priv is None and mont_pub is None:
             mont_priv = self.generate_mont_priv()
 
-        if mont_priv is not None and len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
-            raise ValueError("The Montgomery private key must consist of MONT_PRIV_KEY_SIZE bytes if given.")
+        if mont_priv is not None and len(mont_priv) != wanted_mont_priv_key_size:
+            raise ValueError("The Montgomery private key must consist of {} bytes if given.".format(
+                wanted_mont_priv_key_size
+            ))
 
         if mont_priv is not None and mont_pub is None:
             mont_pub = self.mont_pub_from_mont_priv(mont_priv)
 
-        if mont_pub is not None and len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
-            raise ValueError("The Montgomery public key must consist of MONT_PUB_KEY_SIZE bytes if given.")
+        if mont_pub is not None and len(mont_pub) != wanted_mont_pub_key_size:
+            raise ValueError("The Montgomery public key must consist of {} bytes if given.".format(
+                wanted_mont_pub_key_size
+            ))
 
         assert mont_pub is not None # sanity check, to satisfy mypy
 
@@ -80,13 +92,14 @@ class XEdDSA:
         return cls._generate_mont_priv()
 
     @staticmethod
+    @abstractmethod
     def _generate_mont_priv() -> MontPriv:
         """
         Returns:
             A freshly generated Montgomery private key to be used with XEdDSA.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_generate_mont_priv`.")
 
     @classmethod
     def mont_pub_from_mont_priv(cls, mont_priv: MontPriv) -> MontPub:
@@ -98,12 +111,14 @@ class XEdDSA:
             The Montgomery public key restored from the Montgomery private key.
         """
 
-        if len(mont_priv) != cls.MONT_PRIV_KEY_SIZE:
-            raise ValueError("The Montgomery private key must consist of MONT_PRIV_KEY_SIZE bytes.")
+        wanted_size = cls._get_mont_priv_key_size()
+        if len(mont_priv) != wanted_size:
+            raise ValueError("The Montgomery private key must consist of {} bytes.".format(wanted_size))
 
         return cls._mont_pub_from_mont_priv(mont_priv)
 
     @staticmethod
+    @abstractmethod
     def _mont_pub_from_mont_priv(mont_priv: MontPriv) -> MontPub:
         """
         Args:
@@ -113,7 +128,7 @@ class XEdDSA:
             The Montgomery public key restored from the Montgomery private key.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_mont_pub_from_mont_priv`.")
 
     @classmethod
     def mont_pub_to_ed_pub(cls, mont_pub: MontPub) -> EdPub:
@@ -125,12 +140,14 @@ class XEdDSA:
             The twisted Edwards public key derived from the Montgomery public key.
         """
 
-        if len(mont_pub) != cls.MONT_PUB_KEY_SIZE:
-            raise ValueError("The Montgomery public key must consist of MONT_PUB_KEY_SIZE bytes.")
+        wanted_size = cls._get_mont_pub_key_size()
+        if len(mont_pub) != wanted_size:
+            raise ValueError("The Montgomery public key must consist of {} bytes.".format(wanted_size))
 
         return cls._mont_pub_to_ed_pub(mont_pub)
 
     @staticmethod
+    @abstractmethod
     def _mont_pub_to_ed_pub(mont_pub: MontPub) -> EdPub:
         """
         Args:
@@ -140,7 +157,7 @@ class XEdDSA:
             The twisted Edwards public key derived from the Montgomery public key.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_mont_pub_to_ed_pub`.")
 
     def sign(self, msg: bytes, nonce: Optional[Nonce] = None) -> Signature:
         """
@@ -169,6 +186,7 @@ class XEdDSA:
         return self._sign(self.__mont_priv, msg, nonce)
 
     @staticmethod
+    @abstractmethod
     def _sign(mont_priv: MontPriv, msg: bytes, nonce: Nonce) -> Signature:
         """
         Sign a message using a Montgomery private key.
@@ -182,7 +200,7 @@ class XEdDSA:
             The signature of the message, not including the message itself.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_sign`.")
 
     def verify(self, msg: bytes, sig: Signature) -> bool:
         """
@@ -196,12 +214,14 @@ class XEdDSA:
             Whether the signature is valid.
         """
 
-        if len(sig) != self.__class__.SIGNATURE_SIZE:
-            raise ValueError("The signature must consist of SIGNATURE_SIZE bytes.")
+        wanted_size = self._get_signature_size()
+        if len(sig) != wanted_size:
+            raise ValueError("The signature must consist of {} bytes.".format(wanted_size))
 
         return self._verify(self._mont_pub_to_ed_pub(self.__mont_pub), msg, sig)
 
     @staticmethod
+    @abstractmethod
     def _verify(ed_pub: EdPub, msg: bytes, sig: Signature) -> bool:
         """
         Verify a signature using a twisted Edwards public key.
@@ -215,4 +235,4 @@ class XEdDSA:
             Whether the signature is valid.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError("Create a subclass of XEdDSA and implement `_verify`.")

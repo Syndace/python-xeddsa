@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import libnacl
 
 from .bindings import (
@@ -14,10 +12,21 @@ class XEdDSA25519(XEdDSA):
     An implementation of XEdDSA for Montgomery Curve25519 and twisted Edwards Ed25519 keys.
     """
 
-    MONT_PRIV_KEY_SIZE : ClassVar[int] = 32
-    MONT_PUB_KEY_SIZE  : ClassVar[int] = 32
-    ED_PUB_KEY_SIZE    : ClassVar[int] = 32
-    SIGNATURE_SIZE     : ClassVar[int] = 64
+    @staticmethod
+    def _get_mont_priv_key_size() -> int:
+        return 32
+
+    @staticmethod
+    def _get_mont_pub_key_size() -> int:
+        return 32
+
+    @staticmethod
+    def _get_ed_pub_key_size() -> int:
+        return 32
+
+    @staticmethod
+    def _get_signature_size() -> int:
+        return 64
 
     @staticmethod
     def _generate_mont_priv() -> Curve25519Priv:
