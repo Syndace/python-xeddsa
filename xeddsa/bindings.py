@@ -37,13 +37,13 @@ def curve25519_sign(curve25519_priv: Curve25519Priv, msg: bytes, nonce: Nonce) -
     Sign a message using a Curve25519 private key.
 
     Args:
-        curve25519_priv: The Curve25519 private key to sign `msg` with. The little-endian encoding of the u
+        curve25519_priv: The Curve25519 private key to sign ``msg`` with. The little-endian encoding of the u
             coordinate as per `RFC 7748 <https://tools.ietf.org/html/rfc7748#page-4>`__ (on page 4).
         msg: The message to sign.
         nonce: 64 bytes of secure random data.
 
     Returns:
-        An Ed25519-compatible signature that validates `msg` with the Ed25519 public key corresponding to this
+        An Ed25519-compatible signature that validates ``msg`` with the Ed25519 public key corresponding to this
         Curve25519 private key, as calculated by :func:`curve25519_pub_to_ed25519_pub`. The signature is 64
         bytes long and follows the byte format defined in
         `RFC 8032 <https://tools.ietf.org/html/rfc8032#page-8>`__ (on page 8).
