@@ -1,47 +1,50 @@
 jobs:
   include:
   - os: linux
-    dist: bionic
-    language: python
-    python: "3.6"
-  - os: linux
-    dist: bionic
-    language: python
-    python: "3.6"
-    env: DEBIAN_DEPS=true
-  - os: linux
-    dist: bionic
+    dist: focal
     language: python
     python: "3.7"
   - os: linux
-    dist: bionic
+    dist: focal
     language: python
     python: "3.7"
     env: DEBIAN_DEPS=true
   - os: linux
-    dist: bionic
+    dist: focal
     language: python
     python: "3.8"
   - os: linux
-    dist: bionic
+    dist: focal
     language: python
     python: "3.8"
     env: DEBIAN_DEPS=true
   - os: linux
-    dist: bionic
+    dist: focal
+    language: python
+    python: "3.9"
+  - os: linux
+    dist: focal
+    language: python
+    python: "3.9"
+    env: DEBIAN_DEPS=true
+  - os: linux
+    dist: focal
+    language: python
+    python: "3.10"
+  - os: linux
+    dist: focal
+    language: python
+    python: "3.10"
+    env: DEBIAN_DEPS=true
+  - os: linux
+    dist: focal
     language: python
     python: "pypy3"
   - os: linux
-    dist: bionic
+    dist: focal
     language: python
     python: "pypy3"
     env: DEBIAN_DEPS=true
-  - os: osx
-    language: generic
-    env: TRAVIS_PYTHON_VERSION=3.6
-  - os: osx
-    language: generic
-    env: TRAVIS_PYTHON_VERSION=3.6 DEBIAN_DEPS=true
   - os: osx
     language: generic
     env: TRAVIS_PYTHON_VERSION=3.7
@@ -54,6 +57,18 @@ jobs:
   - os: osx
     language: generic
     env: TRAVIS_PYTHON_VERSION=3.8 DEBIAN_DEPS=true
+  - os: osx
+    language: generic
+    env: TRAVIS_PYTHON_VERSION=3.9
+  - os: osx
+    language: generic
+    env: TRAVIS_PYTHON_VERSION=3.9 DEBIAN_DEPS=true
+  - os: osx
+    language: generic
+    env: TRAVIS_PYTHON_VERSION=3.10
+  - os: osx
+    language: generic
+    env: TRAVIS_PYTHON_VERSION=3.10 DEBIAN_DEPS=true
   - os: osx
     language: generic
     env: TRAVIS_PYTHON_VERSION=pypy3
@@ -62,12 +77,6 @@ jobs:
     env: TRAVIS_PYTHON_VERSION=pypy3 DEBIAN_DEPS=true
   - os: windows
     language: bash
-    env: TRAVIS_PYTHON_VERSION=3.6
-  - os: windows
-    language: bash
-    env: TRAVIS_PYTHON_VERSION=3.6 DEBIAN_DEPS=true
-  - os: windows
-    language: bash
     env: TRAVIS_PYTHON_VERSION=3.7
   - os: windows
     language: bash
@@ -78,6 +87,18 @@ jobs:
   - os: windows
     language: bash
     env: TRAVIS_PYTHON_VERSION=3.8 DEBIAN_DEPS=true
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.9
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.9 DEBIAN_DEPS=true
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.10
+  - os: windows
+    language: bash
+    env: TRAVIS_PYTHON_VERSION=3.10 DEBIAN_DEPS=true
 
 addons:
   apt:

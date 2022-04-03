@@ -4,14 +4,9 @@ export MYPYPATH=stubs/
 
 if [ "$TRAVIS_PYTHON_VERSION" != "pypy3" ]
 then
-    python -m mypy --strict xeddsa/
-    python -m mypy --strict tests/
-    python -m mypy --strict libxeddsa/
-    python -m mypy --strict setup.py
+    python -m mypy --strict xeddsa/ setup.py libxeddsa/ tests/
 fi
 
-python -m pylint xeddsa/
-python -m pylint tests/*.py
-python -m pylint libxeddsa/*.py
-python -m pylint setup.py
+python -m pylint xeddsa/ setup.py libxeddsa/ tests/
+python -m flake8 xeddsa/ setup.py libxeddsa/ tests/
 python -m pytest

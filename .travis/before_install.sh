@@ -1,20 +1,25 @@
 cd ${TRAVIS_BUILD_DIR}
 
 case "$TRAVIS_PYTHON_VERSION" in
-"3.6")
-    export OSX_PYTHON_VERSION="3.6.9"
-    export WIN_PYTHON_VERSION="3.6.8"
-    export WIN_PYTHON_DIR_NAME="Python36"
-    ;;
 "3.7")
-    export OSX_PYTHON_VERSION="3.7.5"
-    export WIN_PYTHON_VERSION="3.7.7"
+    export OSX_PYTHON_VERSION="3.7.13"
+    export WIN_PYTHON_VERSION="3.7.13"
     export WIN_PYTHON_DIR_NAME="Python37"
     ;;
 "3.8")
-    export OSX_PYTHON_VERSION="3.8.2"
-    export WIN_PYTHON_VERSION="3.8.2"
+    export OSX_PYTHON_VERSION="3.8.13"
+    export WIN_PYTHON_VERSION="3.8.13"
     export WIN_PYTHON_DIR_NAME="Python38"
+    ;;
+"3.9")
+    export OSX_PYTHON_VERSION="3.9.12"
+    export WIN_PYTHON_VERSION="3.9.12"
+    export WIN_PYTHON_DIR_NAME="Python39"
+    ;;
+"3.10")
+    export OSX_PYTHON_VERSION="3.10.4"
+    export WIN_PYTHON_VERSION="3.10.4"
+    export WIN_PYTHON_DIR_NAME="Python310"
     ;;
 "pypy3")
     export OSX_PYTHON_VERSION="pypy3.6-7.3.0"
