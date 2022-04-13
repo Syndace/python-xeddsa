@@ -1,4 +1,5 @@
 __all__ = [ "project" ]  # pylint: disable=unused-variable
+
 project = {
     "name"         : "XEdDSA",
     "description"  : "Python bindings to libxeddsa.",

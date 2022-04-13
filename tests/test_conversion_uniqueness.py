@@ -1,11 +1,16 @@
 import random
 
-import xeddsa.bindings as xeddsa
+import xeddsa
+
+
+__all__ = [  # pylint: disable=unused-variable
+    "test_conversion_uniqueness"
+]
 
 NUM_KEYS = 8192
 
 
-def test_conversion_uniqueness() -> None:  # pylint: disable=unused-variable
+def test_conversion_uniqueness() -> None:
     """
     Test conversion uniqueness between public key formats.
     """

@@ -6,6 +6,35 @@ from typing import Optional
 
 from _libxeddsa import ffi, lib
 
+
+__all__ = [  # pylint: disable=unused-variable
+    "Priv", "PRIV_SIZE",
+    "Seed", "SEED_SIZE",
+    "Curve25519Pub", "CURVE_25519_PUB_SIZE",
+    "Ed25519Pub", "ED_25519_PUB_SIZE",
+    "Ed25519Signature", "ED_25519_SIGNATURE_SIZE",
+    "Nonce", "NONCE_SIZE",
+    "SharedSecret", "SHARED_SECRET_SIZE",
+
+    "XEdDSAException",
+
+    "ed25519_priv_sign",
+    "ed25519_seed_sign",
+    "ed25519_verify",
+
+    "curve25519_pub_to_ed25519_pub",
+    "ed25519_pub_to_curve25519_pub",
+
+    "priv_to_curve25519_pub",
+    "priv_to_ed25519_pub",
+    "seed_to_ed25519_pub",
+
+    "priv_force_sign",
+    "seed_to_priv",
+
+    "x25519"
+]
+
 Priv = bytes
 PRIV_SIZE = 32
 PRIV_FFI = f"uint8_t[{PRIV_SIZE}]"
@@ -345,32 +374,3 @@ if not 2 <= lib.XEDDSA_VERSION_MAJOR < 3:
 
 if lib.xeddsa_init() < 0:
     raise Exception("libxeddsa couldn't be initialized.")
-
-
-__all__ = [  # pylint: disable=unused-variable
-    "Priv", "PRIV_SIZE",
-    "Seed", "SEED_SIZE",
-    "Curve25519Pub", "CURVE_25519_PUB_SIZE",
-    "Ed25519Pub", "ED_25519_PUB_SIZE",
-    "Ed25519Signature", "ED_25519_SIGNATURE_SIZE",
-    "Nonce", "NONCE_SIZE",
-    "SharedSecret", "SHARED_SECRET_SIZE",
-
-    XEdDSAException.__name__,
-
-    ed25519_priv_sign.__name__,
-    ed25519_seed_sign.__name__,
-    ed25519_verify.__name__,
-
-    curve25519_pub_to_ed25519_pub.__name__,
-    ed25519_pub_to_curve25519_pub.__name__,
-
-    priv_to_curve25519_pub.__name__,
-    priv_to_ed25519_pub.__name__,
-    seed_to_ed25519_pub.__name__,
-
-    priv_force_sign.__name__,
-    seed_to_priv.__name__,
-
-    x25519.__name__
-]

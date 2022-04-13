@@ -1,12 +1,17 @@
 import random
 
-import xeddsa.bindings as xeddsa
+import xeddsa
+
+
+__all__ = [  # pylint: disable=unused-variable
+    "test_signing"
+]
 
 NUM_MESSAGES = 64
 NUM_KEY_PAIRS = 64
 
 
-def test_signing() -> None:  # pylint: disable=unused-variable
+def test_signing() -> None:
     """
     Test signing/verification flows for Curve25519, Ed25519 and seed-based key pairs.
     """

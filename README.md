@@ -15,10 +15,10 @@ Install the latest release using pip (`pip install XEdDSA`) or manually from sou
 
 ## Testing, Type Checks and Linting ##
 
-python-omemo uses [pytest](https://docs.pytest.org/en/latest/) as its testing framework, [mypy](http://mypy-lang.org/) for static type checks and both [pylint](https://pylint.pycqa.org/en/latest/) and [Flake8](https://flake8.pycqa.org/en/latest/) for linting. All tests/checks can be run locally with the following commands:
+python-xeddsa uses [pytest](https://docs.pytest.org/en/latest/) as its testing framework, [mypy](http://mypy-lang.org/) for static type checks and both [pylint](https://pylint.pycqa.org/en/latest/) and [Flake8](https://flake8.pycqa.org/en/latest/) for linting. All tests/checks can be run locally with the following commands:
 
 ```sh
-$ pip install pytest pytest-asyncio mypy pylint flake8
+$ pip install pytest mypy pylint flake8
 $ export MYPYPATH=stubs/
 $ mypy --strict xeddsa/ setup.py libxeddsa/ tests/
 $ pylint xeddsa/ setup.py libxeddsa/ tests/
