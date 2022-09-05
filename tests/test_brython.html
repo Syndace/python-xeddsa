@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>python-xeddsa</title>
+        <script src="https://raw.githack.com/brython-dev/brython/master/www/src/brython.js" referrerpolicy="no-referrer"></script>
+        <script src="https://raw.githack.com/brython-dev/brython/master/www/src/brython_stdlib.js" referrerpolicy="no-referrer"></script>
+        <script src="/xeddsa/xeddsa.brython.js"></script>
+    </head>
+    <body>
+        <script>
+            var Module = {
+                onRuntimeInitialized: function() {
+                    const wrapper_script = document.createElement("script");
+                    wrapper_script.src = "/libxeddsa/libxeddsa-wrapper.js";
+                    document.body.appendChild(wrapper_script);
+
+                    brython();
+                }
+            };
+        </script>
+        <script defer src="/libxeddsa/libxeddsa.js"></script>
+        <script type="text/python" id="secrets">
+            from browser import window
+
+            def token_bytes(nbytes: int) -> bytes:
+                result = window.Uint8Array.new(nbytes)
+                window.crypto.getRandomValues(result)
+                return bytes(window.Array["from"](result))
+        </script>
+        <script type="text/python" src="/tests/test_conversion_uniqueness.py" id="test_conversion_uniqueness"></script>
+        <script type="text/python" src="/tests/test_signing.py" id="test_signing"></script>
+        <script type="text/python">
+            import test_conversion_uniqueness
+            import test_signing
+
+            print("Testing conversion uniqueness...")
+            test_conversion_uniqueness.test_conversion_uniqueness()
+
+            print("Testing signing...")
+            test_signing.test_signing()
+
+            print("Tests succeeded!")
+        </script>
+    </body>
+</html>

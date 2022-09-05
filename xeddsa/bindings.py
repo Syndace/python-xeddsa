@@ -4,7 +4,10 @@ from __future__ import annotations  # pylint: disable=unused-variable
 import secrets
 from typing import Optional
 
-from _libxeddsa import ffi, lib
+try:
+    from _libxeddsa import ffi, lib
+except ImportError:
+    from .libxeddsa_emscripten import ffi, lib  # type: ignore[misc]
 
 
 __all__ = [  # pylint: disable=unused-variable

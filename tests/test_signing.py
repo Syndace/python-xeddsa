@@ -7,8 +7,8 @@ __all__ = [  # pylint: disable=unused-variable
     "test_signing"
 ]
 
-NUM_MESSAGES = 64
-NUM_KEY_PAIRS = 64
+NUM_MESSAGES = 8
+NUM_KEY_PAIRS = 8
 
 
 def test_signing() -> None:

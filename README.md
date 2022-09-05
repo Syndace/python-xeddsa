@@ -26,6 +26,25 @@ $ flake8 xeddsa/ setup.py libxeddsa/ tests/
 $ pytest
 ```
 
+## Usage with Brython ##
+
+python-xeddsa can be used in the browser with Brython, thanks to the Emscripten build of libxeddsa. Refer to `tests/test_brython.html` for the setup routine required to load the Emscripten build for usage with Brython. In summary, Brython's initialization is deferred until after the libxeddsa WebAssembly module and wrapper have been loaded. Other than that, python-xeddsa can be used as usual and handled with Brython like a pure Python package.
+
+The tests can be run with Brython by running the following commands from the root of this repository:
+
+```
+$ # You need brython-cli in the version fitting your local Python installation
+$ pip install brython==$YOUR_PYTHON_VERSION
+$ cd xeddsa/
+$ # Older versions of brython-cli use `--make_package` instead of just `make_package`
+$ brython-cli --make_package xeddsa
+$ cd ../
+$ python3 -m http.server 8080
+$ xdg-open http://localhost:8080/tests/test_brython.html
+```
+
+You'll find the output in the browser's dev console.
+
 ## Documentation ##
 
 View the documentation on [readthedocs.io](https://python-xeddsa.readthedocs.io/) or build it locally, which requires the Python packages listed in `docs/requirements.txt`. With all dependencies installed, run `make html` in the `docs/` directory. You can find the generated documentation in `docs/_build/html/`.

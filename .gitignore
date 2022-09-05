@@ -7,3 +7,5 @@ __pycache__/
 
 build/
 docs/_build
+
+xeddsa/xeddsa.brython.js
