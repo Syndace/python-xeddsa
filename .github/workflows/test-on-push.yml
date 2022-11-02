@@ -48,6 +48,7 @@ jobs:
       run: pip install --upgrade pytest pytest-cov mypy pylint flake8
 
     - name: Type-check using mypy
+      shell: bash
       run: MYPYPATH=stubs/ mypy --strict xeddsa/ setup.py libxeddsa/ tests/
     - name: Lint using pylint
       run: pylint xeddsa/ setup.py libxeddsa/ tests/
