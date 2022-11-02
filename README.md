@@ -1,7 +1,7 @@
 [![PyPI](https://img.shields.io/pypi/v/XEdDSA.svg)](https://pypi.org/project/XEdDSA/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/XEdDSA.svg)](https://pypi.org/project/XEdDSA/)
 [![Build Status](https://travis-ci.org/Syndace/python-xeddsa.svg?branch=stable)](https://travis-ci.org/Syndace/python-xeddsa)
-[![Documentation Status](https://readthedocs.org/projects/python-xeddsa/badge/?version=latest)](https://python-xeddsa.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/python-xeddsa/badge/?version=latest)](https://python-xeddsa.readthedocs.io/)
 
 # python-xeddsa #
 
