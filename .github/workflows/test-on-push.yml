@@ -34,7 +34,7 @@ jobs:
     - name: Install libsodium, a dependency of python-xeddsa, on windows-latest
       shell: bash
       run: |
-        wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
+        curl -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
         unzip libsodium-1.0.18-stable-msvc.zip
         mv libsodium/x64/Release/v141/static/libsodium.lib libxeddsa/
         mv libsodium/x64/Release/v141/dynamic/libsodium.dll /c/Windows/System32/

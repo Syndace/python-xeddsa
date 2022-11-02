@@ -1,4 +1,6 @@
+import os
 import random
+import secrets
 
 import xeddsa
 
@@ -19,12 +21,12 @@ def test_signing() -> None:
     # Test on a set of different messages
     for _ in range(NUM_MESSAGES):
         # Fill the message with random bytes. Randomize the size of the message.
-        msg = random.randbytes(random.randrange(0, 65535))
+        msg = os.urandom(random.randrange(0, 65535))
 
         # Test each message on a set of different key pairs
         for _ in range(NUM_KEY_PAIRS):
-            # Generate a Curve25519 key pair. WARNING: Do not use random.randbytes for private keys!
-            curve_priv = random.randbytes(32)
+            # Generate a Curve25519 key pair.
+            curve_priv = secrets.token_bytes(32)
             curve_pub = xeddsa.priv_to_curve25519_pub(curve_priv)
 
             # Adjust the private key such that the sign of the derived Ed25519 public key is zero
@@ -65,8 +67,8 @@ def test_signing() -> None:
             # Verify the message using the converted public key.
             assert not xeddsa.ed25519_verify(sig, ed_pub, msg)
 
-            # Generate an Ed25519 key pair. WARNING: Do not use random.randbytes for seeds!
-            ed_seed = random.randbytes(32)
+            # Generate an Ed25519 key pair.
+            ed_seed = secrets.token_bytes(32)
             ed_pub = xeddsa.seed_to_ed25519_pub(ed_seed)
 
             # Sign the message normally
