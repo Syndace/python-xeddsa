@@ -21,27 +21,25 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
 
       - name: Install libsodium and libxeddsa on ubuntu-latest
         run: |
           sudo apt-get install -y libsodium-dev
-          curl -o libxeddsa/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
+          sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
         if: matrix.os == 'ubuntu-latest'
 
       - name: Install libxeddsa on macos-latest
         run: |
-          curl -o libxeddsa/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-amd64.a
+          curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-amd64.a
         if: matrix.os == 'macos-latest'
 
-      - name: Install libsodium and libxeddsa on windows-latest
+      - name: Download libsodium and libxeddsa on windows-latest
         shell: bash
         run: |
-          curl -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
+          curl -L -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
           unzip libsodium-1.0.18-stable-msvc.zip
-          mv libsodium/x64/Release/v141/static/libsodium.lib libxeddsa/
-          mv libsodium/x64/Release/v141/dynamic/libsodium.dll /c/Windows/System32/
-          curl -o libxeddsa/libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
+          mv libsodium/x64/Release/v141/static/libsodium.lib .
+          curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
         if: matrix.os == 'windows-latest'
 
       - name: Install/update package management dependencies
@@ -61,60 +59,17 @@ jobs:
       - name: Test using pytest
         run: pytest --cov=xeddsa --cov-report term-missing:skip-covered
 
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v2.1.0
-        with:
-          platforms: all
-
-      - name: Install libxeddsa on ubuntu-latest
-        run: |
-          curl -o libxeddsa/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
-        if: matrix.os == 'ubuntu-latest'
-
-      - name: Install libxeddsa on macos-latest
-        run: |
-          curl -o libxeddsa/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-amd64.a
-        if: matrix.os == 'macos-latest'
-
-      - name: Install libsodium and libxeddsa on windows-latest
-        shell: bash
-        run: |
-          curl -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
-          unzip libsodium-1.0.18-stable-msvc.zip
-          mv libsodium/x64/Release/v141/static/libsodium.lib libxeddsa/
-          mv libsodium/x64/Release/v141/dynamic/libsodium.dll /c/Windows/System32/
-          curl -o libxeddsa/libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
-        if: matrix.os == 'windows-latest'
-
-      - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.11.2
-        env:
-          CIBW_ARCHS_LINUX: auto aarch64
-          CIBW_ARCHS_MACOS: x86_64 arm64
-          CIBW_BEFORE_ALL_LINUX: apt-get install -y libsodium-dev
-
-      - uses: actions/upload-artifact@v3
-        with:
-          path: ./wheelhouse/*.whl
-
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install libsodium and libxeddsa
+        run: |
+          sudo apt-get install -y libsodium-dev
+          sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
 
       - name: Build source distribution
         run: python3 setup.py sdist
@@ -123,8 +78,92 @@ jobs:
         with:
           path: dist/*.tar.gz
 
+  build_wheels_linux:
+    name: Build wheels for Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download libxeddsa
+        run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
+
+      - name: Build wheels using cibuildwheel
+        uses: pypa/cibuildwheel@v2.11.2
+        env:
+          CIBW_ARCHS_LINUX: auto64
+          CIBW_SKIP: "*-musllinux_*"
+          CIBW_BEFORE_ALL_LINUX: yum install -y libsodium-devel && cp libxeddsa.a /usr/local/lib/
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_wheels_macos:
+    name: Build wheels for MacOS ${{ matrix.arch }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install ${{ matrix.arch }} version of libxeddsa
+        run: curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-${{ matrix.arch }}.a
+
+      - name: Install arm64 version of libsodium
+        run: |
+          brew uninstall --ignore-dependencies libsodium
+          brew fetch --force --bottle-tag=arm64_ventura libsodium | tee brew_output
+          downloaded_to=$(grep "Downloaded to" brew_output)
+          downloaded_to_split=($downloaded_to)
+          brew install ${downloaded_to_split[2]}
+        if: matrix.arch == 'arm64'
+
+      - name: Build amd64 wheels using cibuildwheel
+        uses: pypa/cibuildwheel@v2.11.2
+        env:
+          CIBW_ARCHS_MACOS: x86_64
+        if: matrix.arch == 'amd64'
+
+      - name: Build arm64 wheels using cibuildwheel
+        uses: pypa/cibuildwheel@v2.11.2
+        env:
+          CIBW_ARCHS_MACOS: arm64
+        if: matrix.arch == 'arm64'
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_wheels_windows:
+    name: Build wheels for Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download libsodium and libxeddsa
+        shell: bash
+        run: |
+          curl -L -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
+          unzip libsodium-1.0.18-stable-msvc.zip
+          mv libsodium/x64/Release/v141/static/libsodium.lib .
+          curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
+
+      - name: Build wheels using cibuildwheel
+        uses: pypa/cibuildwheel@v2.11.2
+        env:
+          CIBW_ARCHS_WINDOWS: auto64
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
   publish:
-    needs: [test, build_wheels, build_sdist]
+    needs: [test, build_sdist, build_wheels_linux, build_wheels_macos, build_wheels_windows]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
