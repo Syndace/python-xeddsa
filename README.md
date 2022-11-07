@@ -1,6 +1,6 @@
 [![PyPI](https://img.shields.io/pypi/v/XEdDSA.svg)](https://pypi.org/project/XEdDSA/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/XEdDSA.svg)](https://pypi.org/project/XEdDSA/)
-[![Build Status](https://github.com/Syndace/python-xeddsa/actions/workflows/test-on-push.yml/badge.svg)](https://github.com/Syndace/python-xeddsa/actions/workflows/test-on-push.yml)
+[![Build Status](https://github.com/Syndace/python-xeddsa/actions/workflows/test-and-publish.yml/badge.svg)](https://github.com/Syndace/python-xeddsa/actions/workflows/test-and-publish.yml)
 [![Documentation Status](https://readthedocs.org/projects/python-xeddsa/badge/?version=latest)](https://python-xeddsa.readthedocs.io/)
 
 # python-xeddsa #
