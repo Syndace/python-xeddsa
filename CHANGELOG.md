@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+- Exclude tests from the packages
+
 ## [1.0.1] - 3rd of November 2022
 
 ### Added
