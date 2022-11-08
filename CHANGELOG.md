@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 - Exclude tests from the packages
+- Fixed a small type error that appeared with the newest version of mypy
 
 ## [1.0.1] - 3rd of November 2022
 

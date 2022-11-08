@@ -7,7 +7,7 @@ from typing import Optional
 try:
     from _libxeddsa import ffi, lib
 except ImportError:
-    from .libxeddsa_emscripten import ffi, lib  # type: ignore[misc]
+    from .libxeddsa_emscripten import ffi, lib  # type: ignore[assignment]
 
 
 __all__ = [  # pylint: disable=unused-variable
