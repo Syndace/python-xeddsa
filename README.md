@@ -11,7 +11,7 @@ Python bindings to [libxeddsa](https://github.com/Syndace/libxeddsa).
 
 python-xeddsa depends on two system libraries, [libxeddsa](https://github.com/Syndace/libxeddsa)>=2,<3 and [libsodium](https://download.libsodium.org/doc/).
 
-Install the latest release using pip (`pip install XEdDSA`), from the wheels available in the artifacts of the [Test & Publish workflow](https://github.com/Syndace/python-xeddsa/actions/workflows/test-and-publish.yml), or manually from source by running `pip install .` (preferred) or `python setup.py install` in the cloned repository. The installation from source requires libxeddsa, libsodium and the Python development headers to be installed.
+Install the latest release using pip (`pip install XEdDSA`), from the wheels available in the artifacts of the [Test & Publish workflow](https://github.com/Syndace/python-xeddsa/actions/workflows/test-and-publish.yml), or manually from source by running `pip install .` in the cloned repository. The installation from source requires libxeddsa, libsodium and the Python development headers to be installed.
 
 ## Testing, Type Checks and Linting ##
 
