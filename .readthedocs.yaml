@@ -6,6 +6,9 @@ build:
     python: "3"
   apt_packages:
     - libsodium-dev
+  jobs:
+    post_system_dependencies:
+      - curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
 
 sphinx:
   configuration: docs/conf.py
