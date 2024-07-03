@@ -12,13 +12,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "pypy-3.9"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy-3.9"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -30,15 +30,15 @@ jobs:
 
       - name: Install libxeddsa on macos-latest
         run: |
-          curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-amd64.a
+          curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-amd64.a
         if: matrix.os == 'macos-latest'
 
       - name: Download libsodium and libxeddsa on windows-latest
         shell: bash
         run: |
-          curl -L -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
-          unzip libsodium-1.0.18-stable-msvc.zip
-          mv libsodium/x64/Release/v141/static/libsodium.lib .
+          curl -L -o libsodium-1.0.20-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable-msvc.zip
+          unzip libsodium-1.0.20-stable-msvc.zip
+          mv libsodium/x64/Release/v143/static/libsodium.lib .
           curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
         if: matrix.os == 'windows-latest'
 
@@ -46,8 +46,10 @@ jobs:
         run: python -m pip install --upgrade pip setuptools wheel
       - name: Build and install python-xeddsa
         run: pip install .
+        env:
+          LIBRARY_PATH: /opt/homebrew/lib
       - name: Install test dependencies
-        run: pip install --upgrade pytest pytest-cov mypy pylint flake8
+        run: pip install --upgrade pytest pytest-cov mypy pylint flake8 types-cffi
 
       - name: Type-check using mypy
         shell: bash
@@ -64,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install libsodium and libxeddsa
         run: |
@@ -74,7 +76,7 @@ jobs:
       - name: Build source distribution
         run: python3 setup.py sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*.tar.gz
 
@@ -83,20 +85,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download libxeddsa
         run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
           CIBW_BEFORE_ALL_LINUX: yum install -y libsodium-devel && cp libxeddsa.a /usr/local/lib/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheels-linux
           path: ./wheelhouse/*.whl
 
   build_wheels_macos:
@@ -108,34 +111,39 @@ jobs:
         arch: [amd64, arm64]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install ${{ matrix.arch }} version of libxeddsa
-        run: curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-${{ matrix.arch }}.a
+        run: |
+          curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-${{ matrix.arch }}.a
 
       - name: Install arm64 version of libsodium
         run: |
           brew uninstall --ignore-dependencies libsodium
-          brew fetch --force --bottle-tag=arm64_ventura libsodium | tee brew_output
+          brew fetch --force --bottle-tag=arm64_sonoma libsodium | tee brew_output
           downloaded_to=$(grep "Downloaded to" brew_output)
           downloaded_to_split=($downloaded_to)
           brew install ${downloaded_to_split[2]}
         if: matrix.arch == 'arm64'
 
       - name: Build amd64 wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_ARCHS_MACOS: x86_64
+          LIBRARY_PATH: /opt/homebrew/lib
         if: matrix.arch == 'amd64'
 
       - name: Build arm64 wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_ARCHS_MACOS: arm64
+          LIBRARY_PATH: /opt/homebrew/lib
+          MACOSX_DEPLOYMENT_TARGET: 14
         if: matrix.arch == 'arm64'
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheels-macos-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_wheels_windows:
@@ -143,23 +151,24 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download libsodium and libxeddsa
         shell: bash
         run: |
-          curl -L -o libsodium-1.0.18-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
-          unzip libsodium-1.0.18-stable-msvc.zip
-          mv libsodium/x64/Release/v141/static/libsodium.lib .
+          curl -L -o libsodium-1.0.20-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable-msvc.zip
+          unzip libsodium-1.0.20-stable-msvc.zip
+          mv libsodium/x64/Release/v143/static/libsodium.lib .
           curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_ARCHS_WINDOWS: auto64
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheels-windows
           path: ./wheelhouse/*.whl
 
   publish:
@@ -168,12 +177,12 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.5.1
+      - uses: pypa/gh-action-pypi-publish@v1.9.0
         with:
           user: __token__
           password: ${{ secrets.pypi_token }}

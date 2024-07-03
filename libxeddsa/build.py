@@ -1,7 +1,7 @@
 import os
 import platform
 
-import cffi  # type: ignore[import]
+import cffi
 
 ffibuilder = cffi.FFI()
 

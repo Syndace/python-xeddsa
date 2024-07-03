@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-from browser import window  # type: ignore[import]
+from browser import window  # type: ignore[import-not-found]
 import re
 from typing import Any, Optional, cast
 

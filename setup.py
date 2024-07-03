@@ -2,7 +2,7 @@
 import os
 from typing import Dict, Union, List
 
-from setuptools import setup, find_packages  # type: ignore[import]
+from setuptools import setup, find_packages
 
 source_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "xeddsa")
 
@@ -64,5 +64,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     classifiers=classifiers,
-    **project
+    **project  # type: ignore[arg-type]
 )

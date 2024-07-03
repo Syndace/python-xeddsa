@@ -370,10 +370,10 @@ def x25519(priv: Priv, curve25519_pub: Curve25519Pub) -> SharedSecret:
 
 
 if not 2 <= lib.XEDDSA_VERSION_MAJOR < 3:
-    raise Exception(
+    raise ImportError(
         "Wrong version of libxeddsa bound. Expected >=2,<3, got"
         f" {lib.XEDDSA_VERSION_MAJOR}.{lib.XEDDSA_VERSION_MINOR}.{lib.XEDDSA_VERSION_REVISION}"
     )
 
 if lib.xeddsa_init() < 0:
-    raise Exception("libxeddsa couldn't be initialized.")
+    raise ImportError("libxeddsa couldn't be initialized.")
