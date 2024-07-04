@@ -27,11 +27,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy"
@@ -60,7 +60,7 @@ setup(
     install_requires=[ "cffi>=1.14.5" ],
     setup_requires=[ "cffi>=1.14.5" ],
     cffi_modules=[ os.path.join("libxeddsa", "build.py") + ":ffibuilder" ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     include_package_data=True,
     zip_safe=False,
     classifiers=classifiers,
