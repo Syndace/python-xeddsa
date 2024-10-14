@@ -122,7 +122,7 @@ jobs:
         run: |
           brew uninstall --ignore-dependencies libsodium
           brew fetch --force --bottle-tag=arm64_sonoma libsodium | tee brew_output
-          downloaded_to=$(grep "Downloaded to" brew_output)
+          downloaded_to=$(grep "Downloaded to" brew_output | tail -n 1)
           downloaded_to_split=($downloaded_to)
           brew install ${downloaded_to_split[2]}
         if: matrix.arch == 'arm64'
