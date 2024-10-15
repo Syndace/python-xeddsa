@@ -58,7 +58,6 @@ setup(
     license="MIT",
     packages=find_packages(exclude=["tests"]),
     install_requires=[ "cffi>=1.14.5" ],
-    setup_requires=[ "cffi>=1.14.5" ],
     cffi_modules=[ os.path.join("libxeddsa", "build.py") + ":ffibuilder" ],
     python_requires=">=3.9",
     include_package_data=True,
