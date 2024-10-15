@@ -5,7 +5,7 @@ import secrets
 import xeddsa
 
 
-__all__ = [  # pylint: disable=unused-variable
+__all__ = [
     "test_signing"
 ]
 
