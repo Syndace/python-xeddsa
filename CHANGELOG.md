@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 - Drop support for Python3.8, add support for Python3.13, bump PyPy test version to 3.10
+- Various internal maintenance tasks, mostly related to pylint
 
 ## [1.0.3] - 4th of July 2024
 
