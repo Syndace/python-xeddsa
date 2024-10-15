@@ -49,7 +49,7 @@ jobs:
         env:
           LIBRARY_PATH: /opt/homebrew/lib
       - name: Install test dependencies
-        run: pip install --upgrade pytest pytest-cov mypy pylint flake8 types-cffi
+        run: pip install --upgrade pytest pytest-cov mypy pylint flake8 types-cffi setuptools
 
       - name: Type-check using mypy
         shell: bash
