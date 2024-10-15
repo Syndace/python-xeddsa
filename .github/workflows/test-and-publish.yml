@@ -163,7 +163,7 @@ jobs:
           curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.19.2
+        uses: pypa/cibuildwheel@v2.21.3
         env:
           CIBW_ARCHS_WINDOWS: auto64
 
