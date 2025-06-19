@@ -81,8 +81,8 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  build_wheels_linux:
-    name: Build wheels for Linux
+  build_wheels_linux_amd64:
+    name: Build wheels for Linux amd64
     runs-on: ubuntu-latest
 
     steps:
@@ -92,7 +92,7 @@ jobs:
         run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.23.2
+        uses: pypa/cibuildwheel@v2
         env:
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
@@ -100,7 +100,29 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux
+          name: wheels-linux-amd64
+          path: ./wheelhouse/*.whl
+
+  build_wheels_linux_arm64:
+    name: Build wheels for Linux arm64
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download libxeddsa
+        run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-arm64.a
+
+      - name: Build wheels using cibuildwheel
+        uses: pypa/cibuildwheel@v2
+        env:
+          CIBW_ARCHS_LINUX: auto64
+          CIBW_SKIP: "*-musllinux_*"
+          CIBW_BEFORE_ALL_LINUX: yum install -y libsodium-devel && cp libxeddsa.a /usr/local/lib/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-arm64
           path: ./wheelhouse/*.whl
 
   build_wheels_macos:
@@ -128,14 +150,14 @@ jobs:
         if: matrix.arch == 'arm64'
 
       - name: Build amd64 wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.23.2
+        uses: pypa/cibuildwheel@v2
         env:
           CIBW_ARCHS_MACOS: x86_64
           LIBRARY_PATH: /opt/homebrew/lib
         if: matrix.arch == 'amd64'
 
       - name: Build arm64 wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.23.2
+        uses: pypa/cibuildwheel@v2
         env:
           CIBW_ARCHS_MACOS: arm64
           LIBRARY_PATH: /opt/homebrew/lib
@@ -163,7 +185,7 @@ jobs:
           curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2.23.2
+        uses: pypa/cibuildwheel@v2
         env:
           CIBW_ARCHS_WINDOWS: auto64
           CIBW_SKIP: pp39-win_amd64
@@ -174,7 +196,7 @@ jobs:
           path: ./wheelhouse/*.whl
 
   publish:
-    needs: [test, build_sdist, build_wheels_linux, build_wheels_macos, build_wheels_windows]
+    needs: [test, build_sdist, build_wheels_linux_amd64, build_wheels_linux_arm64, build_wheels_macos, build_wheels_windows]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
