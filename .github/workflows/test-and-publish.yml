@@ -92,7 +92,7 @@ jobs:
         run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
@@ -114,7 +114,7 @@ jobs:
         run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-arm64.a
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
@@ -150,14 +150,14 @@ jobs:
         if: matrix.arch == 'arm64'
 
       - name: Build amd64 wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS_MACOS: x86_64
           LIBRARY_PATH: /opt/homebrew/lib
         if: matrix.arch == 'amd64'
 
       - name: Build arm64 wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS_MACOS: arm64
           LIBRARY_PATH: /opt/homebrew/lib
@@ -185,7 +185,7 @@ jobs:
           curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
 
       - name: Build wheels using cibuildwheel
-        uses: pypa/cibuildwheel@v2
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS_WINDOWS: auto64
           CIBW_SKIP: pp39-win_amd64
