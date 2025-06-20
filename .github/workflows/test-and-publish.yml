@@ -48,18 +48,17 @@ jobs:
         run: pip install .
         env:
           LIBRARY_PATH: /opt/homebrew/lib
-      - name: Install test dependencies
-        run: pip install --upgrade pytest pytest-cov mypy pylint flake8 types-cffi setuptools
+      - name: Install test and lint dependencies
+        run: pip install .[test,lint]
 
       - name: Type-check using mypy
-        shell: bash
-        run: MYPYPATH=stubs/ mypy --strict xeddsa/ setup.py libxeddsa/ tests/
+        run: mypy xeddsa/ setup.py libxeddsa/ tests/
       - name: Lint using pylint
         run: pylint xeddsa/ setup.py libxeddsa/ tests/
       - name: Format-check using Flake8
         run: flake8 xeddsa/ setup.py libxeddsa/ tests/
       - name: Test using pytest
-        run: pytest --cov=xeddsa --cov-report term-missing:skip-covered
+        run: pytest
 
   build_sdist:
     name: Build source distribution

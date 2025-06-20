@@ -1,3 +1,88 @@
 [build-system]
-requires = [ "setuptools", "wheel", "cffi>=1.14.5" ]
+requires = [ "setuptools", "cffi>=1.14.5" ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "XEdDSA"
+description = "Python bindings to libxeddsa."
+readme = "README.md"
+dynamic = [ "version" ]
+authors = [
+    { name = "Tim Henkes (Syndace)", email = "me@syndace.dev" }
+]
+maintainers = [ { name = "Tim Henkes (Syndace)", email = "me@syndace.dev" } ]
+license = "MIT"
+license-files = [ "LICENSE" ]
+requires-python = ">= 3.9"
+dependencies = [
+    "cffi>=1.14.5"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+
+    "Intended Audience :: Developers",
+    "Topic :: Security :: Cryptography"
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "xeddsa.version.__version__" }
+
+[tool.setuptools.packages.find]
+exclude = [ "tests" ]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints"
+]
+test = [
+    "pytest",
+    "pytest-cov"
+]
+lint = [
+    "mypy",
+    "types-cffi",
+    "types-setuptools",
+    "pylint",
+    "setuptools",
+    "flake8",
+    "flake8-pyproject"
+]
+dev = [
+    "xeddsa[docs,test,lint]"
+]
+
+[project.urls]
+Documentation = "https://python-xeddsa.readthedocs.io/"
+Repository = "https://github.com/Syndace/python-xeddsa"
+Issues = "https://github.com/Syndace/python-xeddsa/issues"
+Changelog = "https://github.com/Syndace/python-xeddsa/blob/main/CHANGELOG.md"
+
+[tool.mypy]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/stubs"
+strict = true
+
+[tool.flake8]
+max-line-length = 110
+doctests = true
+ignore = [ "E201", "E202", "W503" ]
+per-file-ignores = [
+    "xeddsa/project.py:E203",
+    "xeddsa/__init__.py:F401"
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=xeddsa --cov-report term-missing:skip-covered"

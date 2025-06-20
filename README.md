@@ -22,12 +22,11 @@ Install the latest release using pip (`pip install XEdDSA`), from the wheels ava
 python-xeddsa uses [pytest](https://docs.pytest.org/en/latest/) as its testing framework, [mypy](http://mypy-lang.org/) for static type checks and both [pylint](https://pylint.pycqa.org/en/latest/) and [Flake8](https://flake8.pycqa.org/en/latest/) for linting. All tests/checks can be run locally with the following commands:
 
 ```sh
-$ pip install --upgrade pytest pytest-cov mypy pylint flake8
-$ export MYPYPATH=stubs/
-$ mypy --strict xeddsa/ setup.py libxeddsa/ tests/
+$ pip install --upgrade .[test,lint]
+$ mypy xeddsa/ setup.py libxeddsa/ tests/
 $ pylint xeddsa/ setup.py libxeddsa/ tests/
 $ flake8 xeddsa/ setup.py libxeddsa/ tests/
-$ pytest --cov=xeddsa --cov-report term-missing:skip-covered
+$ pytest
 ```
 
 ## Usage with Brython ##
@@ -51,4 +50,4 @@ You'll find the output in the browser's dev console.
 
 ## Documentation ##
 
-View the documentation on [readthedocs.io](https://python-xeddsa.readthedocs.io/) or build it locally, which requires the Python packages listed in `docs/requirements.txt`. With all dependencies installed, run `make html` in the `docs/` directory. You can find the generated documentation in `docs/_build/html/`.
+View the documentation on [readthedocs.io](https://python-xeddsa.readthedocs.io/) or build it locally. Additional requirements to build the docs can be installed using `pip install .[docs]`. With all dependencies installed, run `make html` in the `docs/` directory. You can find the generated documentation in `docs/_build/html/`.

@@ -1,5 +1,4 @@
 from .version import __version__ as __version__
-from .project import project as project
 
 from .bindings import (
     Priv as Priv, PRIV_SIZE as PRIV_SIZE,
