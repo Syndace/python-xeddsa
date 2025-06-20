@@ -72,8 +72,11 @@ jobs:
           sudo apt-get install -y libsodium-dev
           sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-linux-amd64.a
 
+      - name: Install build
+        run: pip install build
+
       - name: Build source distribution
-        run: python3 setup.py sdist
+        run: python -m build --sdist
 
       - uses: actions/upload-artifact@v4
         with:
