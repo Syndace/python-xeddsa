@@ -110,15 +110,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download libxeddsa
-        run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-arm64.a
+      - name: Download libxeddsa and the libsodium sources
+        run: |
+          curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-arm64.a
+          curl -L -o libsodium.tar.gz https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable.tar.gz
+          tar xzf libsodium.tar.gz
 
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
-          CIBW_BEFORE_ALL_LINUX: yum install -y libsodium-devel && cp libxeddsa.a /usr/local/lib/
+          CIBW_BEFORE_ALL_LINUX: |
+            cp libxeddsa.a /usr/local/lib/
+            cd libsodium-stable/
+            env CFLAGS="$CFLAGS -march=armv8-a+crypto+aes" ./configure
+            make && make check
+            make install
+            cd ../
 
       - uses: actions/upload-artifact@v4
         with:
