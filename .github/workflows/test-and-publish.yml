@@ -25,12 +25,12 @@ jobs:
       - name: Install libsodium and libxeddsa on ubuntu-latest
         run: |
           sudo apt-get install -y libsodium-dev
-          sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
+          sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-linux-amd64.a
         if: matrix.os == 'ubuntu-latest'
 
       - name: Install libxeddsa on macos-latest
         run: |
-          curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-amd64.a
+          curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-macos-amd64.a
         if: matrix.os == 'macos-latest'
 
       - name: Download libsodium and libxeddsa on windows-latest
@@ -39,7 +39,7 @@ jobs:
           curl -L -o libsodium-1.0.20-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable-msvc.zip
           unzip libsodium-1.0.20-stable-msvc.zip
           mv libsodium/x64/Release/v143/static/libsodium.lib .
-          curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
+          curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-windows-amd64.lib
         if: matrix.os == 'windows-latest'
 
       - name: Update pip
@@ -71,7 +71,7 @@ jobs:
       - name: Install libsodium and libxeddsa
         run: |
           sudo apt-get install -y libsodium-dev
-          sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
+          sudo curl -L -o /usr/local/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-linux-amd64.a
 
       - name: Build source distribution
         run: python3 setup.py sdist
@@ -89,7 +89,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download libxeddsa
-        run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-amd64.a
+        run: curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-linux-amd64.a
 
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
@@ -112,7 +112,7 @@ jobs:
 
       - name: Download libxeddsa and the libsodium sources
         run: |
-          curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-linux-arm64.a
+          curl -L -o libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-linux-arm64.a
           curl -L -o libsodium.tar.gz https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable.tar.gz
           tar xzf libsodium.tar.gz
 
@@ -147,7 +147,7 @@ jobs:
 
       - name: Install ${{ matrix.arch }} version of libxeddsa
         run: |
-          curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-macos-${{ matrix.arch }}.a
+          curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-macos-${{ matrix.arch }}.a
 
       - name: Install arm64 version of libsodium
         run: |
@@ -191,7 +191,7 @@ jobs:
           curl -L -o libsodium-1.0.20-stable-msvc.zip https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable-msvc.zip
           unzip libsodium-1.0.20-stable-msvc.zip
           mv libsodium/x64/Release/v143/static/libsodium.lib .
-          curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.0/libxeddsa-windows-amd64.lib
+          curl -L -o libxeddsa.lib https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-windows-amd64.lib
 
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
