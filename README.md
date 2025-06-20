@@ -3,6 +3,10 @@
 [![Build Status](https://github.com/Syndace/python-xeddsa/actions/workflows/test-and-publish.yml/badge.svg)](https://github.com/Syndace/python-xeddsa/actions/workflows/test-and-publish.yml)
 [![Documentation Status](https://readthedocs.org/projects/python-xeddsa/badge/?version=latest)](https://python-xeddsa.readthedocs.io/)
 
+**_This repository is actively maintained._**
+
+Activity is low at times because this project is already feature-complete, documented and tested.
+
 # python-xeddsa #
 
 Python bindings to [libxeddsa](https://github.com/Syndace/libxeddsa).
