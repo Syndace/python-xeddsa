@@ -17,7 +17,6 @@ API
 
 .. automodule:: xeddsa.bindings
     :members:
-    :special-members:
     :private-members:
     :undoc-members:
     :member-order: bysource
