@@ -52,8 +52,13 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints"
 ]
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None)
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = [ "_templates" ]
@@ -76,9 +81,10 @@ html_static_path = [ "_static" ]
 
 # -- Autodoc Configuration ---------------------------------------------------------------
 
-# The following two options seem to be ignored...
+nitpicky = True
+
 autodoc_typehints = "description"
-autodoc_type_aliases = { type_alias: f"{type_alias}" for type_alias in {
+autodoc_type_aliases = { k: k for k in {
     "Priv",
     "Seed",
     "Curve25519Pub",
@@ -87,6 +93,18 @@ autodoc_type_aliases = { type_alias: f"{type_alias}" for type_alias in {
     "Nonce",
     "SharedSecret"
 } }
+
+# https://github.com/sphinx-doc/sphinx/issues/10785
+def resolve_type_aliases(app, env, node, contnode):
+    """Resolve :class: references to our type aliases as :attr: instead."""
+    if (
+        node["refdomain"] == "py"
+        and node["reftype"] == "class"
+        and node["reftarget"] in autodoc_type_aliases
+    ):
+        return app.env.get_domain("py").resolve_xref(
+            env, node["refdoc"], app.builder, "attr", node["reftarget"], node, contnode
+        )
 
 def autodoc_skip_member_handler(app, what, name, obj, skip, options):
     # Skip private members, i.e. those that start with double underscores but do not end in underscores
@@ -101,3 +119,4 @@ def autodoc_skip_member_handler(app, what, name, obj, skip, options):
 
 def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
+    app.connect("missing-reference", resolve_type_aliases)

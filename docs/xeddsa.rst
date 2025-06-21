@@ -17,7 +17,32 @@ API
 
 .. automodule:: xeddsa.bindings
     :members:
+    :exclude-members: Priv, Seed, Curve25519Pub, Ed25519Pub, Ed25519Signature, Nonce, SharedSecret
     :private-members:
     :undoc-members:
     :member-order: bysource
     :show-inheritance:
+
+Type Aliases
+============
+
+.. autoclass:: xeddsa.bindings.Priv
+.. autoclass:: xeddsa.bindings.PRIV_SIZE
+
+.. autoclass:: xeddsa.bindings.Seed
+.. autoclass:: xeddsa.bindings.SEED_SIZE
+
+.. autoclass:: xeddsa.bindings.Curve25519Pub
+.. autoclass:: xeddsa.bindings.CURVE_25519_PUB_SIZE
+
+.. autoclass:: xeddsa.bindings.Ed25519Pub
+.. autoclass:: xeddsa.bindings.ED_25519_PUB_SIZE
+
+.. autoclass:: xeddsa.bindings.Ed25519Signature
+.. autoclass:: xeddsa.bindings.ED_25519_SIGNATURE_SIZE
+
+.. autoclass:: xeddsa.bindings.Nonce
+.. autoclass:: xeddsa.bindings.NONCE_SIZE
+
+.. autoclass:: xeddsa.bindings.SharedSecret
+.. autoclass:: xeddsa.bindings.SHARED_SECRET_SIZE
