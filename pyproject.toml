@@ -40,7 +40,8 @@ classifiers = [
 version = { attr = "xeddsa.version.__version__" }
 
 [tool.setuptools.packages.find]
-exclude = [ "tests" ]
+include = [ "xeddsa", "xeddsa.*" ]
+namespaces = false
 
 [project.optional-dependencies]
 docs = [
