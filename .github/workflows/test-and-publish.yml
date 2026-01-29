@@ -97,6 +97,7 @@ jobs:
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          CIBW_ENABLE: pypy
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
           CIBW_BEFORE_ALL_LINUX: yum install -y libsodium-devel && cp libxeddsa.a /usr/local/lib/
@@ -122,6 +123,7 @@ jobs:
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          CIBW_ENABLE: pypy
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: "*-musllinux_*"
           CIBW_BEFORE_ALL_LINUX: |
@@ -164,6 +166,7 @@ jobs:
       - name: Build amd64 wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          CIBW_ENABLE: pypy
           CIBW_ARCHS_MACOS: x86_64
           LIBRARY_PATH: /opt/homebrew/lib
         if: matrix.arch == 'amd64'
@@ -171,6 +174,7 @@ jobs:
       - name: Build arm64 wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          CIBW_ENABLE: pypy
           CIBW_ARCHS_MACOS: arm64
           LIBRARY_PATH: /opt/homebrew/lib
           MACOSX_DEPLOYMENT_TARGET: 14
@@ -199,6 +203,7 @@ jobs:
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          CIBW_ENABLE: pypy
           CIBW_ARCHS_WINDOWS: auto64
           CIBW_SKIP: pp39-win_amd64
 
