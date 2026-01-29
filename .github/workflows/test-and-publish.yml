@@ -154,15 +154,6 @@ jobs:
         run: |
           curl -L -o /opt/homebrew/lib/libxeddsa.a https://github.com/Syndace/libxeddsa/releases/download/v2.0.1/libxeddsa-macos-${{ matrix.arch }}.a
 
-      - name: Install arm64 version of libsodium
-        run: |
-          brew uninstall --ignore-dependencies libsodium
-          brew fetch --force --bottle-tag=arm64_sonoma libsodium | tee brew_output
-          downloaded_to=$(grep "Downloaded to" brew_output | tail -n 1)
-          downloaded_to_split=($downloaded_to)
-          brew install ${downloaded_to_split[2]}
-        if: matrix.arch == 'arm64'
-
       - name: Build amd64 wheels using cibuildwheel
         uses: pypa/cibuildwheel@v2.23.3
         env:
@@ -177,7 +168,7 @@ jobs:
           CIBW_ENABLE: pypy
           CIBW_ARCHS_MACOS: arm64
           LIBRARY_PATH: /opt/homebrew/lib
-          MACOSX_DEPLOYMENT_TARGET: 14
+          MACOSX_DEPLOYMENT_TARGET: 15
         if: matrix.arch == 'arm64'
 
       - uses: actions/upload-artifact@v4
